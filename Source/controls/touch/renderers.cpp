@@ -1,4 +1,7 @@
 #include "controls/touch/renderers.h"
+
+#ifndef USE_SDL1
+
 #include "control.h"
 #include "cursor.h"
 #include "diablo.h"
@@ -531,3 +534,5 @@ void FreeVirtualGamepadGFX()
 }
 
 } // namespace devilution
+
+#endif

@@ -8,6 +8,7 @@
 #include <climits>
 
 #include "control.h"
+#include "controls/plrctrls.h"
 #include "cursor.h"
 #include "dead.h"
 #ifdef _DEBUG
@@ -2448,7 +2449,7 @@ void AddHealOther(Missile &missile, Point /*dst*/, Direction /*midir*/)
 	UseMana(missile._misource, SPL_HEALOTHER);
 	if (missile._misource == MyPlayerId) {
 		NewCursor(CURSOR_HEALOTHER);
-		if (sgbControllerActive)
+		if (ControlMode != ControlTypes::KeyboardAndMouse)
 			TryIconCurs();
 	}
 }
@@ -2484,7 +2485,7 @@ void AddIdentify(Missile &missile, Point /*dst*/, Direction /*midir*/)
 			sbookflag = false;
 		if (!invflag) {
 			invflag = true;
-			if (sgbControllerActive)
+			if (ControlMode != ControlTypes::KeyboardAndMouse)
 				FocusOnInventory();
 		}
 		NewCursor(CURSOR_IDENTIFY);
@@ -2581,7 +2582,7 @@ void AddRepair(Missile &missile, Point /*dst*/, Direction /*midir*/)
 			sbookflag = false;
 		if (!invflag) {
 			invflag = true;
-			if (sgbControllerActive)
+			if (ControlMode != ControlTypes::KeyboardAndMouse)
 				FocusOnInventory();
 		}
 		NewCursor(CURSOR_REPAIR);
@@ -2597,7 +2598,7 @@ void AddRecharge(Missile &missile, Point /*dst*/, Direction /*midir*/)
 			sbookflag = false;
 		if (!invflag) {
 			invflag = true;
-			if (sgbControllerActive)
+			if (ControlMode != ControlTypes::KeyboardAndMouse)
 				FocusOnInventory();
 		}
 		NewCursor(CURSOR_RECHARGE);
@@ -2610,7 +2611,7 @@ void AddDisarm(Missile &missile, Point /*dst*/, Direction /*midir*/)
 	UseMana(missile._misource, SPL_DISARM);
 	if (missile._misource == MyPlayerId) {
 		NewCursor(CURSOR_DISARM);
-		if (sgbControllerActive) {
+		if (ControlMode != ControlTypes::KeyboardAndMouse) {
 			if (pcursobj != -1)
 				NetSendCmdLocParam1(true, CMD_DISARMXY, cursPosition, pcursobj);
 			else
@@ -2707,7 +2708,7 @@ void AddResurrect(Missile &missile, Point /*dst*/, Direction /*midir*/)
 	UseMana(missile._misource, SPL_RESURRECT);
 	if (missile._misource == MyPlayerId) {
 		NewCursor(CURSOR_RESURRECT);
-		if (sgbControllerActive)
+		if (ControlMode != ControlTypes::KeyboardAndMouse)
 			TryIconCurs();
 	}
 	missile._miDelFlag = true;

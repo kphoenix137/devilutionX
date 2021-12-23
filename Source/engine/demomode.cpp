@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "controls/plrctrls.h"
 #include "demomode.h"
 #include "menu.h"
 #include "nthread.h"
@@ -203,6 +204,7 @@ bool FetchMessage(tagMSG *lpMsg)
 {
 	SDL_Event e;
 	if (SDL_PollEvent(&e) != 0) {
+		DetectInputMethod(e);
 		if (e.type == SDL_QUIT) {
 			lpMsg->message = DVL_WM_QUIT;
 			lpMsg->lParam = 0;

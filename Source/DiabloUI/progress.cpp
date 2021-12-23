@@ -3,6 +3,7 @@
 #include "DiabloUI/diabloui.h"
 #include "control.h"
 #include "controls/menu_controls.h"
+#include "controls/plrctrls.h"
 #include "dx.h"
 #include "hwcursor.hpp"
 #include "palette.h"
@@ -79,6 +80,7 @@ bool UiProgressDialog(const char *msg, int (*fnfunc)())
 		RenderPresent();
 
 		while (SDL_PollEvent(&event) != 0) {
+			DetectInputMethod(event);
 			switch (event.type) {
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:

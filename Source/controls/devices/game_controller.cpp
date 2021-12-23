@@ -13,9 +13,6 @@
 
 namespace devilution {
 
-// Defined in SourceX/controls/plctrls.cpp
-extern bool sgbControllerActive;
-
 std::vector<GameController> GameController::controllers_;
 
 ControllerButton GameController::ToControllerButton(const SDL_Event &event)
@@ -183,7 +180,6 @@ void GameController::Remove(SDL_JoystickID instanceId)
 		if (controller.instance_id_ != instanceId)
 			continue;
 		controllers_.erase(controllers_.begin() + i);
-		sgbControllerActive = !controllers_.empty();
 		return;
 	}
 	Log("Game controller not found with instance id: {}", instanceId);

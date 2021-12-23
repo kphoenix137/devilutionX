@@ -1,5 +1,7 @@
 #include <SDL.h>
 
+#ifndef USE_SDL1
+
 #include "control.h"
 #include "controls/touch/gamepad.h"
 #include "diablo.h"
@@ -256,3 +258,5 @@ void VirtualButton::Deactivate()
 }
 
 } // namespace devilution
+
+#endif

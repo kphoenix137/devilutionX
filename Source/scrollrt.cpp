@@ -6,6 +6,7 @@
 
 #include "DiabloUI/ui_flags.hpp"
 #include "automap.h"
+#include "controls/plrctrls.h"
 #include "controls/touch/renderers.h"
 #include "cursor.h"
 #include "dead.h"
@@ -251,9 +252,7 @@ void UndrawCursor(const Surface &out)
 
 bool ShouldShowCursor()
 {
-	if (!sgbControllerActive && !sgbTouchActive)
-		return true;
-	if (IsMovingMouseCursorWithController())
+	if (ControlMode == ControlTypes::KeyboardAndMouse)
 		return true;
 	if (pcurs == CURSOR_TELEPORT)
 		return true;
@@ -1279,12 +1278,10 @@ void DrawView(const Surface &out, Point startPosition)
 	} else if (QuestLogIsOpen) {
 		DrawQuestLog(out);
 	}
-#ifndef VIRTUAL_GAMEPAD
-	if (!chrflag && Players[MyPlayerId]._pStatPts != 0 && !spselflag
+	if (ControlMode != ControlTypes::VirtualGamepad && !chrflag && Players[MyPlayerId]._pStatPts != 0 && !spselflag
 	    && (!QuestLogIsOpen || !GetLeftPanel().Contains(GetMainPanel().position + Displacement { 0, -74 }))) {
 		DrawLevelUpIcon(out);
 	}
-#endif
 	if (ShowUniqueItemInfoBox) {
 		DrawUniqueInfo(out);
 	}

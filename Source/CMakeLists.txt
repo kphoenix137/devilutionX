@@ -81,6 +81,9 @@ set(libdevilutionx_SRCS
   controls/menu_controls.cpp
   controls/modifier_hints.cpp
   controls/plrctrls.cpp
+  controls/touch/event_handlers.cpp
+  controls/touch/gamepad.cpp
+  controls/touch/renderers.cpp
   engine/animationinfo.cpp
   engine/demomode.cpp
   engine/load_cel.cpp
@@ -175,13 +178,6 @@ if(NOT NONET)
       dvlnet/zerotier_native.cpp
       dvlnet/zerotier_lwip.cpp)
   endif()
-endif()
-
-if(VIRTUAL_GAMEPAD)
-  list(APPEND libdevilutionx_SRCS
-    controls/touch/event_handlers.cpp
-    controls/touch/gamepad.cpp
-    controls/touch/renderers.cpp)
 endif()
 
 if(DISCORD_INTEGRATION)

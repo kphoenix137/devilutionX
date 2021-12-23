@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef VIRTUAL_GAMEPAD
+#ifndef USE_SDL1
 
 #include <SDL.h>
 
