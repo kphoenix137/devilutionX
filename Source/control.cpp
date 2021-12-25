@@ -123,6 +123,12 @@ std::optional<CelSprite> pDurIcons;
 std::optional<CelSprite> multiButtons;
 std::optional<CelSprite> pPanelButtons;
 std::optional<CelSprite> pGBoxBuff;
+std::optional<CelSprite> warrIco;
+std::optional<CelSprite> rogueIco;
+std::optional<CelSprite> sorcIco;
+std::optional<CelSprite> monkIco;
+std::optional<CelSprite> bardIco;
+std::optional<CelSprite> barbIco;
 
 bool PanelButtons[8];
 int PanelButtonIndex;
@@ -547,6 +553,10 @@ void InitControlPan()
 	initialDropGoldIndex = 0;
 
 	CalculatePanelAreas();
+
+	warrIco = LoadCel("data\\partyicons\\warrico.cel", 44);
+	rogueIco = LoadCel("data\\partyicons\\rogueico.cel", 44);
+	sorcIco = LoadCel("data\\partyicons\\sorcico.cel", 44);
 }
 
 void DrawCtrlPan(const Surface &out)
@@ -1264,6 +1274,59 @@ void GoldDropNewText(string_view text)
 			}
 		}
 	}
+}
+
+void DrawParty(const Surface &out, int pnum)
+{
+	int slot = 0;
+	int nextcolumnicon;
+	int nextcolumntext;
+	int nextlifebar;
+	int textheight = 75;
+	int iconheight = 44 + 16;
+	int lifebarheight = 9;
+
+	slot = pnum;
+
+	if (Players[slot - 3]._pLevel < 1 && Players[slot - 2]._pLevel < 1 && Players[slot - 1]._pLevel < 1 && slot == 3) {
+		slot -= 3;
+	} else if (Players[slot - 2]._pLevel < 1 && Players[slot - 1]._pLevel < 1 && slot >= 2) {
+		slot -= 2;
+	} else if (Players[slot - 1]._pLevel < 1 && slot >= 1) {
+		slot -= 1;
+	}
+
+	nextcolumnicon = 32 + (slot * (44 + 32));
+	nextcolumntext = 32 + (slot * (44 + 32));
+	nextlifebar = 32 + (slot * (44 + 32));
+
+	/*switch (Players[pnum]._pClass) {
+	case HeroClass::Warrior:
+		pClass = *warrIco;
+		break;
+	case HeroClass::Rogue:
+		pClass = *rogueIco;
+		break;
+	case HeroClass::Sorcerer:
+		pClass = *sorcIco;
+		break;
+	//case HeroClass::Monk:
+		//pclass = *monkIco;
+		//break;
+	//case HeroClass::Bard:
+		//pclass = *bardIco;
+		//break;
+	//case HeroClass::Barbarian:
+		//pclass = *barbIco;
+		//break;
+	}*/
+
+	if (slot == 1 || slot == 3)
+		textheight += 15;
+
+	DrawString(out, Players[slot]._pName, Point { nextcolumntext, textheight }, UiFlags::ColorWhite);
+	CelDrawTo(out, { nextcolumnicon, iconheight }, *warrIco, 1);
+	//DrawIconLifeBar(nextlifebar, lifebarheight, slot);
 }
 
 } // namespace devilution

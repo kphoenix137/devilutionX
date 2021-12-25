@@ -179,6 +179,7 @@ bool control_presskeys(int vkey);
 void DiabloHotkeyMsg(uint32_t dwMsg);
 void CloseGoldDrop();
 void GoldDropNewText(string_view text);
+void DrawParty(const Surface &out, int pnum);
 extern Rectangle ChrBtnsRect[4];
 
 } // namespace devilution

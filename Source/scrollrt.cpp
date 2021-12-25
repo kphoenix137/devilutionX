@@ -1259,6 +1259,13 @@ void DrawView(const Surface &out, Point startPosition)
 	DrawMonsterHealthBar(out);
 	DrawItemNameLabels(out);
 
+	int slot;
+	for (slot = 0; slot < MAX_PLRS; slot++) {
+		if (Players[slot].plractive/* && partyiconflag*/) {
+			DrawParty(out, slot);
+		}
+	}
+
 	if (stextflag != STORE_NONE && !qtextflag)
 		DrawSText(out);
 	if (invflag) {
