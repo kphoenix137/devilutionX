@@ -1296,9 +1296,9 @@ void DrawParty(const Surface &out, int pnum)
 		slot -= 1;
 	}
 
-	nextcolumnicon = 32 + (slot * (44 + 32));
-	nextcolumntext = 32 + (slot * (44 + 32));
-	nextlifebar = 32 + (slot * (44 + 32));
+	nextcolumnicon = 67 + (slot * (44 + 64));
+	nextcolumntext = 16 + (slot * (44 + 32));
+	nextlifebar = 67 + (slot * (44 + 64));
 
 	/*switch (Players[pnum]._pClass) {
 	case HeroClass::Warrior:
@@ -1321,10 +1321,10 @@ void DrawParty(const Surface &out, int pnum)
 		//break;
 	}*/
 
-	if (slot == 1 || slot == 3)
+	if (slot == 2 || slot == 4)
 		textheight += 15;
 
-	DrawString(out, Players[slot]._pName, Point { nextcolumntext, textheight }, UiFlags::ColorWhite);
+	DrawString(out, Players[slot]._pName, Rectangle { { nextcolumntext, textheight }, { nextcolumntext + 128, textheight + 15 } }, UiFlags::ColorWhite | UiFlags::AlignCenter);
 	CelDrawTo(out, { nextcolumnicon, iconheight }, *warrIco, 1);
 	//DrawIconLifeBar(nextlifebar, lifebarheight, slot);
 }
