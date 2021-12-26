@@ -1271,7 +1271,7 @@ void GoldDropNewText(string_view text)
 	}
 }
 
-void DrawIconLifeBar(const Surface &out, int x, int y, int slot, int frameW)
+void DrawPartyLifebar(const Surface &out, int x, int y, int slot, int frameW)
 {
 	int PlrLifePct = (float(frameW) / Players[slot]._pMaxHP) * Players[slot]._pHitPoints;
 	uint8_t barColor = 0;
@@ -1332,18 +1332,16 @@ void DrawParty(const Surface &out, int pnum)
 	memcpy(reducedName, Players[slot]._pName, 7);
 
 	DrawString(out, reducedName, Rectangle { { textX, textY }, { textRectangleW, textH } }, UiFlags::ColorWhite | UiFlags::AlignCenter);
+	CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
 
 	switch (Players[slot]._pClass) {
 	case HeroClass::Warrior:
-		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
 		CelDrawTo(out, { iconX, iconY }, *partyIcons, 1);
 		break;
 	case HeroClass::Rogue:
-		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
 		CelDrawTo(out, { iconX, iconY }, *partyIcons, 2);
 		break;
 	case HeroClass::Sorcerer:
-		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
 		CelDrawTo(out, { iconX, iconY }, *partyIcons, 3);
 		break;
 	case HeroClass::Monk:
@@ -1360,7 +1358,7 @@ void DrawParty(const Surface &out, int pnum)
 		break;
 	}
 
-	DrawIconLifeBar(out, frameX, lifeY, slot, frameW);
+	DrawPartyLifebar(out, frameX, lifeY, slot, frameW);
 }
 
 } // namespace devilution
