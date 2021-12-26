@@ -123,12 +123,8 @@ std::optional<CelSprite> pDurIcons;
 std::optional<CelSprite> multiButtons;
 std::optional<CelSprite> pPanelButtons;
 std::optional<CelSprite> pGBoxBuff;
-std::optional<CelSprite> warrIco;
-std::optional<CelSprite> rogueIco;
-std::optional<CelSprite> sorcIco;
-std::optional<CelSprite> monkIco;
-std::optional<CelSprite> bardIco;
-std::optional<CelSprite> barbIco;
+std::optional<CelSprite> partyIcons;
+std::optional<CelSprite> partyFrame;
 
 bool PanelButtons[8];
 int PanelButtonIndex;
@@ -554,9 +550,8 @@ void InitControlPan()
 
 	CalculatePanelAreas();
 
-	warrIco = LoadCel("data\\partyicons\\warrico.cel", 44);
-	rogueIco = LoadCel("data\\partyicons\\rogueico.cel", 44);
-	sorcIco = LoadCel("data\\partyicons\\sorcico.cel", 44);
+	partyIcons = LoadCel("data\\partyicons.cel", 45);
+	partyFrame = LoadCel("data\\partyframe.cel", 51);
 }
 
 void DrawCtrlPan(const Surface &out)
@@ -1276,57 +1271,96 @@ void GoldDropNewText(string_view text)
 	}
 }
 
-void DrawParty(const Surface &out, int pnum)
+void DrawIconLifeBar(const Surface &out, int x, int y, int slot, int frameW)
 {
-	int slot = 0;
-	int nextcolumnicon;
-	int nextcolumntext;
-	int nextlifebar;
-	int textheight = 75;
-	int iconheight = 44 + 16;
-	int lifebarheight = 9;
+	int PlrLifePct = (float(frameW) / Players[slot]._pMaxHP) * Players[slot]._pHitPoints;
+	uint8_t barColor = 0;
+	int barH = 5;
 
-	slot = pnum;
-
-	if (Players[slot - 3]._pLevel < 1 && Players[slot - 2]._pLevel < 1 && Players[slot - 1]._pLevel < 1 && slot == 3) {
-		slot -= 3;
-	} else if (Players[slot - 2]._pLevel < 1 && Players[slot - 1]._pLevel < 1 && slot >= 2) {
-		slot -= 2;
-	} else if (Players[slot - 1]._pLevel < 1 && slot >= 1) {
-		slot -= 1;
+	for (int w = 0; w < frameW; w++) {
+		DrawVerticalLine(out, { x + w, y }, 5, barColor);
 	}
 
-	nextcolumnicon = 67 + (slot * (44 + 64));
-	nextcolumntext = 16 + (slot * (44 + 32));
-	nextlifebar = 67 + (slot * (44 + 64));
+	if (Players[slot]._pHitPoints <= 0) {
+		barColor = 0;
+	} else if (Players[slot]._pHitPoints < (Players[slot]._pMaxHP / 10)) {
+		barColor = PAL8_RED + 3;
+	} else if (Players[slot]._pHitPoints < (Players[slot]._pMaxHP / 2)) {
+		barColor = PAL8_YELLOW + 2;
+	} else {
+		barColor = PAL16_GRAY;
+	}
 
-	/*switch (Players[pnum]._pClass) {
+	for (int i = 0; i < PlrLifePct; i++) {
+		DrawVerticalLine(out, { x + i, y }, barH, barColor);
+	}
+}
+
+void DrawParty(const Surface &out, int pnum)
+{
+	int slot = pnum;
+
+	//if (!Players[pnum - 1].plractive && pnum > 0)
+		//slot--;
+
+	int xPadding = 10;
+
+	int frameX = 12;
+	int frameY = 64;
+	int frameW = 51;
+	int frameH = 44;
+
+	int iconX = frameX + 3;
+	int iconY = frameY - 3;
+	int iconW = frameW - 6;
+	int iconH = frameH - 6;
+
+	iconX += slot * (frameW + xPadding);
+	frameX += slot * (frameW + xPadding);
+
+	int textX = frameX - xPadding + 5;
+	int textY = 66;
+	int textH = 15;
+	int textRectangleW = frameW + xPadding;
+
+	int lifeY = 15;
+
+	if (slot == 1 || slot == 3)
+		textY += textH;
+
+	char reducedName[8];
+	memcpy(reducedName, Players[slot]._pName, 7);
+
+	DrawString(out, reducedName, Rectangle { { textX, textY }, { textRectangleW, textH } }, UiFlags::ColorWhite | UiFlags::AlignCenter);
+
+	switch (Players[slot]._pClass) {
 	case HeroClass::Warrior:
-		pClass = *warrIco;
+		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
+		CelDrawTo(out, { iconX, iconY }, *partyIcons, 1);
 		break;
 	case HeroClass::Rogue:
-		pClass = *rogueIco;
+		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
+		CelDrawTo(out, { iconX, iconY }, *partyIcons, 2);
 		break;
 	case HeroClass::Sorcerer:
-		pClass = *sorcIco;
+		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
+		CelDrawTo(out, { iconX, iconY }, *partyIcons, 3);
 		break;
-	//case HeroClass::Monk:
-		//pclass = *monkIco;
-		//break;
-	//case HeroClass::Bard:
-		//pclass = *bardIco;
-		//break;
-	//case HeroClass::Barbarian:
-		//pclass = *barbIco;
-		//break;
-	}*/
+	case HeroClass::Monk:
+		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
+		CelDrawTo(out, { iconX, iconY }, *partyIcons, 4);
+		break;
+	case HeroClass::Bard:
+		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
+		CelDrawTo(out, { iconX, iconY }, *partyIcons, 2);
+		break;
+	case HeroClass::Barbarian:
+		CelDrawTo(out, { frameX, frameY }, *partyFrame, 1);
+		CelDrawTo(out, { iconX, iconY }, *partyIcons, 1);
+		break;
+	}
 
-	if (slot == 2 || slot == 4)
-		textheight += 15;
-
-	DrawString(out, Players[slot]._pName, Rectangle { { nextcolumntext, textheight }, { nextcolumntext + 128, textheight + 15 } }, UiFlags::ColorWhite | UiFlags::AlignCenter);
-	CelDrawTo(out, { nextcolumnicon, iconheight }, *warrIco, 1);
-	//DrawIconLifeBar(nextlifebar, lifebarheight, slot);
+	DrawIconLifeBar(out, frameX, lifeY, slot, frameW);
 }
 
 } // namespace devilution
