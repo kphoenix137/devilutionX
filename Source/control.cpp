@@ -85,6 +85,7 @@ bool spselflag;
 Rectangle MainPanel;
 Rectangle LeftPanel;
 Rectangle RightPanel;
+Rectangle MiniPanel;
 std::optional<OwnedSurface> pBtmBuff;
 OptionalOwnedClxSpriteList pGBoxBuff;
 
@@ -119,16 +120,29 @@ Rectangle ChrBtnsRect[4] = {
 };
 
 /** Positions of panel buttons. */
-SDL_Rect PanBtnPos[8] = {
+int8_t panBtnX = 0;
+int8_t panBtnY = 0;
+int8_t panBtnSpacing = 21;
+int8_t panBtnW = 20;
+int8_t panBtnH = 20;
+int8_t expandPanelBtnX = 95; // relative to minipanel
+int8_t expandPanelBtnY = 28; // relative to minipanel
+int8_t expandPanelBtnW = 26;
+int8_t expandPanelBtnH = 16;
+
+SDL_Rect PanBtnPos[11] = {
 	// clang-format off
-	{   9,   9, 71, 19 }, // char button
-	{   9,  35, 71, 19 }, // quests button
-	{   9,  75, 71, 19 }, // map button
-	{   9, 101, 71, 19 }, // menu button
-	{ 560,   9, 71, 19 }, // inv button
-	{ 560,  35, 71, 19 }, // spells button
-	{  87,  91, 33, 32 }, // chat button
-	{ 527,  91, 33, 32 }, // friendly fire button
+	{ expandPanelBtnX, expandPanelBtnY, expandPanelBtnW, expandPanelBtnH }, // expand minipanel
+	{ panBtnX + (panBtnSpacing * 0),  panBtnY, panBtnW, panBtnH }, // char button
+	{ panBtnX + (panBtnSpacing * 1),  panBtnY, panBtnW, panBtnH }, // inv button
+	{ panBtnX + (panBtnSpacing * 2),  panBtnY, panBtnW, panBtnH }, // stash button
+	{ panBtnX + (panBtnSpacing * 3),  panBtnY, panBtnW, panBtnH }, // spells button
+	{ panBtnX + (panBtnSpacing * 4),  panBtnY, panBtnW, panBtnH }, // party button
+	{ panBtnX + (panBtnSpacing * 5),  panBtnY, panBtnW, panBtnH }, // beastiary button
+	{ panBtnX + (panBtnSpacing * 6),  panBtnY, panBtnW, panBtnH }, // map button
+	{ panBtnX + (panBtnSpacing * 7),  panBtnY, panBtnW, panBtnH }, // chat button
+	{ panBtnX + (panBtnSpacing * 8),  panBtnY, panBtnW, panBtnH }, // quests button
+	{ panBtnX + (panBtnSpacing * 9),  panBtnY, panBtnW, panBtnH }, // menu button
 	// clang-format on
 };
 
@@ -141,7 +155,7 @@ OptionalOwnedClxSpriteList pDurIcons;
 OptionalOwnedClxSpriteList multiButtons;
 OptionalOwnedClxSpriteList pPanelButtons;
 
-bool PanelButtons[8];
+bool PanelButtons[11];
 int PanelButtonIndex;
 char TalkSave[8][MAX_SEND_STR_LEN];
 uint8_t TalkSaveIndex;
@@ -153,27 +167,32 @@ bool WhisperList[MAX_PLRS];
 
 enum panel_button_id : uint8_t {
 	PanelButtonCharinfo,
-	PanelButtonQlog,
-	PanelButtonAutomap,
-	PanelButtonMainmenu,
 	PanelButtonInventory,
+	PanelButtonStash,
 	PanelButtonSpellbook,
+	PanelButtonParty,
+	PanelButtonBeastiary,
+	PanelButtonAutomap,
 	PanelButtonSendmsg,
-	PanelButtonFriendly,
+	PanelButtonQlog,
+	PanelButtonMainmenu,
 };
 
 /** Maps from panel_button_id to hotkey name. */
-const char *const PanBtnHotKey[8] = { "'c'", "'q'", N_("Tab"), N_("Esc"), "'i'", "'b'", N_("Enter"), nullptr };
+const char *const PanBtnHotKey[11] = { "", "'c'", "'i'", "'x'", "'b'", "'p'", "'m'", N_("Tab"), N_("Enter"), "'q'", N_("Esc")};
 /** Maps from panel_button_id to panel button description. */
-const char *const PanBtnStr[8] = {
+const char *const PanBtnStr[11] = {
+	N_("Expand Mini-Panel"),
 	N_("Character Information"),
-	N_("Quests log"),
-	N_("Automap"),
-	N_("Main Menu"),
 	N_("Inventory"),
+	N_("Stash"),
 	N_("Spell book"),
-	N_("Send Message"),
-	"" // Player attack
+	N_("Party"),
+	N_("Beastiary"),
+	N_("Automap"),
+	N_("Chat"),
+	N_("Quests log"),
+	N_("Main Menu"),
 };
 
 /**
@@ -203,7 +222,7 @@ void DrawFlaskTop(const Surface &out, Point position, const Surface &celBuf, int
  */
 void DrawFlask(const Surface &out, const Surface &celBuf, Point sourcePosition, Point targetPosition, int h)
 {
-	constexpr int FlaskWidth = 59;
+	constexpr int FlaskWidth = 118;
 	out.BlitFromSkipColorIndexZero(celBuf, MakeSdlRect(sourcePosition.x, sourcePosition.y, FlaskWidth, h), targetPosition);
 }
 
@@ -218,7 +237,7 @@ void DrawFlask(const Surface &out, const Surface &celBuf, Point sourcePosition, 
 void DrawFlaskUpper(const Surface &out, const Surface &sourceBuffer, int offset, int fillPer)
 {
 	// clamping because this function only draws the top 12% of the flask display
-	int emptyPortion = clamp(80 - fillPer, 0, 11) + 2; // +2 to account for the frame being included in the sprite
+	int emptyPortion = clamp(80 - fillPer, 0, 67) + 2; // +2 to account for the frame being included in the sprite
 
 	// Draw the empty part of the flask
 	DrawFlask(out, sourceBuffer, { 13, 3 }, GetMainPanel().position + Displacement { offset, -13 }, emptyPortion);
@@ -237,7 +256,7 @@ void DrawFlaskUpper(const Surface &out, const Surface &sourceBuffer, int offset,
  */
 void DrawFlaskLower(const Surface &out, const Surface &sourceBuffer, int offset, int fillPer)
 {
-	int filled = clamp(fillPer, 0, 69);
+	int filled = clamp(fillPer, 0, 13);
 
 	if (filled < 69)
 		DrawFlaskTop(out, GetMainPanel().position + Displacement { offset, 0 }, sourceBuffer, 16, 85 - filled);
@@ -595,14 +614,14 @@ void DrawPanelBox(const Surface &out, SDL_Rect srcRect, Point targetPosition)
 
 void DrawLifeFlaskUpper(const Surface &out)
 {
-	constexpr int LifeFlaskUpperOffset = 109;
-	DrawFlaskUpper(out, *pLifeBuff, LifeFlaskUpperOffset, MyPlayer->_pHPPer);
+	constexpr int LifeFlaskUpperOffset = 96 - 19 + 4;
+	DrawFlaskUpper(out, *pLifeBuff, LifeFlaskUpperOffset, Players[MyPlayerId]._pHPPer);
 }
 
 void DrawManaFlaskUpper(const Surface &out)
 {
-	constexpr int ManaFlaskUpperOffset = 475;
-	DrawFlaskUpper(out, *pManaBuff, ManaFlaskUpperOffset, MyPlayer->_pManaPer);
+	constexpr int ManaFlaskUpperOffset = 464 - 19;
+	DrawFlaskUpper(out, *pManaBuff, ManaFlaskUpperOffset, Players[MyPlayerId]._pManaPer);
 }
 
 void DrawLifeFlaskLower(const Surface &out)
@@ -711,6 +730,7 @@ void InitControlPan()
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;
 	initialDropGoldIndex = 0;
+	panelBtnsOpen = false;
 
 	CalculatePanelAreas();
 
@@ -759,17 +779,20 @@ void DoPanBtn()
 	const Point mainPanelPosition = GetMainPanel().position;
 
 	for (int i = 0; i < PanelButtonIndex; i++) {
-		int x = PanBtnPos[i].x + mainPanelPosition.x + PanBtnPos[i].w;
-		int y = PanBtnPos[i].y + mainPanelPosition.y + PanBtnPos[i].h;
-		if (MousePosition.x >= PanBtnPos[i].x + mainPanelPosition.x && MousePosition.x <= x) {
-			if (MousePosition.y >= PanBtnPos[i].y + mainPanelPosition.y && MousePosition.y <= y) {
+		int x = PanBtnPos[i].x + miniPanelPosition.x + PanBtnPos[i].w;
+		int y = PanBtnPos[i].y + miniPanelPosition.y + PanBtnPos[i].h;
+		if (MousePosition.x >= PanBtnPos[i].x + miniPanelPosition.x && MousePosition.x <= x) {
+			if (MousePosition.y >= PanBtnPos[i].y + miniPanelPosition.y && MousePosition.y <= y) {
 				PanelButtons[i] = true;
 				drawbtnflag = true;
 				panbtndown = true;
 			}
 		}
+		if (!panelBtnsOpen)
+			continue;
 	}
-	if (!spselflag && MousePosition.x >= 565 + mainPanelPosition.x && MousePosition.x < 621 + mainPanelPosition.x && MousePosition.y >= 64 + mainPanelPosition.y && MousePosition.y < 120 + mainPanelPosition.y) {
+
+	if (!spselflag && MousePosition.x >= 565 + mainPanelPosition.x && MousePosition.x < 621 + mainPanelPosition.x && MousePosition.y >= 64 - 56 + mainPanelPosition.y && MousePosition.y < 120 - 56 + mainPanelPosition.y) {
 		if ((SDL_GetModState() & KMOD_SHIFT) != 0) {
 			Player &myPlayer = *MyPlayer;
 			myPlayer._pRSpell = SPL_INVALID;
@@ -789,17 +812,17 @@ void control_check_btn_press()
 	int y = PanBtnPos[3].y + mainPanelPosition.y + PanBtnPos[3].h;
 	if (MousePosition.x >= PanBtnPos[3].x + mainPanelPosition.x
 	    && MousePosition.x <= x
-	    && MousePosition.y >= PanBtnPos[3].y + mainPanelPosition.y
+	    && MousePosition.y >= PanBtnPos[10].y + mainPanelPosition.y
 	    && MousePosition.y <= y) {
-		SetButtonStateDown(3);
+		SetButtonStateDown(10);
 	}
-	x = PanBtnPos[6].x + mainPanelPosition.x + PanBtnPos[6].w;
-	y = PanBtnPos[6].y + mainPanelPosition.y + PanBtnPos[6].h;
-	if (MousePosition.x >= PanBtnPos[6].x + mainPanelPosition.x
+	x = PanBtnPos[8].x + mainPanelPosition.x + PanBtnPos[8].w;
+	y = PanBtnPos[8].y + mainPanelPosition.y + PanBtnPos[8].h;
+	if (MousePosition.x >= PanBtnPos[8].x + mainPanelPosition.x
 	    && MousePosition.x <= x
-	    && MousePosition.y >= PanBtnPos[6].y + mainPanelPosition.y
+	    && MousePosition.y >= PanBtnPos[8].y + mainPanelPosition.y
 	    && MousePosition.y <= y) {
-		SetButtonStateDown(6);
+		SetButtonStateDown(8);
 	}
 }
 
@@ -815,6 +838,7 @@ void CheckPanelInfo()
 {
 	panelflag = false;
 	const Point mainPanelPosition = GetMainPanel().position;
+
 	for (int i = 0; i < PanelButtonIndex; i++) {
 		int xend = PanBtnPos[i].x + mainPanelPosition.x + PanBtnPos[i].w;
 		int yend = PanBtnPos[i].y + mainPanelPosition.y + PanBtnPos[i].h;
@@ -868,7 +892,7 @@ void CheckPanelInfo()
 			}
 		}
 	}
-	if (MousePosition.x > 190 + mainPanelPosition.x && MousePosition.x < 437 + mainPanelPosition.x && MousePosition.y > 4 + mainPanelPosition.y && MousePosition.y < 33 + mainPanelPosition.y)
+	if (MousePosition.x > 190 + mainPanelPosition.x && MousePosition.x < 437 + mainPanelPosition.x && MousePosition.y > 4 + 17 + mainPanelPosition.y && MousePosition.y < 33 + 17 + mainPanelPosition.y)
 		pcursinvitem = CheckInvHLight();
 
 	if (CheckXPBarInfo()) {
@@ -884,21 +908,24 @@ void CheckBtnUp()
 	drawbtnflag = true;
 	panbtndown = false;
 
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 11; i++) {
 		if (!PanelButtons[i]) {
 			continue;
 		}
 
 		PanelButtons[i] = false;
 
-		if (MousePosition.x < PanBtnPos[i].x + mainPanelPosition.x
-		    || MousePosition.x > PanBtnPos[i].x + mainPanelPosition.x + PanBtnPos[i].w
-		    || MousePosition.y < PanBtnPos[i].y + mainPanelPosition.y
-		    || MousePosition.y > PanBtnPos[i].y + mainPanelPosition.y + PanBtnPos[i].h) {
+		if (MousePosition.x < PanBtnPos[i].x + miniPanelPosition.x
+		    || MousePosition.x > PanBtnPos[i].x + miniPanelPosition.x + PanBtnPos[i].w
+		    || MousePosition.y < PanBtnPos[i].y + miniPanelPosition.y
+		    || MousePosition.y > PanBtnPos[i].y + miniPanelPosition.y + PanBtnPos[i].h) {
 			continue;
 		}
 
 		switch (i) {
+		case PanelButtonExpand:
+			panelBtnsOpen = !panelBtnsOpen;
+			break;
 		case PanelButtonCharinfo:
 			QuestLogIsOpen = false;
 			CloseGoldWithdraw();
@@ -932,6 +959,19 @@ void CheckBtnUp()
 				dropGoldValue = 0;
 			}
 			break;
+		case PanelButtonStash:
+			chrflag = false;
+			QuestLogIsOpen = false;
+			//stashflag = !invstashflag;
+			if (dropGoldFlag) {
+				CloseGoldDrop();
+				dropGoldValue = 0;
+			}
+			//if (withdrawStashGold) {
+			//	CloseWithdrawStashGold();
+			//	withdrawStashGoldValue = 0;
+			//}
+			break;
 		case PanelButtonSpellbook:
 			CloseInventory();
 			if (dropGoldFlag) {
@@ -939,6 +979,13 @@ void CheckBtnUp()
 				dropGoldValue = 0;
 			}
 			sbookflag = !sbookflag;
+			break;
+		case PanelButtonParty:
+			break;
+		case PanelButtonBeastiary:
+			break;
+		case PanelButtonAutomap:
+			DoAutoMap();
 			break;
 		case PanelButtonSendmsg:
 			if (talkflag)
