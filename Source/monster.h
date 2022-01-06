@@ -64,6 +64,7 @@ enum class UniqueMonsterType : uint8_t {
 	Lachdan,
 	WarlordOfBlood,
 	Butcher,
+	Diablo,
 	HorkDemon,
 	Defiler,
 	NaKrul,
