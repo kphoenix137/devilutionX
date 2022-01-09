@@ -3988,6 +3988,14 @@ void PrintItemDetails(const Item &item)
 				strcpy(tempstr, fmt::format(_(/* TRANSLATORS: Dur: is durability */ "damage: {:d}-{:d}  Dur: {:d}/{:d}"), item._iMinDam, item._iMaxDam, item._iDurability, item._iMaxDur).c_str());
 		}
 		AddPanelString(tempstr);
+
+		if (item._itype == ItemType::Sword) {
+			strcpy(tempstr, fmt::format(_("+50% Damage to Animals")).c_str());
+			AddPanelString(tempstr);
+		} else if (item._itype == ItemType::Mace) {
+			strcpy(tempstr, fmt::format(_("+50% Damage to Undead")).c_str());
+			AddPanelString(tempstr);
+		}
 	}
 	if (item._iClass == ICLASS_ARMOR) {
 		if (item._iMaxDur == DUR_INDESTRUCTIBLE)
