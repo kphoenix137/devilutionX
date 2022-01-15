@@ -26,10 +26,7 @@
 
 namespace devilution {
 
-int ActiveMissiles[MAXMISSILES];
-int AvailableMissiles[MAXMISSILES];
-Missile Missiles[MAXMISSILES];
-int ActiveMissileCount;
+std::list<Missile> Missiles;
 bool MissilePreFlag;
 
 namespace {
@@ -959,14 +956,6 @@ Direction16 GetDirection16(Point p1, Point p2)
 	return ret;
 }
 
-void DeleteMissile(int i)
-{
-	AvailableMissiles[MAXMISSILES - ActiveMissileCount] = ActiveMissiles[i];
-	ActiveMissileCount--;
-	if (ActiveMissileCount > 0 && i != ActiveMissileCount)
-		ActiveMissiles[i] = ActiveMissiles[ActiveMissileCount];
-}
-
 bool MonsterTrapHit(int m, int mindam, int maxdam, int dist, missile_id t, bool shift)
 {
 	auto &monster = Monsters[m];
@@ -1194,9 +1183,7 @@ void InitMissiles()
 	AutoMapShowItems = false;
 	myPlayer._pSpellFlags &= ~0x1;
 	if (myPlayer._pInfraFlag) {
-		for (int i = 0; i < ActiveMissileCount; ++i) {
-			int mi = ActiveMissiles[i];
-			auto &missile = Missiles[mi];
+		for (auto &missile : Missiles) {
 			if (missile._mitype == MIS_INFRA) {
 				int src = missile._misource;
 				if (src == MyPlayerId)
@@ -1208,9 +1195,7 @@ void InitMissiles()
 	if ((myPlayer._pSpellFlags & 2) == 2 || (myPlayer._pSpellFlags & 4) == 4) {
 		myPlayer._pSpellFlags &= ~0x2;
 		myPlayer._pSpellFlags &= ~0x4;
-		for (int i = 0; i < ActiveMissileCount; ++i) {
-			int mi = ActiveMissiles[i];
-			auto &missile = Missiles[mi];
+		for (auto &missile : Missiles) {
 			if (missile._mitype == MIS_BLODBOIL) {
 				if (missile._misource == MyPlayerId) {
 					int missingHP = myPlayer._pMaxHP - myPlayer._pHitPoints;
@@ -1221,11 +1206,7 @@ void InitMissiles()
 		}
 	}
 
-	ActiveMissileCount = 0;
-	for (int i = 0; i < MAXMISSILES; i++) {
-		AvailableMissiles[i] = i;
-		ActiveMissiles[i] = 0;
-	}
+	Missiles.clear();
 	for (int j = 0; j < MAXDUNY; j++) {
 		for (int i = 0; i < MAXDUNX; i++) { // NOLINT(modernize-loop-convert)
 			dFlags[i][j] &= ~DungeonFlag::Missile;
@@ -1662,18 +1643,14 @@ void AddSearch(Missile &missile, const AddMissileParameter & /*parameter*/)
 	if (missile._micaster == TARGET_MONSTERS)
 		UseMana(missile._misource, SPL_SEARCH);
 
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		int mx = ActiveMissiles[i];
-		if (&Missiles[mx] != &missile) {
-			auto &other = Missiles[mx];
-			if (other._misource == missile._misource && other._mitype == MIS_SEARCH) {
-				int r1 = missile._mirange;
-				int r2 = other._mirange;
-				if (r2 < INT_MAX - r1)
-					other._mirange = r1 + r2;
-				missile._miDelFlag = true;
-				break;
-			}
+	for (auto &other : Missiles) {
+		if (&other != &missile && other._misource == missile._misource && other._mitype == MIS_SEARCH) {
+			int r1 = missile._mirange;
+			int r2 = other._mirange;
+			if (r2 < INT_MAX - r1)
+				other._mirange = r1 + r2;
+			missile._miDelFlag = true;
+			break;
 		}
 	}
 }
@@ -2041,9 +2018,7 @@ void AddTown(Missile &missile, const AddMissileParameter &parameter)
 
 	missile._mirange = 100;
 	missile.var1 = missile._mirange - missile._miAnimLen;
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		int mx = ActiveMissiles[i];
-		auto &other = Missiles[mx];
+	for (auto &other : Missiles) {
 		if (other._mitype == MIS_TOWN && &other != &missile && other._misource == missile._misource)
 			other._mirange = 0;
 	}
@@ -2334,9 +2309,7 @@ void AddGolem(Missile &missile, const AddMissileParameter &parameter)
 
 	int playerId = missile._misource;
 
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		int mx = ActiveMissiles[i];
-		auto &other = Missiles[mx];
+	for (auto &other : Missiles) {
 		if (other._mitype == MIS_GOLEM && &other != &missile && other._misource == playerId) {
 			return;
 		}
@@ -2722,17 +2695,12 @@ void AddDiabApoca(Missile &missile, const AddMissileParameter & /*parameter*/)
 	missile._miDelFlag = true;
 }
 
-int AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mienemy_type micaster, int id, int midam, int spllvl, Missile *pParent /*= nullptr*/)
+Missile &AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mienemy_type micaster, int id, int midam, int spllvl, Missile *pParent /*= nullptr*/)
 {
-	if (ActiveMissileCount >= MAXMISSILES - 1)
-		return -1;
+	constexpr int32_t MaxMissiles = std::numeric_limits<int32_t>::max();
 
-	int mi = AvailableMissiles[0];
-	auto &missile = Missiles[mi];
-
-	AvailableMissiles[0] = AvailableMissiles[MAXMISSILES - ActiveMissileCount - 1];
-	ActiveMissiles[ActiveMissileCount] = mi;
-	ActiveMissileCount++;
+	Missiles.emplace_back(Missile {});
+	auto &missile = Missiles.back();
 
 	memset(&missile, 0, sizeof(missile));
 
@@ -2763,7 +2731,7 @@ int AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mienemy
 	AddMissileParameter parameter = { dst, midir, pParent };
 	missileData.mAddProc(missile, parameter);
 
-	return mi;
+	return missile;
 }
 
 void MI_LArrow(Missile &missile)
@@ -4147,13 +4115,7 @@ void MI_Rportal(Missile &missile)
 
 static void DeleteMissiles()
 {
-	for (int i = 0; i < ActiveMissileCount;) {
-		if (Missiles[ActiveMissiles[i]]._miDelFlag) {
-			DeleteMissile(i);
-		} else {
-			i++;
-		}
-	}
+	Missiles.remove_if([](Missile &missile) { return missile._miDelFlag; });
 }
 
 void ProcessManaShield()
@@ -4167,8 +4129,7 @@ void ProcessManaShield()
 
 void ProcessMissiles()
 {
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		auto &missile = Missiles[ActiveMissiles[i]];
+	for (auto &missile : Missiles) {
 		const auto &position = missile.position.tile;
 		dFlags[position.x][position.y] &= ~DungeonFlag::Missile;
 		if (!InDungeonBounds(position))
@@ -4179,8 +4140,7 @@ void ProcessMissiles()
 
 	MissilePreFlag = false;
 
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		auto &missile = Missiles[ActiveMissiles[i]];
+	for (auto &missile : Missiles) {
 		if (MissilesData[missile._mitype].mProc != nullptr)
 			MissilesData[missile._mitype].mProc(missile);
 		if (missile._miAnimFlags == MissileDataFlags::NotAnimated)
@@ -4204,10 +4164,7 @@ void ProcessMissiles()
 
 void missiles_process_charge()
 {
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		int mi = ActiveMissiles[i];
-		auto &missile = Missiles[mi];
-
+	for (auto &missile : Missiles) {
 		missile._miAnimData = MissileSpriteData[missile._miAnimType].animData[missile._mimfnum].get();
 		if (missile._mitype != MIS_RHINO)
 			continue;
@@ -4228,8 +4185,7 @@ void missiles_process_charge()
 
 void RedoMissileFlags()
 {
-	for (int i = 0; i < ActiveMissileCount; i++) {
-		auto &missile = Missiles[ActiveMissiles[i]];
+	for (auto &missile : Missiles) {
 		PutMissile(missile);
 	}
 }
