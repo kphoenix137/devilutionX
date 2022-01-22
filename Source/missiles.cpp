@@ -2695,9 +2695,11 @@ void AddDiabApoca(Missile &missile, const AddMissileParameter & /*parameter*/)
 	missile._miDelFlag = true;
 }
 
-Missile &AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mienemy_type micaster, int id, int midam, int spllvl, Missile *pParent /*= nullptr*/)
+Missile *AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mienemy_type micaster, int id, int midam, int spllvl, Missile *pParent /*= nullptr*/)
 {
-	constexpr int32_t MaxMissiles = std::numeric_limits<int32_t>::max();
+	if (Missiles.size() >= Missiles.max_size()) {
+		return nullptr;
+	}
 
 	Missiles.emplace_back(Missile {});
 	auto &missile = Missiles.back();
@@ -2729,7 +2731,7 @@ Missile &AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mi
 	AddMissileParameter parameter = { dst, midir, pParent };
 	missileData.mAddProc(missile, parameter);
 
-	return missile;
+	return &missile;
 }
 
 void MI_LArrow(Missile &missile)
