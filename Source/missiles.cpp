@@ -2702,9 +2702,7 @@ Missile &AddMissile(Point src, Point dst, Direction midir, missile_id mitype, mi
 	Missiles.emplace_back(Missile {});
 	auto &missile = Missiles.back();
 
-	memset(&missile, 0, sizeof(missile));
-
-	auto &missileData = MissilesData[mitype];
+	const auto &missileData = MissilesData[mitype];
 
 	missile._mitype = mitype;
 	missile._micaster = micaster;
@@ -4131,9 +4129,11 @@ void ProcessMissiles()
 {
 	for (auto &missile : Missiles) {
 		const auto &position = missile.position.tile;
-		dFlags[position.x][position.y] &= ~DungeonFlag::Missile;
-		if (!InDungeonBounds(position))
+		if (InDungeonBounds(position)) {
+			dFlags[position.x][position.y] &= ~DungeonFlag::Missile;
+		} else {
 			missile._miDelFlag = true;
+		}
 	}
 
 	DeleteMissiles();
