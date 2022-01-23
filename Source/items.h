@@ -174,7 +174,7 @@ constexpr int ItemAnimWidth = 96;
 struct Item {
 	/** Randomly generated identifier */
 	int32_t _iSeed;
-	uint16_t _iCreateInfo;
+	uint32_t _iCreateInfo;
 	enum ItemType _itype;
 	Point position;
 	bool _iAnimFlag;
