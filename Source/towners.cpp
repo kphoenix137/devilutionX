@@ -621,7 +621,7 @@ void TalkToFarmer(Player &player, Towner &farmer)
 		break;
 	case QUEST_DONE:
 		InitQTextMsg(TEXT_FARMER4);
-		SpawnRewardItem(IDI_AURIC, farmer.position + Displacement { 1, 0 });
+		//SpawnRewardItem(IDI_AURIC, farmer.position + Displacement { 1, 0 });
 		quest._qactive = QUEST_HIVE_DONE;
 		quest._qlog = false;
 		if (gbIsMultiplayer)
@@ -632,129 +632,6 @@ void TalkToFarmer(Player &player, Towner &farmer)
 	default:
 		InitQTextMsg(TEXT_FARMER4);
 		break;
-	}
-}
-
-void TalkToCowFarmer(Player &player, Towner &cowFarmer)
-{
-	if (player.TryRemoveInvItemById(IDI_GREYSUIT)) {
-		InitQTextMsg(TEXT_JERSEY7);
-		return;
-	}
-
-	auto &quest = Quests[Q_JERSEY];
-
-	if (player.TryRemoveInvItemById(IDI_BROWNSUIT)) {
-		SpawnUnique(UITEM_BOVINE, cowFarmer.position + Direction::SouthEast);
-		InitQTextMsg(TEXT_JERSEY8);
-		quest._qactive = QUEST_DONE;
-		auto curFrame = cowFarmer._tAnimFrame;
-		LoadTownerAnimations(cowFarmer, "Towners\\Farmer\\mfrmrn2.CEL", 15, 3);
-		cowFarmer._tAnimFrame = std::min(curFrame, cowFarmer._tAnimLen);
-		return;
-	}
-
-	if (player.HasItem(IDI_RUNEBOMB)) {
-		InitQTextMsg(TEXT_JERSEY5);
-		quest._qactive = QUEST_ACTIVE;
-		quest._qvar1 = 1;
-		quest._qmsg = TEXT_JERSEY4;
-		quest._qlog = true;
-		return;
-	}
-
-	switch (quest._qactive) {
-	case QUEST_NOTAVAIL:
-	case QUEST_INIT:
-		InitQTextMsg(TEXT_JERSEY1);
-		quest._qactive = QUEST_HIVE_TEASE1;
-		if (gbIsMultiplayer)
-			NetSendCmdQuest(true, quest);
-		break;
-	case QUEST_ACTIVE:
-		InitQTextMsg(TEXT_JERSEY5);
-		break;
-	case QUEST_DONE:
-		InitQTextMsg(TEXT_JERSEY1);
-		break;
-	case QUEST_HIVE_TEASE1:
-		InitQTextMsg(TEXT_JERSEY2);
-		quest._qactive = QUEST_HIVE_TEASE2;
-		if (gbIsMultiplayer)
-			NetSendCmdQuest(true, quest);
-		break;
-	case QUEST_HIVE_TEASE2:
-		InitQTextMsg(TEXT_JERSEY3);
-		quest._qactive = QUEST_HIVE_ACTIVE;
-		if (gbIsMultiplayer)
-			NetSendCmdQuest(true, quest);
-		break;
-	case QUEST_HIVE_ACTIVE:
-		if (!player._pLvlVisited[9] && player._pLevel < 15) {
-			_speech_id qt = TEXT_JERSEY12;
-			switch (GenerateRnd(4)) {
-			case 0:
-				qt = TEXT_JERSEY9;
-				break;
-			case 1:
-				qt = TEXT_JERSEY10;
-				break;
-			case 2:
-				qt = TEXT_JERSEY11;
-				break;
-			}
-			InitQTextMsg(qt);
-			break;
-		}
-
-		InitQTextMsg(TEXT_JERSEY4);
-		quest._qactive = QUEST_ACTIVE;
-		quest._qvar1 = 1;
-		quest._qmsg = TEXT_JERSEY4;
-		quest._qlog = true;
-		SpawnRuneBomb(cowFarmer.position + Displacement { 1, 0 });
-		if (gbIsMultiplayer)
-			NetSendCmdQuest(true, quest);
-		break;
-	default:
-		InitQTextMsg(TEXT_JERSEY5);
-		break;
-	}
-}
-
-void TalkToGirl(Player &player, Towner &girl)
-{
-	auto &quest = Quests[Q_GIRL];
-
-	if (quest._qactive != QUEST_DONE && player.TryRemoveInvItemById(IDI_THEODORE)) {
-		InitQTextMsg(TEXT_GIRL4);
-		CreateAmulet(girl.position, 13, false, true);
-		quest._qlog = false;
-		quest._qactive = QUEST_DONE;
-		auto curFrame = girl._tAnimFrame;
-		LoadTownerAnimations(girl, "Towners\\Girl\\Girls1.CEL", 20, 6);
-		girl._tAnimFrame = std::min(curFrame, girl._tAnimLen);
-		if (gbIsMultiplayer)
-			NetSendCmdQuest(true, quest);
-		return;
-	}
-
-	switch (quest._qactive) {
-	case QUEST_NOTAVAIL:
-	case QUEST_INIT:
-		InitQTextMsg(TEXT_GIRL2);
-		quest._qactive = QUEST_ACTIVE;
-		quest._qvar1 = 1;
-		quest._qlog = true;
-		quest._qmsg = TEXT_GIRL2;
-		if (gbIsMultiplayer)
-			NetSendCmdQuest(true, quest);
-		return;
-	case QUEST_ACTIVE:
-		InitQTextMsg(TEXT_GIRL3);
-		return;
-	default:
-		return;
 	}
 }
 
@@ -773,9 +650,7 @@ const TownerData TownersData[] = {
 	{ TOWN_COW,     { 58, 16 }, Direction::SouthWest, InitCows,      TalkToCow         },
 	{ TOWN_COW,     { 56, 14 }, Direction::NorthWest, InitCows,      TalkToCow         },
 	{ TOWN_COW,     { 59, 20 }, Direction::North,     InitCows,      TalkToCow         },
-	{ TOWN_COWFARM, { 61, 22 }, Direction::SouthWest, InitCowFarmer, TalkToCowFarmer   },
 	{ TOWN_FARMER,  { 62, 16 }, Direction::South,     InitFarmer,    TalkToFarmer      },
-	{ TOWN_GIRL,    { 77, 43 }, Direction::South,     InitGirl,      TalkToGirl        },
 	// clang-format on
 };
 

@@ -461,7 +461,6 @@ void SpawnQuestItem(int itemid, Point position, int randarea, int selflag);
 void SpawnRewardItem(int itemid, Point position);
 void SpawnMapOfDoom(Point position);
 void SpawnRuneBomb(Point position);
-void SpawnTheodore(Point position);
 void RespawnItem(Item *item, bool FlipFlag);
 void DeleteItem(int i);
 void ProcessItems();

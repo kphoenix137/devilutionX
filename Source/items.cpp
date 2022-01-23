@@ -446,26 +446,6 @@ void AddInitItems()
 	}
 }
 
-void SpawnNote()
-{
-	int id;
-
-	switch (currlevel) {
-	case 22:
-		id = IDI_NOTE2;
-		break;
-	case 23:
-		id = IDI_NOTE3;
-		break;
-	default:
-		id = IDI_NOTE1;
-		break;
-	}
-
-	Point position = GetRandomAvailableItemPosition();
-	SpawnQuestItem(id, position, 0, 1);
-}
-
 void CalcSelfItems(Player &player)
 {
 	int sa = 0;
@@ -1590,40 +1570,14 @@ void SetupAllUseful(Item &item, int iseed, int lvl)
 	item._iSeed = iseed;
 	SetRndSeed(iseed);
 
-	if (gbIsHellfire) {
-		idx = GenerateRnd(7);
-		switch (idx) {
-		case 0:
-			idx = IDI_PORTAL;
-			if ((lvl <= 1))
-				idx = IDI_HEAL;
-			break;
-		case 1:
-		case 2:
-			idx = IDI_HEAL;
-			break;
-		case 3:
-			idx = IDI_PORTAL;
-			if ((lvl <= 1))
-				idx = IDI_MANA;
-			break;
-		case 4:
-		case 5:
-			idx = IDI_MANA;
-			break;
-		default:
-			idx = IDI_OIL;
-			break;
-		}
-	} else {
-		if (GenerateRnd(2) != 0)
-			idx = IDI_HEAL;
-		else
-			idx = IDI_MANA;
+	if (GenerateRnd(2) != 0)
+		idx = IDI_HEAL;
+	else
+		idx = IDI_MANA;
 
-		if (lvl > 1 && GenerateRnd(3) == 0)
-			idx = IDI_PORTAL;
-	}
+	if (lvl > 1 && GenerateRnd(3) == 0)
+		idx = IDI_PORTAL;
+
 
 	GetItemAttrs(item, idx, lvl);
 	item._iCreateInfo = lvl | CF_USEFUL;
@@ -2438,30 +2392,6 @@ bool IsItemAvailable(int i)
 {
 	if (i < 0 || i > IDI_LAST)
 		return false;
-
-	if (gbIsSpawn) {
-		if (i >= 62 && i <= 71)
-			return false; // Medium and heavy armors
-		if (IsAnyOf(i, 105, 107, 108, 110, 111, 113))
-			return false; // Unavailable scrolls
-	}
-
-	if (gbIsHellfire)
-		return true;
-
-	return (
-	           i != IDI_MAPOFDOOM                   // Cathedral Map
-	           && i != IDI_LGTFORGE                 // Bovine Plate
-	           && (i < IDI_OIL || i > IDI_GREYSUIT) // Hellfire exclusive items
-	           && (i < 83 || i > 86)                // Oils
-	           && i != 92                           // Scroll of Search
-	           && (i < 161 || i > 165)              // Runes
-	           && i != IDI_SORCERER                 // Short Staff of Mana
-	           )
-	    || (
-	        // Bard items are technically Hellfire-exclusive
-	        // but are just normal items with adjusted stats.
-	        *sgOptions.Gameplay.testBard && IsAnyOf(i, IDI_BARDSWORD, IDI_BARDDAGGER));
 }
 
 BYTE GetOutlineColor(const Item &item, bool checkReq)
@@ -2521,14 +2451,8 @@ void InitItems()
 			SpawnRock();
 		if (Quests[Q_ANVIL].IsAvailable())
 			SpawnQuestItem(IDI_ANVIL, { 2 * setpc_x + 27, 2 * setpc_y + 27 }, 0, 1);
-		if (sgGameInitInfo.bCowQuest != 0 && currlevel == 20)
-			SpawnQuestItem(IDI_BROWNSUIT, { 25, 25 }, 3, 1);
-		if (sgGameInitInfo.bCowQuest != 0 && currlevel == 19)
-			SpawnQuestItem(IDI_GREYSUIT, { 25, 25 }, 3, 1);
 		if (currlevel > 0 && currlevel < 16)
 			AddInitItems();
-		if (currlevel >= 21 && currlevel <= 23)
-			SpawnNote();
 	}
 
 	ShowUniqueItemInfoBox = false;
@@ -2885,15 +2809,7 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 		player._pgfxnum = gfxNum;
 	}
 
-	if (player.InvBody[INVLOC_AMULET].isEmpty() || player.InvBody[INVLOC_AMULET].IDidx != IDI_AURIC) {
-		int half = MaxGold;
-		MaxGold = GOLD_MAX_LIMIT;
-
-		if (half != MaxGold)
-			StripTopGold(player);
-	} else {
-		MaxGold = GOLD_MAX_LIMIT * 2;
-	}
+	//MaxGold = GOLD_MAX_LIMIT;
 
 	drawmanaflag = true;
 	drawhpflag = true;
@@ -3059,7 +2975,7 @@ void CreatePlrItems(int playerId)
 		break;
 
 	case HeroClass::Monk:
-		SetPlrHandItem(player.InvBody[INVLOC_HAND_LEFT], IDI_SHORTSTAFF);
+		SetPlrHandItem(player.InvBody[INVLOC_HAND_LEFT], IDI_MONK);
 		GetPlrHandSeed(&player.InvBody[INVLOC_HAND_LEFT]);
 		SetPlrHandItem(player.SpdList[0], IDI_HEAL);
 		GetPlrHandSeed(&player.SpdList[0]);
@@ -3068,10 +2984,10 @@ void CreatePlrItems(int playerId)
 		GetPlrHandSeed(&player.SpdList[1]);
 		break;
 	case HeroClass::Bard:
-		SetPlrHandItem(player.InvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
+		//SetPlrHandItem(player.InvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
 		GetPlrHandSeed(&player.InvBody[INVLOC_HAND_LEFT]);
 
-		SetPlrHandItem(player.InvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
+		//SetPlrHandItem(player.InvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
 		GetPlrHandSeed(&player.InvBody[INVLOC_HAND_RIGHT]);
 		SetPlrHandItem(player.SpdList[0], IDI_HEAL);
 		GetPlrHandSeed(&player.SpdList[0]);
@@ -3562,11 +3478,6 @@ void SpawnMapOfDoom(Point position)
 void SpawnRuneBomb(Point position)
 {
 	SpawnRewardItem(IDI_RUNEBOMB, position);
-}
-
-void SpawnTheodore(Point position)
-{
-	SpawnRewardItem(IDI_THEODORE, position);
 }
 
 void RespawnItem(Item *item, bool flipFlag)

@@ -42,9 +42,6 @@ void PackItem(ItemPack &packedItem, const Item &item)
 		packedItem.idx = 0xFFFF;
 	} else {
 		auto idx = item.IDidx;
-		if (!gbIsHellfire) {
-			idx = RemapItemIdxToDiablo(idx);
-		}
 		if (gbIsSpawn) {
 			idx = RemapItemIdxToSpawn(idx);
 		}
@@ -142,9 +139,6 @@ void UnPackItem(const ItemPack &packedItem, Item &item, bool isHellfire)
 
 	if (gbIsSpawn) {
 		idx = RemapItemIdxFromSpawn(idx);
-	}
-	if (!isHellfire) {
-		idx = RemapItemIdxFromDiablo(idx);
 	}
 
 	if (!IsItemAvailable(idx)) {

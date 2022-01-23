@@ -287,9 +287,6 @@ void LoadItemData(LoadHelper &file, Item &item)
 	if (gbIsSpawn) {
 		item.IDidx = RemapItemIdxFromSpawn(item.IDidx);
 	}
-	if (!gbIsHellfireSaveGame) {
-		item.IDidx = RemapItemIdxFromDiablo(item.IDidx);
-	}
 	item.dwBuff = file.NextLE<uint32_t>();
 	if (gbIsHellfireSaveGame)
 		item._iDamAcFlags = file.NextLE<uint32_t>();
@@ -930,8 +927,6 @@ void RemoveEmptyLevelItems()
 void SaveItem(SaveHelper &file, const Item &item)
 {
 	auto idx = item.IDidx;
-	if (!gbIsHellfire)
-		idx = RemapItemIdxToDiablo(idx);
 	if (gbIsSpawn)
 		idx = RemapItemIdxToSpawn(idx);
 	ItemType iType = item._itype;
@@ -1548,50 +1543,6 @@ void RemoveInvalidItem(Item &item)
 	if (isInvalid) {
 		item._itype = ItemType::None;
 	}
-}
-
-_item_indexes RemapItemIdxFromDiablo(_item_indexes i)
-{
-	constexpr auto GetItemIdValue = [](int i) -> int {
-		if (i == IDI_SORCERER) {
-			return IDI_SORCERER_DIABLO;
-		}
-		if (i >= 156) {
-			i += 5; // Hellfire exclusive items
-		}
-		if (i >= 88) {
-			i += 1; // Scroll of Search
-		}
-		if (i >= 83) {
-			i += 4; // Oils
-		}
-
-		return i;
-	};
-
-	return static_cast<_item_indexes>(GetItemIdValue(i));
-}
-
-_item_indexes RemapItemIdxToDiablo(_item_indexes i)
-{
-	constexpr auto GetItemIdValue = [](int i) -> int {
-		if (i == IDI_SORCERER_DIABLO) {
-			return IDI_SORCERER;
-		}
-		if ((i >= 83 && i <= 86) || i == 92 || i >= 161) {
-			return -1; // Hellfire exclusive items
-		}
-		if (i >= 93) {
-			i -= 1; // Scroll of Search
-		}
-		if (i >= 87) {
-			i -= 4; // Oils
-		}
-
-		return i;
-	};
-
-	return static_cast<_item_indexes>(GetItemIdValue(i));
 }
 
 _item_indexes RemapItemIdxFromSpawn(_item_indexes i)

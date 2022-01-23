@@ -985,34 +985,6 @@ void CheckBookLevel(Player &player)
 	}
 }
 
-void CheckNaKrulNotes(Player &player)
-{
-	int idx = player.HoldItem.IDidx;
-	_item_indexes notes[] = { IDI_NOTE1, IDI_NOTE2, IDI_NOTE3 };
-
-	if (IsNoneOf(idx, IDI_NOTE1, IDI_NOTE2, IDI_NOTE3)) {
-		return;
-	}
-
-	for (auto note : notes) {
-		if (idx != note && !player.HasItem(note)) {
-			return; // the player doesn't have all notes
-		}
-	}
-
-	Players[MyPlayerId].Say(HeroSpeech::JustWhatIWasLookingFor, 10);
-
-	for (auto note : notes) {
-		if (idx != note) {
-			player.TryRemoveInvItemById(note);
-		}
-	}
-
-	player.HoldItem = {};
-	GetItemAttrs(player.HoldItem, IDI_FULLNOTE, 16);
-	SetupItem(player.HoldItem);
-}
-
 void CheckQuestItem(Player &player)
 {
 	auto &myPlayer = Players[MyPlayerId];
@@ -1060,8 +1032,6 @@ void CheckQuestItem(Player &player)
 			Quests[Q_GRAVE]._qvar1 = 1;
 		}
 	}
-
-	CheckNaKrulNotes(player);
 }
 
 void OpenHive()
