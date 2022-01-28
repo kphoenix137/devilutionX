@@ -231,7 +231,7 @@ struct TCmdGItem {
 	uint8_t x;
 	uint8_t y;
 	_item_indexes wIndx;
-	uint16_t wCI;
+	uint32_t wCI;
 	int32_t dwSeed;
 	uint8_t bId;
 	uint8_t bDur;
@@ -257,7 +257,7 @@ struct TCmdPItem {
 	uint8_t x;
 	uint8_t y;
 	_item_indexes wIndx;
-	uint16_t wCI;
+	uint32_t wCI;
 	/**
 	 * Item identifier
 	 * @see Item::_iSeed
@@ -282,7 +282,7 @@ struct TCmdChItem {
 	_cmd_id bCmd;
 	uint8_t bLoc;
 	uint16_t wIndx;
-	uint16_t wCI;
+	uint32_t wCI;
 	int32_t dwSeed;
 	uint8_t bId;
 	uint32_t dwBuff;

@@ -1549,7 +1549,7 @@ bool GoldAutoPlaceInInventorySlot(Player &player, int slotIndex)
 	return true;
 }
 
-void CheckInvSwap(Player &player, inv_body_loc bLoc, int idx, uint16_t wCI, int seed, bool bId, uint32_t dwBuff)
+void CheckInvSwap(Player &player, inv_body_loc bLoc, int idx, uint32_t wCI, int seed, bool bId, uint32_t dwBuff)
 {
 	player.HoldItem = {};
 	RecreateItem(player.HoldItem, idx, wCI, seed, 0, (dwBuff & CF_HELLFIRE) != 0);
@@ -1694,7 +1694,7 @@ void AutoGetItem(int pnum, Item *item, int ii)
 	player.HoldItem._itype = ItemType::None;
 }
 
-int FindGetItem(int32_t iseed, _item_indexes idx, uint16_t createInfo)
+int FindGetItem(int32_t iseed, _item_indexes idx, uint32_t createInfo)
 {
 	for (uint8_t i = 0; i < ActiveItemCount; i++) {
 		auto &item = Items[ActiveItems[i]];
@@ -1706,7 +1706,7 @@ int FindGetItem(int32_t iseed, _item_indexes idx, uint16_t createInfo)
 	return -1;
 }
 
-void SyncGetItem(Point position, int32_t iseed, _item_indexes idx, uint16_t ci)
+void SyncGetItem(Point position, int32_t iseed, _item_indexes idx, uint32_t ci)
 {
 	// Check what the local client has at the target position
 	int ii = dItem[position.x][position.y] - 1;
@@ -1826,7 +1826,7 @@ int InvPutItem(Player &player, Point position)
 	return ii;
 }
 
-int SyncPutItem(Player &player, Point position, int idx, uint16_t icreateinfo, int iseed, int id, int dur, int mdur, int ch, int mch, int ivalue, uint32_t ibuff, int toHit, int maxDam, int minStr, int minMag, int minDex, int ac)
+int SyncPutItem(Player &player, Point position, int idx, uint32_t icreateinfo, int iseed, int id, int dur, int mdur, int ch, int mch, int ivalue, uint32_t ibuff, int toHit, int maxDam, int minStr, int minMag, int minDex, int ac)
 {
 	if (player.plrlevel == 0) {
 		if (idx == IDI_RUNEBOMB && OpensHive(position))

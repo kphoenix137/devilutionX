@@ -150,7 +150,7 @@ bool AutoPlaceItemInInventorySlot(Player &player, int slotIndex, const Item &ite
 bool AutoPlaceItemInBelt(Player &player, const Item &item, bool persistItem = false);
 bool GoldAutoPlace(Player &player);
 bool GoldAutoPlaceInInventorySlot(Player &player, int slotIndex);
-void CheckInvSwap(Player &player, inv_body_loc bLoc, int idx, uint16_t wCI, int seed, bool bId, uint32_t dwBuff);
+void CheckInvSwap(Player &player, inv_body_loc bLoc, int idx, uint32_t wCI, int seed, bool bId, uint32_t dwBuff);
 void inv_update_rem_item(Player &player, inv_body_loc iv);
 void CheckInvItem(bool isShiftHeld = false, bool isCtrlHeld = false);
 
@@ -169,12 +169,12 @@ void AutoGetItem(int pnum, Item *item, int ii);
  * @param createInfo Flags used to describe the specific subtype of the target item
  * @return An index into ActiveItems or -1 if no matching item was found
  */
-int FindGetItem(int32_t iseed, _item_indexes idx, uint16_t ci);
-void SyncGetItem(Point position, int32_t iseed, _item_indexes idx, uint16_t ci);
+int FindGetItem(int32_t iseed, _item_indexes idx, uint32_t ci);
+void SyncGetItem(Point position, int32_t iseed, _item_indexes idx, uint32_t ci);
 bool CanPut(Point position);
 bool TryInvPut();
 int InvPutItem(Player &player, Point position);
-int SyncPutItem(Player &player, Point position, int idx, uint16_t icreateinfo, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, uint32_t ibuff, int toHit, int maxDam, int minStr, int minMag, int minDex, int ac);
+int SyncPutItem(Player &player, Point position, int idx, uint32_t icreateinfo, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, uint32_t ibuff, int toHit, int maxDam, int minStr, int minMag, int minDex, int ac);
 int8_t CheckInvHLight();
 void RemoveScroll(Player &player);
 bool UseScroll();

@@ -1,4 +1,4 @@
-{
+﻿{
   "configurations": [
     {
       "name": "x64-Debug",
@@ -50,6 +50,11 @@
           "name": "DISCORD_INTEGRATION",
           "value": "True",
           "type": "BOOL"
+        },
+        {
+          "name": "CMAKE_BUILD_TYPE",
+          "value": "Release",
+          "type": "STRING"
         }
       ]
     },

@@ -145,17 +145,17 @@ enum _unique_items : int8_t {
  */
 enum icreateinfo_flag {
 	// clang-format off
-	CF_LEVEL        = (1 << 6) - 1,
-	CF_ONLYGOOD     = 1 << 6,
-	CF_UPER15       = 1 << 7,
-	CF_UPER1        = 1 << 8,
-	CF_UNIQUE       = 1 << 9,
-	CF_SMITH        = 1 << 10,
-	CF_SMITHPREMIUM = 1 << 11,
-	CF_BOY          = 1 << 12,
-	CF_WITCH        = 1 << 13,
-	CF_HEALER       = 1 << 14,
-	CF_PREGEN       = 1 << 15,
+	CF_LEVEL        = (1 << 7) - 1,
+	CF_ONLYGOOD     = 1 << 7,
+	CF_UPER15       = 1 << 8,
+	CF_UPER1        = 1 << 9,
+	CF_UNIQUE       = 1 << 10,
+	CF_SMITH        = 1 << 11,
+	CF_SMITHPREMIUM = 1 << 12,
+	CF_BOY          = 1 << 13,
+	CF_WITCH        = 1 << 14,
+	CF_HEALER       = 1 << 15,
+	CF_PREGEN       = 1 << 16,
 
 	CF_USEFUL = CF_UPER15 | CF_UPER1,
 	CF_TOWN   = CF_SMITH | CF_SMITHPREMIUM | CF_BOY | CF_WITCH | CF_HEALER,
@@ -367,7 +367,7 @@ struct Item {
 		return IsScroll() && _iSpell == spellId;
 	}
 
-	[[nodiscard]] bool KeyAttributesMatch(int32_t seed, _item_indexes itemIndex, uint16_t createInfo) const
+	[[nodiscard]] bool KeyAttributesMatch(int32_t seed, _item_indexes itemIndex, uint32_t createInfo) const
 	{
 		return _iSeed == seed && IDidx == itemIndex && _iCreateInfo == createInfo;
 	}
@@ -400,7 +400,7 @@ struct Item {
 
 struct ItemGetRecordStruct {
 	int32_t nSeed;
-	uint16_t wCI;
+	uint32_t wCI;
 	int nIndex;
 	uint32_t dwTimestamp;
 };
@@ -453,8 +453,8 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg);
 void CreateRndItem(Point position, bool onlygood, bool sendmsg, bool delta);
 void CreateRndUseful(Point position, bool sendmsg);
 void CreateTypeItem(Point position, bool onlygood, ItemType itemType, int imisc, bool sendmsg, bool delta);
-void RecreateItem(Item &item, int idx, uint16_t icreateinfo, int iseed, int ivalue, bool isHellfire);
-void RecreateEar(Item &item, uint16_t ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
+void RecreateItem(Item &item, int idx, uint32_t icreateinfo, int iseed, int ivalue, bool isHellfire);
+void RecreateEar(Item &item, uint32_t ic, int iseed, int Id, int dur, int mdur, int ch, int mch, int ivalue, int ibuff);
 void CornerstoneSave();
 void CornerstoneLoad(Point position);
 void SpawnQuestItem(int itemid, Point position, int randarea, int selflag);
@@ -489,9 +489,9 @@ void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta);
 void CreateMagicArmor(Point position, ItemType itemType, int icurs, bool sendmsg, bool delta);
 void CreateAmulet(Point position, int lvl, bool sendmsg, bool delta);
 void CreateMagicWeapon(Point position, ItemType itemType, int icurs, bool sendmsg, bool delta);
-bool GetItemRecord(int nSeed, uint16_t wCI, int nIndex);
-void SetItemRecord(int nSeed, uint16_t wCI, int nIndex);
-void PutItemRecord(int nSeed, uint16_t wCI, int nIndex);
+bool GetItemRecord(int nSeed, uint32_t wCI, int nIndex);
+void SetItemRecord(int nSeed, uint32_t wCI, int nIndex);
+void PutItemRecord(int nSeed, uint32_t wCI, int nIndex);
 
 /**
  * @brief Resets item get records.
