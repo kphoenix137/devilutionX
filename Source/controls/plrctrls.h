@@ -59,6 +59,7 @@ void PerformSecondaryAction();
 bool TryDropItem();
 void InvalidateInventorySlot();
 void FocusOnInventory();
+void FocusOnStash();
 void PerformSpellAction();
 void QuickCast(int slot);
 

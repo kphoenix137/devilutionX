@@ -36,6 +36,7 @@
 #include "panels/spell_book.hpp"
 #include "panels/spell_icons.hpp"
 #include "panels/spell_list.hpp"
+#include "qol/stash.h"
 #include "qol/xpbar.h"
 #include "stores.h"
 #include "towners.h"
@@ -56,9 +57,11 @@ namespace devilution {
  */
 bool drawhpflag;
 bool dropGoldFlag;
+bool withdrawGoldFlag;
 bool chrbtn[4];
 bool lvlbtndown;
 int dropGoldValue;
+int withdrawGoldValue;
 /**
  * @brief Set if the mana flask needs to be redrawn during the next frame
  */
@@ -76,6 +79,7 @@ bool drawbtnflag;
 char infostr[128];
 bool panelflag;
 int initialDropGoldValue;
+int initialWithdrawGoldValue;
 bool panbtndown;
 bool spselflag;
 Rectangle MainPanel;
@@ -383,6 +387,16 @@ void RemoveGold(Player &player, int goldIndex)
 	dropGoldValue = 0;
 }
 
+void WithdrawGold(Player &player, int amount)
+{
+	InitializeItem(player.HoldItem, IDI_GOLD);
+	SetGoldSeed(player, player.HoldItem);
+	player.HoldItem._ivalue = amount;
+	player.HoldItem._iStatFlag = true;
+	ControlSetGoldCurs(player);
+	Stash.gold -= amount;
+}
+
 } // namespace
 
 void CalculatePanelAreas()
@@ -448,6 +462,7 @@ Point GetPanelPosition(UiPanels panel, Point offset)
 		return GetMainPanel().position + displacement;
 	case UiPanels::Quest:
 	case UiPanels::Character:
+	case UiPanels::Stash:
 		return GetLeftPanel().position + displacement;
 	case UiPanels::Spell:
 	case UiPanels::Inventory:
@@ -564,6 +579,7 @@ void InitControlPan()
 	dropGoldValue = 0;
 	initialDropGoldValue = 0;
 	initialDropGoldIndex = 0;
+	initialWithdrawGoldValue = 0;
 
 	CalculatePanelAreas();
 
@@ -768,10 +784,12 @@ void CheckBtnUp()
 		switch (i) {
 		case PanelButtonCharinfo:
 			QuestLogIsOpen = false;
+			IsStashOpen = false;
 			chrflag = !chrflag;
 			break;
 		case PanelButtonQlog:
 			chrflag = false;
+			IsStashOpen = false;
 			if (!QuestLogIsOpen)
 				StartQuestlog();
 			else
@@ -839,7 +857,7 @@ void FreeControlPan()
 void DrawInfoBox(const Surface &out)
 {
 	DrawPanelBox(out, { 177, 62, 288, 60 }, { PANEL_X + 177, PANEL_Y + 46 });
-	if (!panelflag && !trigflag && pcursinvitem == -1 && !spselflag) {
+	if (!panelflag && !trigflag && pcursinvitem == -1 && pcursstashitem == uint16_t(-1) && !spselflag) {
 		infostr[0] = '\0';
 		InfoColor = UiFlags::ColorWhite;
 		ClearPanel();
@@ -987,7 +1005,7 @@ void DrawDurIcon(const Surface &out)
 	bool hasRoomUnderPanels = MainPanel.position.y - (RightPanel.position.y + RightPanel.size.height) >= 16 + 32 + 16;
 
 	if (!hasRoomBetweenPanels && !hasRoomUnderPanels) {
-		if ((chrflag || QuestLogIsOpen) && (invflag || sbookflag))
+		if ((chrflag || QuestLogIsOpen || IsStashOpen) && (invflag || sbookflag))
 			return;
 	}
 
@@ -1052,6 +1070,34 @@ void DrawGoldSplit(const Surface &out, int amount)
 	DrawString(out, tempstr, GetPanelPosition(UiPanels::Inventory, { dialogX + 37, 128 }), UiFlags::ColorWhite | UiFlags::PentaCursor);
 }
 
+void DrawGoldWithdraw(const Surface &out, int amount)
+{
+	const int dialogX = 30;
+
+	CelDrawTo(out, GetPanelPosition(UiPanels::Stash, { dialogX, 178 }), *pGBoxBuff, 1);
+
+	constexpr auto BufferSize = sizeof(tempstr) / sizeof(*tempstr);
+
+	CopyUtf8(tempstr, fmt::format(ngettext("How many gold pieces do you want to withdraw? (MAX 5000)", "How many gold pieces do you want to withdraw? (MAX 5000)", initialWithdrawGoldValue), initialWithdrawGoldValue), BufferSize);
+
+	// Pre-wrap the string at spaces, otherwise DrawString would hard wrap in the middle of words
+	const std::string wrapped = WordWrapString(tempstr, 200);
+
+	// The split gold dialog is roughly 4 lines high, but we need at least one line for the player to input an amount.
+	// Using a clipping region 50 units high (approx 3 lines with a lineheight of 17) to ensure there is enough room left
+	//  for the text entered by the player.
+	DrawString(out, wrapped, { GetPanelPosition(UiPanels::Stash, { dialogX + 31, 75 }), { 200, 50 } }, UiFlags::ColorWhitegold | UiFlags::AlignCenter, 1, 17);
+
+	tempstr[0] = '\0';
+	if (amount > 0) {
+		// snprintf ensures that the destination buffer ends in a null character.
+		snprintf(tempstr, BufferSize, "%u", amount);
+	}
+	// Even a ten digit amount of gold only takes up about half a line. There's no need to wrap or clip text here so we
+	// use the Point form of DrawString.
+	DrawString(out, tempstr, GetPanelPosition(UiPanels::Stash, { dialogX + 37, 128 }), UiFlags::ColorWhite | UiFlags::PentaCursor);
+}
+
 void control_drop_gold(char vkey)
 {
 	auto &myPlayer = Players[MyPlayerId];
@@ -1071,6 +1117,27 @@ void control_drop_gold(char vkey)
 		dropGoldValue = 0;
 	} else if (vkey == DVL_VK_BACK) {
 		dropGoldValue = dropGoldValue / 10;
+	}
+}
+
+void control_withdraw_gold(char vkey)
+{
+	auto &myPlayer = Players[MyPlayerId];
+
+	if (myPlayer._pHitPoints >> 6 <= 0) {
+		CloseGoldWithdraw();
+		return;
+	}
+
+	if (vkey == DVL_VK_RETURN) {
+		if (withdrawGoldValue > 0) {
+			WithdrawGold(myPlayer, withdrawGoldValue);
+		}
+		CloseGoldWithdraw();
+	} else if (vkey == DVL_VK_ESCAPE) {
+		CloseGoldWithdraw();
+	} else if (vkey == DVL_VK_BACK) {
+		withdrawGoldValue /= 10;
 	}
 }
 
@@ -1274,6 +1341,15 @@ void CloseGoldDrop()
 	SDL_StopTextInput();
 }
 
+void CloseGoldWithdraw()
+{
+	if (!withdrawGoldFlag)
+		return;
+	withdrawGoldFlag = false;
+	withdrawGoldValue = 0;
+	SDL_StopTextInput();
+}
+
 void GoldDropNewText(string_view text)
 {
 	for (char vkey : text) {
@@ -1283,6 +1359,20 @@ void GoldDropNewText(string_view text)
 			newGoldValue += digit;
 			if (newGoldValue <= initialDropGoldValue) {
 				dropGoldValue = newGoldValue;
+			}
+		}
+	}
+}
+
+void GoldWithdrawNewText(string_view text)
+{
+	for (char vkey : text) {
+		int digit = vkey - '0';
+		if (digit >= 0 && digit <= 9) {
+			int newGoldValue = withdrawGoldValue * 10;
+			newGoldValue += digit;
+			if (newGoldValue <= GOLD_MAX_LIMIT && newGoldValue <= initialWithdrawGoldValue) {
+				withdrawGoldValue = newGoldValue;
 			}
 		}
 	}

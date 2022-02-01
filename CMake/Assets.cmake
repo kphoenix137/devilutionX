@@ -56,6 +56,9 @@ set(devilutionx_assets
   data/panel8bucp.pcx
   data/monstertags.pcx
   data/resistance.pcx
+  data/stash.cel
+  data/stashgoldbtn.cel
+  data/stashnavbtns.cel
   data/talkbutton.pcx
   data/xpbar.pcx
   fonts/12-00.bin

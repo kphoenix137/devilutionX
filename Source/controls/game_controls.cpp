@@ -15,6 +15,7 @@
 #include "doom.h"
 #include "gmenu.h"
 #include "options.h"
+#include "qol/stash.h"
 #include "stores.h"
 
 namespace devilution {
@@ -324,6 +325,8 @@ bool GetGameAction(const SDL_Event &event, ControllerButtonEvent ctrlEvent, Game
 				*action = GameAction(GameActionType_TOGGLE_QUEST_LOG);
 			else if (chrflag)
 				*action = GameAction(GameActionType_TOGGLE_CHARACTER_INFO);
+			else if (IsStashOpen)
+				*action = GameAction(GameActionType_TOGGLE_STASH);
 			else
 				*action = GameAction(GameActionType_TOGGLE_QUICK_SPELL_MENU);
 			return true;

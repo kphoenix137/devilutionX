@@ -60,6 +60,7 @@
 #include "qol/chatlog.h"
 #include "qol/common.h"
 #include "qol/itemlabels.h"
+#include "qol/stash.h"
 #include "restrict.h"
 #include "setmaps.h"
 #include "sound.h"
@@ -172,6 +173,7 @@ void FreeGame()
 	FreeQol();
 	FreeControlPan();
 	FreeInvGFX();
+	FreeStashGFX();
 	FreeGMenu();
 	FreeQuestText();
 	FreeInfoBoxGfx();
@@ -331,6 +333,10 @@ void LeftMouseDown(int wParam)
 			} else if (invflag && GetRightPanel().Contains(MousePosition)) {
 				if (!dropGoldFlag)
 					CheckInvItem(isShiftHeld, isCtrlHeld);
+			} else if (IsStashOpen && GetLeftPanel().Contains(MousePosition)) {
+				if (!withdrawGoldFlag)
+					CheckStashItem(MousePosition, isShiftHeld, isCtrlHeld);
+				DoStashBtn(MousePosition);
 			} else if (sbookflag && GetRightPanel().Contains(MousePosition)) {
 				CheckSBook();
 			} else if (pcurs >= CURSOR_FIRSTITEM) {
@@ -346,9 +352,10 @@ void LeftMouseDown(int wParam)
 			}
 		}
 	} else {
-		if (!talkflag && !dropGoldFlag && !gmenu_is_active())
+		if (!talkflag && !dropGoldFlag && !withdrawGoldFlag && !gmenu_is_active())
 			CheckInvScrn(isShiftHeld, isCtrlHeld);
 		DoPanBtn();
+		DoStashBtn(MousePosition);
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
 			NewCursor(CURSOR_HAND);
 	}
@@ -361,6 +368,8 @@ void LeftMouseUp(int wParam)
 	bool isShiftHeld = (wParam & (DVL_MK_SHIFT | DVL_MK_LBUTTON)) != 0;
 	if (panbtndown)
 		CheckBtnUp();
+	if (IsStashButtonsPressed)
+		CheckStashBtnUp(MousePosition);
 	if (chrbtnactive)
 		ReleaseChrBtns(isShiftHeld);
 	if (lvlbtndown)
@@ -417,9 +426,9 @@ void ReleaseKey(int vkey)
 void ClosePanels()
 {
 	if (CanPanelsCoverView()) {
-		if (!chrflag && !QuestLogIsOpen && (invflag || sbookflag) && MousePosition.x < 480 && MousePosition.y < PANEL_TOP) {
+		if (!chrflag && !QuestLogIsOpen && !IsStashOpen && (invflag || sbookflag) && MousePosition.x < 480 && MousePosition.y < PANEL_TOP) {
 			SetCursorPos(MousePosition + Displacement { 160, 0 });
-		} else if (!invflag && !sbookflag && (chrflag || QuestLogIsOpen) && MousePosition.x > 160 && MousePosition.y < PANEL_TOP) {
+		} else if (!invflag && !sbookflag && (chrflag || QuestLogIsOpen || IsStashOpen) && MousePosition.x > 160 && MousePosition.y < PANEL_TOP) {
 			SetCursorPos(MousePosition - Displacement { 160, 0 });
 		}
 	}
@@ -427,6 +436,7 @@ void ClosePanels()
 	chrflag = false;
 	sbookflag = false;
 	QuestLogIsOpen = false;
+	IsStashOpen = false;
 }
 
 void PressKey(int vkey)
@@ -460,7 +470,7 @@ void PressKey(int vkey)
 		return;
 	}
 
-	if (sgnTimeoutCurs != CURSOR_NONE || dropGoldFlag) {
+	if (sgnTimeoutCurs != CURSOR_NONE || dropGoldFlag || withdrawGoldFlag) {
 		return;
 	}
 
@@ -553,6 +563,10 @@ void PressChar(char vkey)
 	}
 	if (dropGoldFlag) {
 		control_drop_gold(vkey);
+		return;
+	}
+	if (withdrawGoldFlag) {
+		control_withdraw_gold(vkey);
 		return;
 	}
 
@@ -1282,6 +1296,7 @@ void HelpKeyPressed()
 		chrflag = false;
 		sbookflag = false;
 		spselflag = false;
+		IsStashOpen = false;
 		if (qtextflag && leveltype == DTYPE_TOWN) {
 			qtextflag = false;
 			stream_stop();
@@ -1300,7 +1315,7 @@ void InventoryKeyPressed()
 	if (stextflag != STORE_NONE)
 		return;
 	invflag = !invflag;
-	if (!chrflag && !QuestLogIsOpen && CanPanelsCoverView()) {
+	if (!chrflag && !QuestLogIsOpen && !IsStashOpen && CanPanelsCoverView()) {
 		if (!invflag) { // We closed the invetory
 			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
 				SetCursorPos(MousePosition + Displacement { 160, 0 });
@@ -1314,6 +1329,32 @@ void InventoryKeyPressed()
 	sbookflag = false;
 }
 
+void StashKeyPressed()
+{
+	if (stextflag != STORE_NONE)
+		return;
+	if (currlevel != 0) {
+		InitDiabloMsg(EMSG_STASH);
+		return;
+	}
+
+	IsStashOpen = !IsStashOpen;
+
+	if (!invflag && !sbookflag && CanPanelsCoverView()) {
+		if (!IsStashOpen) { // We closed the stash
+			if (MousePosition.x > 160 && MousePosition.y < PANEL_TOP) {
+				SetCursorPos(MousePosition - Displacement { 160, 0 });
+			}
+		} else if (!QuestLogIsOpen && !chrflag) { // We opened the stash
+			if (MousePosition.x < 480 && MousePosition.y < PANEL_TOP) {
+				SetCursorPos(MousePosition + Displacement { 160, 0 });
+			}
+		}
+	}
+	chrflag = false;
+	QuestLogIsOpen = false;
+}
+
 void CharacterSheetKeyPressed()
 {
 	if (stextflag != STORE_NONE)
@@ -1324,13 +1365,14 @@ void CharacterSheetKeyPressed()
 			if (MousePosition.x > 160 && MousePosition.y < GetMainPanel().position.y) {
 				SetCursorPos(MousePosition - Displacement { 160, 0 });
 			}
-		} else if (!QuestLogIsOpen) { // We opened the character sheet
+		} else if (!QuestLogIsOpen && !IsStashOpen) { // We opened the character sheet
 			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
 				SetCursorPos(MousePosition + Displacement { 160, 0 });
 			}
 		}
 	}
 	QuestLogIsOpen = false;
+	IsStashOpen = false;
 }
 
 void QuestLogKeyPressed()
@@ -1347,13 +1389,14 @@ void QuestLogKeyPressed()
 			if (MousePosition.x > 160 && MousePosition.y < PANEL_TOP) {
 				SetCursorPos(MousePosition - Displacement { 160, 0 });
 			}
-		} else if (!chrflag) { // We opened the character quest log
+		} else if (!chrflag && !IsStashOpen) { // We opened the character quest log
 			if (MousePosition.x < 480 && MousePosition.y < PANEL_TOP) {
 				SetCursorPos(MousePosition + Displacement { 160, 0 });
 			}
 		}
 	}
 	chrflag = false;
+	IsStashOpen = false;
 }
 
 void DisplaySpellsKeyPressed()
@@ -1362,6 +1405,7 @@ void DisplaySpellsKeyPressed()
 		return;
 	chrflag = false;
 	QuestLogIsOpen = false;
+	IsStashOpen = false;
 	invflag = false;
 	sbookflag = false;
 	if (!spselflag) {
@@ -1377,7 +1421,7 @@ void SpellBookKeyPressed()
 	if (stextflag != STORE_NONE)
 		return;
 	sbookflag = !sbookflag;
-	if (!chrflag && !QuestLogIsOpen && CanPanelsCoverView()) {
+	if (!chrflag && !QuestLogIsOpen && !IsStashOpen && CanPanelsCoverView()) {
 		if (!sbookflag) { // We closed the invetory
 			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
 				SetCursorPos(MousePosition + Displacement { 160, 0 });
@@ -1515,6 +1559,13 @@ void InitKeymapActions()
 	    InventoryKeyPressed,
 	    nullptr,
 	    CanPlayerTakeAction);
+	sgOptions.Keymapper.AddAction(
+	    "Stash",
+	    N_("Stash"),
+	    N_("Open Stash screen."),
+	    'X',
+	    StashKeyPressed,
+	    [&]() { return !IsPlayerDead(); });
 	sgOptions.Keymapper.AddAction(
 	    "Character",
 	    N_("Character"),
@@ -1944,12 +1995,17 @@ bool PressEscKey()
 		rv = true;
 	}
 
+	if (withdrawGoldFlag) {
+		control_withdraw_gold(DVL_VK_ESCAPE);
+		rv = true;
+	}
+
 	if (spselflag) {
 		spselflag = false;
 		rv = true;
 	}
 
-	if (invflag || chrflag || sbookflag || QuestLogIsOpen) {
+	if (invflag || chrflag || sbookflag || QuestLogIsOpen || IsStashOpen) {
 		ClosePanels();
 		rv = true;
 	}
@@ -2018,6 +2074,7 @@ void LoadGameLevel(bool firstflag, lvl_entry lvldir)
 
 	if (firstflag) {
 		InitInv();
+		InitStash();
 		InitQuestText();
 		InitInfoBoxGfx();
 		InitStores();
@@ -2031,6 +2088,8 @@ void LoadGameLevel(bool firstflag, lvl_entry lvldir)
 	} else {
 		FreeStoreMem();
 	}
+
+	LoadStash();
 
 	IncProgress();
 	InitAutomap();
@@ -2257,6 +2316,8 @@ void LoadGameLevel(bool firstflag, lvl_entry lvldir)
 
 	if (!gbIsSpawn && setlevel && setlvlnum == SL_SKELKING && Quests[Q_SKELKING]._qactive == QUEST_ACTIVE)
 		PlaySFX(USFX_SKING1);
+
+	IsStashOpen = false;
 
 	// Reset mouse selection of entities
 	pcursmonst = -1;

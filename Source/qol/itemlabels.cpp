@@ -12,6 +12,7 @@
 #include "gmenu.h"
 #include "inv.h"
 #include "itemlabels.h"
+#include "qol/stash.h"
 #include "utils/language.h"
 
 namespace devilution {
@@ -95,7 +96,7 @@ bool IsMouseOverGameArea()
 {
 	if ((invflag || sbookflag) && GetRightPanel().Contains(MousePosition))
 		return false;
-	if ((chrflag || QuestLogIsOpen) && GetLeftPanel().Contains(MousePosition))
+	if ((chrflag || QuestLogIsOpen || IsStashOpen) && GetLeftPanel().Contains(MousePosition))
 		return false;
 	if (GetMainPanel().Contains(MousePosition))
 		return false;

@@ -28,6 +28,7 @@
 #include "miniwin/miniwin.h"
 #include "movie.h"
 #include "panels/spell_list.hpp"
+#include "qol/stash.h"
 #include "utils/display.h"
 #include "utils/log.hpp"
 #include "utils/sdl_compat.h"
@@ -340,12 +341,14 @@ void ProcessGamepadEvents(GameAction &action)
 			chrflag = false;
 			QuestLogIsOpen = false;
 			sbookflag = false;
+			IsStashOpen = false;
 		}
 		break;
 	case GameActionType_TOGGLE_CHARACTER_INFO:
 		chrflag = !chrflag;
 		if (chrflag) {
 			QuestLogIsOpen = false;
+			IsStashOpen = false;
 			spselflag = false;
 			if (pcurs == CURSOR_DISARM)
 				NewCursor(CURSOR_HAND);
@@ -356,9 +359,23 @@ void ProcessGamepadEvents(GameAction &action)
 		if (!QuestLogIsOpen) {
 			StartQuestlog();
 			chrflag = false;
+			IsStashOpen = false;
 			spselflag = false;
 		} else {
 			QuestLogIsOpen = false;
+		}
+		break;
+	case GameActionType_TOGGLE_STASH:
+		if (IsStashOpen) {
+			IsStashOpen = false;
+		} else {
+			chrflag = false;
+			QuestLogIsOpen = false;
+			spselflag = false;
+			IsStashOpen = true;
+			if (pcurs == CURSOR_DISARM)
+				NewCursor(CURSOR_HAND);
+			FocusOnStash();
 		}
 		break;
 	case GameActionType_TOGGLE_INVENTORY:
@@ -603,6 +620,10 @@ bool FetchMessage_Real(tagMSG *lpMsg)
 		}
 		if (gbRunGame && dropGoldFlag) {
 			GoldDropNewText(e.text.text);
+			break;
+		}
+		if (gbRunGame && withdrawGoldFlag) {
+			GoldWithdrawNewText(e.text.text);
 			break;
 		}
 		return FalseAvail("SDL_TEXTINPUT", e.text.windowID);
