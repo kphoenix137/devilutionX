@@ -2163,7 +2163,7 @@ void InitMissileAnimationFromMonster(Missile &mis, Direction midir, const Monste
 	const AnimStruct &anim = mon.MType->GetAnimData(graphic);
 	mis._mimfnum = static_cast<int32_t>(midir);
 	mis._miAnimFlags = MissileDataFlags::None;
-	const auto &celSprite = *anim.CelSpritesForDirections[mis._mimfnum];
+	CelSprite celSprite = *anim.GetCelSpritesForDirection(midir);
 	mis._miAnimData = celSprite.Data();
 	mis._miAnimDelay = anim.Rate;
 	mis._miAnimLen = anim.Frames;
@@ -4187,7 +4187,7 @@ void missiles_process_charge()
 		} else {
 			graphic = MonsterGraphic::Walk;
 		}
-		missile._miAnimData = mon->GetAnimData(graphic).CelSpritesForDirections[missile._mimfnum]->Data();
+		missile._miAnimData = mon->GetAnimData(graphic).CelSpritesForDirections[missile._mimfnum];
 	}
 }
 
