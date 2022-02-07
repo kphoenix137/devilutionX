@@ -2513,6 +2513,8 @@ void SetPlrAnims(Player &player)
 	if (pc == HeroClass::Warrior || pc == HeroClass::Barbarian) {
 		if (gn == PlayerWeaponGraphic::Bow && leveltype != DTYPE_TOWN)
 			player._pNFrames = 8;
+		if (armorGraphicIndex > 0)
+			player._pDFrames = 15;
 	}
 }
 
