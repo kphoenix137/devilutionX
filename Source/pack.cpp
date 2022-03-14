@@ -175,8 +175,17 @@ void UnPackItem(const ItemPack &packedItem, Item &item, bool isHellfire)
 		RecreateItem(item, idx, SDL_SwapLE16(packedItem.iCreateInfo), SDL_SwapLE32(packedItem.iSeed), SDL_SwapLE16(packedItem.wValue), isHellfire);
 		item._iMagical = static_cast<item_quality>(packedItem.bId >> 1);
 		item._iIdentified = (packedItem.bId & 1) != 0;
-		item._iDurability = packedItem.bDur;
-		item._iMaxDur = packedItem.bMDur;
+		if (item._iMaxDur == DUR_INDESTRUCTIBLE && item._iSufPower != IPL_INDESTRUCTIBLE && IsNoneOf(item._iUid, 9, 19, 40, 45, 46, 51, 69, 72, 78, 81, 84, 98, 99, 101, 102, 104)) {
+			item._iMaxDur = DUR_INDESTRUCTIBLE - 1;
+			if (packedItem.bDur > item._iMaxDur) {
+				item._iDurability = item._iMaxDur;
+			} else {
+				item._iDurability = packedItem.bDur;
+			}
+		} else {
+			item._iDurability = packedItem.bDur;
+			item._iMaxDur = packedItem.bMDur;
+		}
 		item._iCharges = packedItem.bCh;
 		item._iMaxCharges = packedItem.bMCh;
 
