@@ -282,7 +282,7 @@ Point StashCellPosition(Point slot)
 {
 	constexpr int StashNextCell = INV_SLOT_SIZE_PX + 1; // spacing between each cell
 
-	return slot * StashNextCell + Displacement { 17, 47 };
+	return slot * StashNextCell + Displacement { 17, 48 };
 }
 
 void FreeStashGFX()
