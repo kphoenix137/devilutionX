@@ -1574,7 +1574,6 @@ void CheckNewPath(int pnum, bool pmWillBeCalled)
 				IsStashOpen = false;
 				Objects[0]._oAnimFrame -= 2;
 			}
-			app_fatal();
 
 			switch (player.walkpath[0]) {
 			case WALK_N:
