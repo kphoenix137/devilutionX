@@ -217,7 +217,8 @@ bool ProcessInput()
 
 void LeftMouseCmd(bool bShift)
 {
-	bool bNear;
+	auto &myPlayer = Players[MyPlayerId];
+	bool bNear = myPlayer.position.tile.WalkingDistance(cursPosition) < 2;
 
 	assert(MousePosition.y < GetMainPanel().position.y || MousePosition.x < GetMainPanel().position.x || MousePosition.x >= GetMainPanel().position.x + PANEL_WIDTH);
 
@@ -230,11 +231,15 @@ void LeftMouseCmd(bool bShift)
 			LastMouseButtonAction = MouseActionType::Walk;
 			NetSendCmdLoc(MyPlayerId, true, CMD_WALKXY, cursPosition);
 		}
+		if (IsStashOpen)
+			return;
+		if (pcursobj != -1 && !Objects[pcursobj].IsDisabled() && (!bShift || (bNear && Objects[pcursobj]._oBreak == 1))) {
+			LastMouseButtonAction = MouseActionType::OperateObject;
+			NetSendCmdLocParam1(true, CMD_OPOBJXY, cursPosition, pcursobj);
+		}
 		return;
 	}
-
-	auto &myPlayer = Players[MyPlayerId];
-	bNear = myPlayer.position.tile.WalkingDistance(cursPosition) < 2;
+	
 	if (pcursitem != -1 && pcurs == CURSOR_HAND && !bShift) {
 		NetSendCmdLocParam1(true, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursPosition, pcursitem);
 	} else if (pcursobj != -1 && !Objects[pcursobj].IsDisabled() && (!bShift || (bNear && Objects[pcursobj]._oBreak == 1))) {
@@ -2123,6 +2128,7 @@ void LoadGameLevel(bool firstflag, lvl_entry lvldir)
 			InitMissileGFX(gbIsHellfire);
 			IncProgress();
 			IncProgress();
+			InitObjectGFX();
 		}
 
 		IncProgress();
@@ -2209,6 +2215,7 @@ void LoadGameLevel(bool firstflag, lvl_entry lvldir)
 				DeltaLoadLevel();
 
 			IncProgress();
+			InitTownObjects();
 		}
 		if (!gbIsMultiplayer)
 			ResyncQuests();

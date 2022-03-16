@@ -1570,6 +1570,12 @@ void CheckNewPath(int pnum, bool pmWillBeCalled)
 				yvel = PWVel[static_cast<std::size_t>(player._pClass)][2];
 			}
 
+			if (IsStashOpen) {
+				IsStashOpen = false;
+				Objects[0]._oAnimFrame -= 2;
+			}
+			app_fatal();
+
 			switch (player.walkpath[0]) {
 			case WALK_N:
 				StartWalk(pnum, { 0, -xvel }, Direction::North, pmWillBeCalled);

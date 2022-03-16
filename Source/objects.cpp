@@ -28,6 +28,7 @@
 #include "missiles.h"
 #include "monster.h"
 #include "options.h"
+#include "qol/stash.h"
 #include "setmaps.h"
 #include "stores.h"
 #include "themes.h"
@@ -1079,7 +1080,7 @@ void DeleteObject(int oi, int i)
 
 void AddChest(int i, int t)
 {
-	if (GenerateRnd(2) == 0)
+	if (GenerateRnd(2) == 0 && currlevel != 0)
 		Objects[i]._oAnimFrame += 3;
 	Objects[i]._oRndSeed = AdvanceRndSeed();
 	switch (t) {
@@ -1103,6 +1104,9 @@ void AddChest(int i, int t)
 	case OBJ_CHEST3:
 		if (setlevel) {
 			Objects[i]._oVar1 = 3;
+			break;
+		} else if (currlevel == 0) {
+			Objects[i]._oAnimFrame = 4;
 			break;
 		}
 		Objects[i]._oVar1 = GenerateRnd(4);
@@ -1417,6 +1421,11 @@ void AddMushPatch()
 		dObject[x + 1][y + 2] = -(i + 1);
 		AddObject(OBJ_MUSHPATCH, { x + 2, y + 2 });
 	}
+}
+
+void AddStashChest()
+{
+	AddObject(OBJ_CHEST3, { 56, 60 });
 }
 
 void UpdateObjectLight(int i, int lightRadius)
@@ -4403,6 +4412,9 @@ void InitObjectGFX()
 	bool fileload[56] = {};
 
 	int lvl = currlevel;
+	if (currlevel == 0) {
+		lvl = 1;
+	}
 	if (currlevel >= 21 && currlevel <= 24)
 		lvl -= 20;
 	else if (currlevel >= 17 && currlevel <= 20)
@@ -4634,6 +4646,12 @@ void InitObjects()
 			AddChestTraps();
 		ApplyObjectLighting = false;
 	}
+}
+
+void InitTownObjects()
+{
+	ClrAllObjects();
+	AddStashChest();
 }
 
 void SetMapObjects(const uint16_t *dunData, int startx, int starty)
@@ -5150,7 +5168,15 @@ void OperateObject(int pnum, int i, bool teleFlag)
 	case OBJ_TCHEST1:
 	case OBJ_TCHEST2:
 	case OBJ_TCHEST3:
-		OperateChest(pnum, i, sendmsg);
+		if (currlevel == 0) {
+			if (!IsStashOpen) {
+				PlaySfxLoc(IS_CHEST, Objects[0].position);
+				Objects[0]._oAnimFrame += 2;
+				IsStashOpen = true;
+			}
+		} else {
+			OperateChest(pnum, i, sendmsg);
+		}
 		break;
 	case OBJ_SARC:
 		OperateSarc(pnum, i, sendmsg);
@@ -5434,7 +5460,11 @@ void GetObjectStr(const Object &object)
 	case OBJ_CHEST3:
 	case OBJ_TCHEST3:
 	case OBJ_SIGNCHEST:
-		strcpy(infostr, _("Large Chest"));
+		if (currlevel == 0) {
+			strcpy(infostr, _("Stash"));
+		} else {
+			strcpy(infostr, _("Large Chest"));
+		}
 		break;
 	case OBJ_SARC:
 		strcpy(infostr, _("Sarcophagus"));

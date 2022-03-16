@@ -909,6 +909,9 @@ void DrawDungeon(const Surface &out, Point tilePosition, Point targetBufferPosit
 			}
 		}
 	}
+	if (leveltype == DTYPE_TOWN) {
+		DrawObject(out, { 56, 60 }, targetBufferPosition, true);
+	}
 }
 
 /**
