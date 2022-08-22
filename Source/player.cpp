@@ -596,7 +596,7 @@ void UpdateDiawalkMeter(Player &player, int mode)
 		NetSendCmdParam1(true, CMD_SETDIAWALKMETER, player.pDiawalkMeter);
 	}
 	if (player.pDiawalkMeter < 640)
-		player.Say(HeroSpeech::Hmm);
+		player.Say(HeroSpeech::No);
 	
 }
 /**
