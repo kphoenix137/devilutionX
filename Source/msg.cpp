@@ -2033,6 +2033,21 @@ size_t OnSetVitality(const TCmd *pCmd, int pnum)
 	return sizeof(message);
 }
 
+size_t OnSetPlayerDiawalkMeter(const TCmd *pCmd, int pnum)
+{
+	const auto &message = *reinterpret_cast<const TCmdParam1 *>(pCmd);
+
+	if (gbBufferMsgs != 1) {
+		Player &player = Players[pnum];
+		if (&player != MyPlayer)
+			SetPlrDiawalkMeter(player, message.wParam1);
+	} else {
+		SendPacket(pnum, &message, sizeof(message));
+	}
+
+	return sizeof(message);
+}
+
 size_t OnString(const TCmd *pCmd, Player &player)
 {
 	auto *p = (TCmdString *)pCmd;
@@ -3175,6 +3190,8 @@ size_t ParseCmd(int pnum, const TCmd *pCmd)
 		return OnSetDexterity(pCmd, pnum);
 	case CMD_SETVIT:
 		return OnSetVitality(pCmd, pnum);
+	case CMD_SETDIAWALKMETER:
+		return OnSetPlayerDiawalkMeter(pCmd, pnum);
 	case CMD_STRING:
 		return OnString(pCmd, player);
 	case CMD_FRIENDLYMODE:

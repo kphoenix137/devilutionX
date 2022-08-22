@@ -574,6 +574,29 @@ void InitLevelChange(Player &player)
 	}
 }
 
+void UpdateDiawalkMeter(Player &player, int mode)
+{
+	switch (mode) {
+	case PM_WALK_NORTHWARDS:
+	case PM_WALK_SOUTHWARDS:
+		if (&player == MyPlayer) {
+			player.pDiawalkMeter += 1728;
+		}
+		break;
+	case PM_WALK_SIDEWAYS:
+		if (&player == MyPlayer) {
+			player.pDiawalkMeter -= 192;
+		}
+		break;
+	default:
+		break;
+	}
+	player.pDiawalkMeter = clamp(player.pDiawalkMeter, 0, 6400);
+	if (&player == MyPlayer) {
+		NetSendCmdParam1(true, CMD_SETDIAWALKMETER, player.pDiawalkMeter);
+	}
+	
+}
 /**
  * @brief Continue movement towards new tile
  */
@@ -612,6 +635,7 @@ bool DoWalk(Player &player, int variant)
 		if (leveltype != DTYPE_TOWN) {
 			ChangeLightXY(player._plid, player.position.tile);
 			ChangeVisionXY(player._pvid, player.position.tile);
+			UpdateDiawalkMeter(player, variant);
 		}
 
 		if (player.walkpath[0] != WALK_NONE) {
@@ -3642,6 +3666,11 @@ void SetPlrVit(Player &player, int v)
 	player._pHPBase = hp;
 	player._pMaxHPBase = hp;
 	CalcPlrInv(player, true);
+}
+
+void SetPlrDiawalkMeter(Player &player, int v)
+{
+	player.pDiawalkMeter = v;
 }
 
 void InitDungMsgs(Player &player)

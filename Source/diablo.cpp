@@ -1153,6 +1153,7 @@ void CreateLevel(lvl_entry entry)
 	switch (leveltype) {
 	case DTYPE_TOWN:
 		InitTownTriggers();
+		MyPlayer->pDiawalkMeter = 6400;
 		break;
 	case DTYPE_CATHEDRAL:
 		InitL1Triggers();

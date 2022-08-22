@@ -276,6 +276,9 @@ bool Plr2PlrMHit(const Player &player, int p, int mindam, int maxdam, int dist, 
 		return false;
 	}
 
+	if (target.pDiawalkMeter > 0)
+		return false;
+
 	if (mtype == MIS_HBOLT) {
 		return false;
 	}

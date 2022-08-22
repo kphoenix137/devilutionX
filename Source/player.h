@@ -355,6 +355,7 @@ struct Player {
 	ItemSpecialEffectHf pDamAcFlags;
 	/** @brief Specifies whether players are in non-PvP mode. */
 	bool friendlyMode = true;
+	int pDiawalkMeter;
 
 	void CalcScrolls();
 
@@ -817,6 +818,7 @@ void SetPlrStr(Player &player, int v);
 void SetPlrMag(Player &player, int v);
 void SetPlrDex(Player &player, int v);
 void SetPlrVit(Player &player, int v);
+void SetPlrDiawalkMeter(Player &player, int v);
 void InitDungMsgs(Player &player);
 void PlayDungMsgs();
 

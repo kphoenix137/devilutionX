@@ -384,6 +384,11 @@ enum _cmd_id : uint8_t {
 	// body (TCmdParam1):
 	//    int16_t vit
 	CMD_SETVIT,
+	// Send Diawalk Meter update.
+	//
+	// body (TCmdParam1)
+	//    int16_t diawalk
+	CMD_SETDIAWALKMETER,
 	// Restart in town.
 	//
 	// body (TCmd)

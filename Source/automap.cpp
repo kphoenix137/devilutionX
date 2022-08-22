@@ -534,6 +534,19 @@ void DrawAutomapText(const Surface &out)
 
 	std::string description = fmt::format(fmt::runtime(_(/* TRANSLATORS: {:s} means: Game Difficulty. */ "Difficulty: {:s}")), difficulty);
 	DrawString(out, description, linePosition);
+	linePosition.y += 15;
+
+	std::string diawalk = fmt::format(fmt::runtime(_("Diawalk Meter: {:d}")), Players[0].pDiawalkMeter >> 6);
+	DrawString(out, diawalk, linePosition);
+	linePosition.y += 15;
+	diawalk = fmt::format(fmt::runtime(_("Diawalk Meter: {:d}")), Players[1].pDiawalkMeter >> 6);
+	DrawString(out, diawalk, linePosition);
+	linePosition.y += 15;
+	diawalk = fmt::format(fmt::runtime(_("Diawalk Meter: {:d}")), Players[2].pDiawalkMeter >> 6);
+	DrawString(out, diawalk, linePosition);
+	linePosition.y += 15;
+	diawalk = fmt::format(fmt::runtime(_("Diawalk Meter: {:d}")), Players[3].pDiawalkMeter >> 6);
+	DrawString(out, diawalk, linePosition);
 }
 
 std::unique_ptr<AutomapTile[]> LoadAutomapData(size_t &tileCount)
