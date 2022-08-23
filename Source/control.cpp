@@ -936,7 +936,7 @@ void DrawInfoBox(const Surface &out)
 			ClearPanel();
 			AddPanelString(fmt::format(fmt::runtime(_("{:s}, Level: {:d}")), _(ClassStrTbl[static_cast<std::size_t>(target._pClass)]), target._pLevel));
 			AddPanelString(fmt::format(fmt::runtime(_("Hit Points {:d} of {:d}")), target._pHitPoints >> 6, target._pMaxHP >> 6));
-			AddPanelString(fmt::format(fmt::runtime(_("Diawalk Remaining: {:d}%")), ((10000 / target.pDiawalkMeterMax) * target.pDiawalkMeter) / 100));
+			AddPanelString(fmt::format(fmt::runtime(_("Diawalk Remaining: {:d}%")), ((100000 / target.pDiawalkMeterMax) * target.pDiawalkMeter) / 1000));
 		}
 	}
 	if (!InfoString.empty() || pnumlines != 0)
