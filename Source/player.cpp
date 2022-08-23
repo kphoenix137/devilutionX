@@ -916,11 +916,13 @@ bool PlrHitPlr(Player &attacker, Player &target)
 		return false;
 	}
 
-	if (HasAnyOf(target._pSpellFlags, SpellFlag::Etherealize)) {
+	//if (HasAnyOf(target._pSpellFlags, SpellFlag::Etherealize)) {
+	if (target.pEtherealize) {
 		return false;
 	}
 
-	if (HasAnyOf(attacker._pSpellFlags, SpellFlag::Etherealize)) {
+	//if (HasAnyOf(attacker._pSpellFlags, SpellFlag::Etherealize)) {
+	if (attacker.pEtherealize) {
 		return false;
 	}
 
@@ -945,14 +947,15 @@ bool PlrHitPlr(Player &attacker, Player &target)
 		Direction dir = GetDirection(target.position.tile, attacker.position.tile);
 		StartPlrBlock(target, dir);
 
-		if (&target == MyPlayer) {
-			if (SDL_GetTicks() - target.pBlockTime < 1000)
+		if (&target == MyPlayer && (target._pClass != HeroClass::Sorcerer)) {
+			if ((SDL_GetTicks() - target.pBlockTime) < 500)
 				target.pBlockCounter--;
-			if (&target.pBlockCounter == 0) {
-				SetEtherealize(target);
+			else
 				target.pBlockCounter = 5;
-			}
-			target.pBlockCounter++;
+
+			if (target.pBlockCounter == 0)
+				SetEtherealize(target);
+
 			target.pBlockTime = SDL_GetTicks();
 		}
 

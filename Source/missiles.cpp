@@ -2259,7 +2259,7 @@ void AddEtherealize(Missile &missile, const AddMissileParameter & /*parameter*/)
 	//}
 	//missile._mirange += missile._mirange * player._pISplDur >> 7;
 
-	missile._mirange = 40;
+	missile._mirange = 80;
 
 	missile.var1 = player._pHitPoints;
 	missile.var2 = player._pHPBase;
@@ -3633,6 +3633,8 @@ void MI_Etherealize(Missile &missile)
 		missile._miDelFlag = true;
 		player.pEtherealize = false;
 		player._pSpellFlags &= ~SpellFlag::Etherealize;
+		if (&player == MyPlayer)
+			NetSendCmd(true, CMD_REMETHEREALIZE);
 	}
 	PutMissile(missile);
 }
