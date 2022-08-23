@@ -334,6 +334,7 @@ void AddAcidpud(Missile &missile, const AddMissileParameter &parameter);
  */
 void AddStone(Missile &missile, const AddMissileParameter &parameter);
 void AddGolem(Missile &missile, const AddMissileParameter &parameter);
+void AddEtherealize(Missile &missile, const AddMissileParameter &parameter);
 void AddBoom(Missile &missile, const AddMissileParameter &parameter);
 void AddHeal(Missile &missile, const AddMissileParameter &parameter);
 void AddHealOther(Missile &missile, const AddMissileParameter &parameter);
@@ -415,6 +416,7 @@ void MI_Misexp(Missile &missile);
 void MI_Acidsplat(Missile &missile);
 void MI_Teleport(Missile &missile);
 void MI_Stone(Missile &missile);
+void MI_Etherealize(Missile &missile);
 void MI_Boom(Missile &missile);
 void MI_Rhino(Missile &missile);
 void MI_FirewallC(Missile &missile);

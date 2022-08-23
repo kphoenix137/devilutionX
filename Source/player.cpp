@@ -545,11 +545,14 @@ void InitLevelChange(Player &player)
 
 	RemovePlrMissiles(player);
 	player.pManaShield = false;
+	player.pEtherealize = false;
 	player.wReflections = 0;
 	if (&player != MyPlayer) {
 		// share info about your manashield when another player joins the level
 		if (myPlayer.pManaShield)
 			NetSendCmd(true, CMD_SETSHIELD);
+		if (myPlayer.pEtherealize)
+			NetSendCmd(true, CMD_SETETHEREALIZE);
 		// share info about your reflect charges when another player joins the level
 		NetSendCmdParam1(true, CMD_SETREFLECT, myPlayer.wReflections);
 	} else if (qtextflag) {
@@ -889,8 +892,26 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 	return true;
 }
 
+void SetEtherealize(const Player &player)
+{
+	AddMissile(
+	    player.position.tile,
+	    player.position.tile,
+	    player._pdir,
+	    MIS_ETHEREALIZE,
+	    TARGET_MONSTERS,
+	    player.getId(),
+	    0,
+	    0);
+
+	if (&player != MyPlayer)
+		return;
+}
+
 bool PlrHitPlr(Player &attacker, Player &target)
 {
+	SetEtherealize(attacker);
+
 	if (target._pInvincible) {
 		return false;
 	}
@@ -2553,6 +2574,7 @@ void CreatePlayer(Player &player, HeroClass c)
 	player.pLvlLoad = 0;
 	player.pBattleNet = false;
 	player.pManaShield = false;
+	player.pEtherealize = false;
 	player.pDamAcFlags = ItemSpecialEffectHf::None;
 	player.wReflections = 0;
 
@@ -2698,6 +2720,7 @@ void InitPlayer(Player &player, bool firstTime)
 		player.queuedSpell.spellId = player._pRSpell;
 		player.queuedSpell.spellType = player._pRSplType;
 		player.pManaShield = false;
+		player.pEtherealize = false;
 		player.wReflections = 0;
 	}
 

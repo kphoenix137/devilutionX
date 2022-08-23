@@ -347,6 +347,7 @@ struct Player {
 	uint8_t pLvlLoad;
 	bool pBattleNet;
 	bool pManaShield;
+	bool pEtherealize;
 	uint8_t pDungMsgs2;
 	bool pOriginalCathedral;
 	uint16_t wReflections;

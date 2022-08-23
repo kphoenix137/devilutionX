@@ -475,6 +475,8 @@ void DrawPlayerIcons(const Surface &out, const Player &player, Point position, b
 {
 	if (player.pManaShield)
 		DrawPlayerIconHelper(out, MFILE_MANASHLD, position, &player != MyPlayer, infraVision);
+	if (player.pEtherealize)
+		DrawPlayerIconHelper(out, MFILE_ETHRSHLD, position, &player != MyPlayer, infraVision);
 	if (player.wReflections > 0)
 		DrawPlayerIconHelper(out, MFILE_REFLECT, position + Displacement { 0, 16 }, &player != MyPlayer, infraVision);
 }

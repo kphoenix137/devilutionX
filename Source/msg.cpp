@@ -2136,6 +2136,22 @@ size_t OnRemoveShield(const TCmd *pCmd, Player &player)
 	return sizeof(*pCmd);
 }
 
+size_t OnSetEtherealize(const TCmd *pCmd, Player &player)
+{
+	if (gbBufferMsgs != 1)
+		player.pEtherealize = true;
+
+	return sizeof(*pCmd);
+}
+
+size_t OnRemoveEtherealize(const TCmd *pCmd, Player &player)
+{
+	if (gbBufferMsgs != 1)
+		player.pEtherealize = false;
+
+	return sizeof(*pCmd);
+}
+
 size_t OnSetReflect(const TCmd *pCmd, Player &player)
 {
 	const auto &message = *reinterpret_cast<const TCmdParam1 *>(pCmd);
@@ -3191,6 +3207,10 @@ size_t ParseCmd(int pnum, const TCmd *pCmd)
 		return OnSetShield(pCmd, player);
 	case CMD_REMSHIELD:
 		return OnRemoveShield(pCmd, player);
+	case CMD_SETETHEREALIZE:
+		return OnSetEtherealize(pCmd, player);
+	case CMD_REMETHEREALIZE:
+		return OnRemoveEtherealize(pCmd, player);
 	case CMD_SETREFLECT:
 		return OnSetReflect(pCmd, player);
 	case CMD_NAKRUL:

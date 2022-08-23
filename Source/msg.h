@@ -434,6 +434,14 @@ enum _cmd_id : uint8_t {
 	//
 	// body (TCmd)
 	CMD_REMSHIELD,
+	// Enable etherealize of player (render).
+	//
+	// body (TCmd)
+	CMD_SETETHEREALIZE,
+	// Disable Etherealize of player (render).
+	//
+	// body (TCmd)
+	CMD_REMETHEREALIZE,
 	CMD_SETREFLECT,
 	CMD_NAKRUL,
 	CMD_OPENHIVE,

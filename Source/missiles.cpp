@@ -1088,9 +1088,10 @@ void InitMissiles()
 		}
 	}
 
-	if (HasAnyOf(myPlayer._pSpellFlags, SpellFlag::RageActive | SpellFlag::RageCooldown)) {
+	if (HasAnyOf(myPlayer._pSpellFlags, SpellFlag::RageActive | SpellFlag::RageCooldown | SpellFlag::Etherealize)) {
 		myPlayer._pSpellFlags &= ~SpellFlag::RageActive;
 		myPlayer._pSpellFlags &= ~SpellFlag::RageCooldown;
+		myPlayer._pSpellFlags &= ~SpellFlag::Etherealize;
 		for (auto &missile : Missiles) {
 			if (missile._mitype == MIS_BLODBOIL) {
 				if (missile.sourcePlayer() == MyPlayer) {
@@ -2239,6 +2240,37 @@ void AddGolem(Missile &missile, const AddMissileParameter &parameter)
 			SpawnGolem(player, golem, *spawnPosition, missile);
 		}
 	}
+}
+
+void AddEtherealize(Missile &missile, const AddMissileParameter & /*parameter*/)
+{
+	Player &player = Players[missile._misource];
+
+	missile._miDelFlag = true;
+
+	if (player.pEtherealize)
+		return;
+
+	player.pEtherealize = true;
+
+	player._pSpellFlags |= SpellFlag::Etherealize;
+
+	//missile._mirange = 16 * player._pLevel >> 1;
+	//for (int i = missile._mispllvl; i > 0; i--) {
+	//	missile._mirange += missile._mirange >> 3;
+	//}
+	//missile._mirange += missile._mirange * player._pISplDur >> 7;
+
+	missile._mirange = 40;
+
+	missile.var1 = player._pHitPoints;
+	missile.var2 = player._pHPBase;
+
+	if (&player == MyPlayer)
+		NetSendCmd(true, CMD_SETETHEREALIZE);
+
+	if (missile._micaster == TARGET_MONSTERS)
+		ConsumeSpell(player, SPL_ETHEREALIZE);
 }
 
 void AddBoom(Missile &missile, const AddMissileParameter &parameter)
@@ -3592,6 +3624,20 @@ void MI_Stone(Missile &missile)
 		PutMissile(missile);
 }
 
+void MI_Etherealize(Missile &missile)
+{
+	Player &player = Players[missile._misource];
+
+	missile._mirange--;
+
+	player._pSpellFlags |= SpellFlag::Etherealize;
+	if (missile._mirange == 0 || player._pHitPoints <= 0) {
+		missile._miDelFlag = true;
+		player._pSpellFlags &= ~SpellFlag::Etherealize;
+	}
+	PutMissile(missile);
+}
+
 void MI_Boom(Missile &missile)
 {
 	missile._mirange--;
@@ -4046,6 +4092,15 @@ void ProcessManaShield()
 	}
 }
 
+void ProcessEtherealize()
+{
+	Player &myPlayer = *MyPlayer;
+	if (myPlayer.pEtherealize && myPlayer._pHitPoints <= 0) {
+		myPlayer.pEtherealize = false;
+		NetSendCmd(true, CMD_REMETHEREALIZE);
+	}
+}
+
 void ProcessMissiles()
 {
 	for (auto &missile : Missiles) {
@@ -4080,6 +4135,7 @@ void ProcessMissiles()
 	}
 
 	ProcessManaShield();
+	//ProcessEtherealize();
 	DeleteMissiles();
 }
 
