@@ -49,7 +49,7 @@ MissileData MissilesData[] = {
 	{  nullptr,                    nullptr,            MIS_NULL_1F,       true,      1, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    MissileMovementDistribution::Disabled    },
 	{  nullptr,                    nullptr,            MIS_INVISIBL,      false,     1, MISR_NONE,      MFILE_NONE,      LS_INVISIBL, SFX_NONE,    MissileMovementDistribution::Disabled    },
 	{  &AddGolem,                  nullptr,            MIS_GOLEM,         false,     1, MISR_NONE,      MFILE_NONE,      LS_GOLUM,    SFX_NONE,    MissileMovementDistribution::Disabled    },
-	{  &AddEtherealize,            &MI_Etherealize,    MIS_ETHEREALIZE,   true,      1, MISR_LIGHTNING, MFILE_ETHRSHLD,  LS_ETHEREAL, SFX_NONE,    MissileMovementDistribution::Disabled    },
+	{  &AddEtherealize,            &MI_Etherealize,    MIS_ETHEREALIZE,   false,     1, MISR_LIGHTNING, MFILE_ETHRSHLD,  LS_ETHEREAL, SFX_NONE,    MissileMovementDistribution::Disabled    },
 	{  nullptr,                    nullptr,            MIS_BLODBUR,       true,      2, MISR_NONE,      MFILE_BLODBUR,   SFX_NONE,    SFX_NONE,    MissileMovementDistribution::Disabled    },
 	{  &AddBoom,                   &MI_Boom,           MIS_BOOM,          true,      2, MISR_NONE,      MFILE_NEWEXP,    SFX_NONE,    SFX_NONE,    MissileMovementDistribution::Disabled    },
 	{  &AddHeal,                   nullptr,            MIS_HEAL,          false,     1, MISR_NONE,      MFILE_NONE,      SFX_NONE,    SFX_NONE,    MissileMovementDistribution::Disabled    },

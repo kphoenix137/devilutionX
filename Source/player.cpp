@@ -546,6 +546,7 @@ void InitLevelChange(Player &player)
 	RemovePlrMissiles(player);
 	player.pManaShield = false;
 	player.pEtherealize = false;
+	player.pBlockCounter = 5;
 	player.wReflections = 0;
 	if (&player != MyPlayer) {
 		// share info about your manashield when another player joins the level
@@ -910,13 +911,16 @@ void SetEtherealize(const Player &player)
 
 bool PlrHitPlr(Player &attacker, Player &target)
 {
-	SetEtherealize(attacker);
 
 	if (target._pInvincible) {
 		return false;
 	}
 
 	if (HasAnyOf(target._pSpellFlags, SpellFlag::Etherealize)) {
+		return false;
+	}
+
+	if (HasAnyOf(attacker._pSpellFlags, SpellFlag::Etherealize)) {
 		return false;
 	}
 
@@ -940,6 +944,18 @@ bool PlrHitPlr(Player &attacker, Player &target)
 	if (blk < blkper) {
 		Direction dir = GetDirection(target.position.tile, attacker.position.tile);
 		StartPlrBlock(target, dir);
+
+		if (&target == MyPlayer) {
+			if (SDL_GetTicks() - target.pBlockTime < 1000)
+				target.pBlockCounter--;
+			if (&target.pBlockCounter == 0) {
+				SetEtherealize(target);
+				target.pBlockCounter = 5;
+			}
+			target.pBlockCounter++;
+			target.pBlockTime = SDL_GetTicks();
+		}
+
 		return true;
 	}
 
@@ -2575,6 +2591,7 @@ void CreatePlayer(Player &player, HeroClass c)
 	player.pBattleNet = false;
 	player.pManaShield = false;
 	player.pEtherealize = false;
+	player.pBlockCounter = 5;
 	player.pDamAcFlags = ItemSpecialEffectHf::None;
 	player.wReflections = 0;
 
@@ -2721,6 +2738,7 @@ void InitPlayer(Player &player, bool firstTime)
 		player.queuedSpell.spellType = player._pRSplType;
 		player.pManaShield = false;
 		player.pEtherealize = false;
+		player.pBlockCounter = 5;
 		player.wReflections = 0;
 	}
 

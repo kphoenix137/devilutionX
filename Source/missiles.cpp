@@ -2246,8 +2246,6 @@ void AddEtherealize(Missile &missile, const AddMissileParameter & /*parameter*/)
 {
 	Player &player = Players[missile._misource];
 
-	missile._miDelFlag = true;
-
 	if (player.pEtherealize)
 		return;
 
@@ -3633,6 +3631,7 @@ void MI_Etherealize(Missile &missile)
 	player._pSpellFlags |= SpellFlag::Etherealize;
 	if (missile._mirange == 0 || player._pHitPoints <= 0) {
 		missile._miDelFlag = true;
+		player.pEtherealize = false;
 		player._pSpellFlags &= ~SpellFlag::Etherealize;
 	}
 	PutMissile(missile);

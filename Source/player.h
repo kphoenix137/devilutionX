@@ -356,6 +356,8 @@ struct Player {
 	ItemSpecialEffectHf pDamAcFlags;
 	/** @brief Specifies whether players are in non-PvP mode. */
 	bool friendlyMode = true;
+	int pBlockTime;
+	int pBlockCounter;
 
 	void CalcScrolls();
 
