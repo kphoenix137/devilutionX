@@ -356,6 +356,7 @@ struct Player {
 	/** @brief Specifies whether players are in non-PvP mode. */
 	bool friendlyMode = true;
 	int pDiawalkMeter;
+	int pDiawalkMeterMax;
 
 	void CalcScrolls();
 

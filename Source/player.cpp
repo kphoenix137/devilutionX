@@ -546,6 +546,8 @@ void InitLevelChange(Player &player)
 	RemovePlrMissiles(player);
 	player.pManaShield = false;
 	player.wReflections = 0;
+	player.pDiawalkMeter = 35;
+	player.pDiawalkMeterMax = 35;
 	if (&player != MyPlayer) {
 		// share info about your manashield when another player joins the level
 		if (myPlayer.pManaShield)
@@ -580,22 +582,22 @@ void UpdateDiawalkMeter(Player &player, int mode)
 	case PM_WALK_NORTHWARDS:
 	case PM_WALK_SOUTHWARDS:
 		if (&player == MyPlayer) {
-			player.pDiawalkMeter += 1728;
+			player.pDiawalkMeter += 9;
 		}
 		break;
 	case PM_WALK_SIDEWAYS:
 		if (&player == MyPlayer) {
-			player.pDiawalkMeter -= 192;
+			player.pDiawalkMeter -= 1;
 		}
 		break;
 	default:
 		break;
 	}
-	player.pDiawalkMeter = clamp(player.pDiawalkMeter, 0, 6400);
+	player.pDiawalkMeter = clamp(player.pDiawalkMeter, 0, player.pDiawalkMeterMax);
 	if (&player == MyPlayer) {
 		NetSendCmdParam1(true, CMD_SETDIAWALKMETER, player.pDiawalkMeter);
 	}
-	if (player.pDiawalkMeter < 640)
+	if (player.pDiawalkMeter == 0)
 		player.Say(HeroSpeech::No);
 	
 }
@@ -2581,6 +2583,8 @@ void CreatePlayer(Player &player, HeroClass c)
 	player.pManaShield = false;
 	player.pDamAcFlags = ItemSpecialEffectHf::None;
 	player.wReflections = 0;
+	player.pDiawalkMeter = 35;
+	player.pDiawalkMeterMax = 35;
 
 	InitDungMsgs(player);
 	CreatePlrItems(player);
@@ -2725,6 +2729,8 @@ void InitPlayer(Player &player, bool firstTime)
 		player.queuedSpell.spellType = player._pRSplType;
 		player.pManaShield = false;
 		player.wReflections = 0;
+		player.pDiawalkMeter = 35;
+		player.pDiawalkMeterMax = 35;
 	}
 
 	if (player.isOnActiveLevel()) {
