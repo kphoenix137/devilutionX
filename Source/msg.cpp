@@ -1005,7 +1005,7 @@ void PrepareEarForNetwork(const Item &item, TEar &ear)
 void PrepareItemForNetwork(const Item &item, TCmdGItem &message)
 {
 	message.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
-	message.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	message.def.wCI = SDL_SwapLE32(item._iCreateInfo);
 	message.def.dwSeed = SDL_SwapLE32(item._iSeed);
 
 	if (item.IDidx == IDI_EAR)
@@ -1017,7 +1017,7 @@ void PrepareItemForNetwork(const Item &item, TCmdGItem &message)
 void PrepareItemForNetwork(const Item &item, TCmdPItem &message)
 {
 	message.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
-	message.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	message.def.wCI = SDL_SwapLE32(item._iCreateInfo);
 	message.def.dwSeed = SDL_SwapLE32(item._iSeed);
 
 	if (item.IDidx == IDI_EAR)
@@ -1029,7 +1029,7 @@ void PrepareItemForNetwork(const Item &item, TCmdPItem &message)
 void PrepareItemForNetwork(const Item &item, TCmdChItem &message)
 {
 	message.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
-	message.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	message.def.wCI = SDL_SwapLE32(item._iCreateInfo);
 	message.def.dwSeed = SDL_SwapLE32(item._iSeed);
 
 	if (item.IDidx == IDI_EAR)
@@ -2737,7 +2737,7 @@ void DeltaAddItem(int ii)
 	for (const TCmdPItem &item : deltaLevel.item) {
 		if (item.bCmd != CMD_INVALID
 		    && static_cast<_item_indexes>(SDL_SwapLE16(item.def.wIndx)) == Items[ii].IDidx
-		    && SDL_SwapLE16(item.def.wCI) == Items[ii]._iCreateInfo
+		    && SDL_SwapLE32(item.def.wCI) == Items[ii]._iCreateInfo
 		    && static_cast<int32_t>(SDL_SwapLE32(item.def.dwSeed)) == Items[ii]._iSeed
 		    && IsAnyOf(item.bCmd, TCmdPItem::PickedUpItem, TCmdPItem::FloorItem)) {
 			return;

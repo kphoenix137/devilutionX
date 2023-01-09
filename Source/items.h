@@ -146,17 +146,17 @@ enum _unique_items : int8_t {
  */
 enum icreateinfo_flag {
 	// clang-format off
-	CF_LEVEL        = (1 << 6) - 1,
-	CF_ONLYGOOD     = 1 << 6,
-	CF_UPER15       = 1 << 7,
-	CF_UPER1        = 1 << 8,
-	CF_UNIQUE       = 1 << 9,
-	CF_SMITH        = 1 << 10,
-	CF_SMITHPREMIUM = 1 << 11,
-	CF_BOY          = 1 << 12,
-	CF_WITCH        = 1 << 13,
-	CF_HEALER       = 1 << 14,
-	CF_PREGEN       = 1 << 15,
+	CF_LEVEL        = 1 << 8,
+	CF_ONLYGOOD     = 1 << 9,
+	CF_UPER15       = 1 << 10,
+	CF_UPER1        = 1 << 11,
+	CF_UNIQUE       = 1 << 12,
+	CF_SMITH        = 1 << 13,
+	CF_SMITHPREMIUM = 1 << 14,
+	CF_BOY          = 1 << 15,
+	CF_WITCH        = 1 << 16,
+	CF_HEALER       = 1 << 17,
+	CF_PREGEN       = 1 << 18,
 
 	CF_USEFUL = CF_UPER15 | CF_UPER1,
 	CF_TOWN   = CF_SMITH | CF_SMITHPREMIUM | CF_BOY | CF_WITCH | CF_HEALER,
@@ -178,7 +178,7 @@ struct Player;
 struct Item {
 	/** Randomly generated identifier */
 	int32_t _iSeed = 0;
-	uint16_t _iCreateInfo = 0;
+	uint32_t _iCreateInfo = 0;
 	ItemType _itype = ItemType::None;
 	bool _iAnimFlag = false;
 	Point position = { 0, 0 };

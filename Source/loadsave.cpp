@@ -995,7 +995,7 @@ void SaveItem(SaveHelper &file, const Item &item)
 	}
 
 	file.WriteLE<int32_t>(item._iSeed);
-	file.WriteLE<int16_t>(item._iCreateInfo);
+	file.WriteLE<int32_t>(item._iCreateInfo);
 	file.Skip(2); // Alignment
 	file.WriteLE<int32_t>(static_cast<int32_t>(iType));
 	file.WriteLE<int32_t>(item.position.x);

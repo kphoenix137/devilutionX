@@ -61,7 +61,7 @@ void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
 			packedItem.dwBuff = SDL_SwapLE32(LoadBE32(&item._iIName[12]));
 		} else {
 			packedItem.iSeed = SDL_SwapLE32(item._iSeed);
-			packedItem.iCreateInfo = SDL_SwapLE16(item._iCreateInfo);
+			packedItem.iCreateInfo = SDL_SwapLE32(item._iCreateInfo);
 			packedItem.bId = (item._iMagical << 1) | (item._iIdentified ? 1 : 0);
 			packedItem.bDur = item._iDurability;
 			packedItem.bMDur = item._iMaxDur;
