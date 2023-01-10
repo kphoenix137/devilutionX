@@ -2318,9 +2318,28 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 
 	uint64_t spl = 0; // bitarray for all enabled/active spells
 
-	int fr = 0; // fire resistance
-	int lr = 0; // lightning resistance
-	int mr = 0; // magic resistance
+	int fr; // fire resistance
+	int lr; // lightning resistance
+	int mr; // magic resistance
+
+	switch (sgGameInitInfo.nDifficulty) {
+	case DIFF_NORMAL:
+		fr = 0;
+		lr = 0;
+		mr = 0;
+	case DIFF_NIGHTMARE:
+		fr = -40;
+		lr = -40;
+		mr = -40;
+		break;
+	case DIFF_HELL:
+		fr = -80;
+		lr = -80;
+		mr = -80;
+		break;
+	default:
+		break;
+	}
 
 	int dmod = 0; // bonus damage mod?
 	int ghit = 0; // increased damage from enemies
@@ -2502,9 +2521,9 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 		lr = 0;
 	}
 
-	player._pMagResist = clamp(mr, 0, MaxResistance);
-	player._pFireResist = clamp(fr, 0, MaxResistance);
-	player._pLghtResist = clamp(lr, 0, MaxResistance);
+	player._pMagResist = clamp(mr, -128, MaxResistance);
+	player._pFireResist = clamp(fr, -128, MaxResistance);
+	player._pLghtResist = clamp(lr, -128, MaxResistance);
 
 	if (player._pClass == HeroClass::Warrior) {
 		vadd *= 2;

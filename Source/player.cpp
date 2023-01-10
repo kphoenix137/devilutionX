@@ -2799,6 +2799,21 @@ void InitPlayer(Player &player, bool firstTime)
 		player._pAblSpells = GetSpellBitmask(SPL_BLODBOIL);
 	}
 
+	switch (sgGameInitInfo.nDifficulty) {
+	case DIFF_NIGHTMARE:
+		player._pMagResist -= 40;
+		player._pFireResist -= 40;
+		player._pLghtResist -= 40;
+		break;
+	case DIFF_HELL:
+		player._pMagResist -= 80;
+		player._pFireResist -= 80;
+		player._pLghtResist -= 80;
+		break;
+	default:
+		break;
+	}
+
 	player._pNextExper = ExpLvlsTbl[player._pLevel];
 	player._pInvincible = false;
 
