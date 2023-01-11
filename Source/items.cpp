@@ -642,11 +642,11 @@ void GetBookSpell(Item &item, int lvl)
 	item._ivalue += spelldata[bs].sBookCost;
 	item._iIvalue += spelldata[bs].sBookCost;
 	if (spelldata[bs].sType == STYPE_FIRE)
-		item._iCurs = ICURS_BOOK_RED;
+		item._iCurs = ItemCursorGraphic::BookRed;
 	else if (spelldata[bs].sType == STYPE_LIGHTNING)
-		item._iCurs = ICURS_BOOK_BLUE;
+		item._iCurs = ItemCursorGraphic::BookBlue;
 	else if (spelldata[bs].sType == STYPE_MAGIC)
-		item._iCurs = ICURS_BOOK_GREY;
+		item._iCurs = ItemCursorGraphic::BookGrey;
 }
 
 int RndPL(int param1, int param2)
@@ -966,7 +966,7 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iMinStr = 0;
 		break;
 	case IPL_INVCURS:
-		item._iCurs = power.param1;
+		item._iCurs = static_cast<ItemCursorGraphic>(power.param1);
 		break;
 	case IPL_ADDACLIFE:
 		item._iFlags |= (ItemSpecialEffect::LightningArrows | ItemSpecialEffect::FireArrows);
@@ -2143,7 +2143,7 @@ void RecreateTownItem(const Player &player, Item &item, _item_indexes idx, uint1
 		RecreateHealerItem(player, item, idx, icreateinfo & CF_LEVEL, iseed);
 }
 
-void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, int icurs, bool sendmsg, bool delta)
+void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, ItemCursorGraphic icurs, bool sendmsg, bool delta)
 {
 	if (ActiveItemCount >= MAXITEMS)
 		return;
@@ -2724,15 +2724,15 @@ void GenerateNewSeed(Item &item)
 	item._iSeed = AdvanceRndSeed();
 }
 
-int GetGoldCursor(int value)
+ItemCursorGraphic GetGoldCursor(int value)
 {
 	if (value >= GOLD_MEDIUM_LIMIT)
-		return ICURS_GOLD_LARGE;
+		return ItemCursorGraphic::GoldLarge;
 
 	if (value <= GOLD_SMALL_LIMIT)
-		return ICURS_GOLD_SMALL;
+		return ItemCursorGraphic::GoldSmall;
 
-	return ICURS_GOLD_MEDIUM;
+	return ItemCursorGraphic::GoldMedium;
 }
 
 void SetPlrHandGoldCurs(Item &gold)
@@ -3128,7 +3128,7 @@ void RecreateEar(Item &item, uint16_t ic, int iseed, uint8_t bCursval, string_vi
 	CopyUtf8(item._iName, itemName, sizeof(item._iName));
 	CopyUtf8(item._iIName, heroName, sizeof(item._iIName));
 
-	item._iCurs = ((bCursval >> 6) & 3) + ICURS_EAR_SORCERER;
+	item._iCurs = static_cast<ItemCursorGraphic>(((bCursval >> 6) & 3) + static_cast<uint8_t>(ItemCursorGraphic::EarSorcerer));
 	item._ivalue = bCursval & 0x3F;
 	item._iCreateInfo = ic;
 	item._iSeed = iseed;
@@ -3282,16 +3282,16 @@ void SpawnTheodore(Point position, bool sendmsg)
 
 void RespawnItem(Item &item, bool flipFlag)
 {
-	int it = ItemCAnimTbl[item._iCurs];
+	int it = ItemCAnimTbl[static_cast<uint8_t>(item._iCurs)];
 	item.setNewAnimation(flipFlag);
 	item._iRequest = false;
 
-	if (IsAnyOf(item._iCurs, ICURS_MAGIC_ROCK, ICURS_TAVERN_SIGN, ICURS_ANVIL_OF_FURY))
+	if (IsAnyOf(item._iCurs, ItemCursorGraphic::MagicRock, ItemCursorGraphic::TavernSign, ItemCursorGraphic::AnvilFury))
 		item._iSelFlag = 1;
-	else if (IsAnyOf(item._iCurs, ICURS_MAP_OF_THE_STARS, ICURS_RUNE_BOMB, ICURS_THEODORE, ICURS_AURIC_AMULET))
+	else if (IsAnyOf(item._iCurs, ItemCursorGraphic::Map, ItemCursorGraphic::RuneBomb, ItemCursorGraphic::Theodore, ItemCursorGraphic::AuricAmulet))
 		item._iSelFlag = 2;
 
-	if (item._iCurs == ICURS_MAGIC_ROCK) {
+	if (item._iCurs == ItemCursorGraphic::MagicRock) {
 		PlaySfxLoc(ItemDropSnds[it], item.position);
 	}
 }
@@ -3320,14 +3320,14 @@ void ProcessItems()
 		if (!item._iAnimFlag)
 			continue;
 		item.AnimInfo.processAnimation();
-		if (item._iCurs == ICURS_MAGIC_ROCK) {
+		if (item._iCurs == ItemCursorGraphic::MagicRock) {
 			if (item._iSelFlag == 1 && item.AnimInfo.currentFrame == 10)
 				item.AnimInfo.currentFrame = 0;
 			if (item._iSelFlag == 2 && item.AnimInfo.currentFrame == 20)
 				item.AnimInfo.currentFrame = 10;
 		} else {
 			if (item.AnimInfo.currentFrame == (item.AnimInfo.numberOfFrames - 1) / 2)
-				PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[item._iCurs]], item.position);
+				PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[static_cast<uint8_t>(item._iCurs)]], item.position);
 
 			if (item.AnimInfo.isLastFrame()) {
 				item.AnimInfo.currentFrame = item.AnimInfo.numberOfFrames - 1;
@@ -3348,7 +3348,7 @@ void FreeItemGFX()
 
 void GetItemFrm(Item &item)
 {
-	int it = ItemCAnimTbl[item._iCurs];
+	int it = ItemCAnimTbl[static_cast<uint8_t>(item._iCurs)];
 	if (itemanims[it])
 		item.AnimInfo.sprites.emplace(*itemanims[it]);
 }
@@ -4264,7 +4264,7 @@ void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta)
 		DeltaAddItem(ii);
 }
 
-void CreateMagicArmor(Point position, ItemType itemType, int icurs, bool sendmsg, bool delta)
+void CreateMagicArmor(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta)
 {
 	int lvl = ItemsGetCurrlevel();
 	CreateMagicItem(position, lvl, itemType, IMISC_NONE, icurs, sendmsg, delta);
@@ -4272,10 +4272,10 @@ void CreateMagicArmor(Point position, ItemType itemType, int icurs, bool sendmsg
 
 void CreateAmulet(Point position, int lvl, bool sendmsg, bool delta)
 {
-	CreateMagicItem(position, lvl, ItemType::Amulet, IMISC_AMULET, ICURS_AMULET, sendmsg, delta);
+	CreateMagicItem(position, lvl, ItemType::Amulet, IMISC_AMULET, ItemCursorGraphic::Amulet, sendmsg, delta);
 }
 
-void CreateMagicWeapon(Point position, ItemType itemType, int icurs, bool sendmsg, bool delta)
+void CreateMagicWeapon(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta)
 {
 	int imid = IMISC_NONE;
 	if (itemType == ItemType::Staff)
@@ -4462,10 +4462,10 @@ std::string DebugSpawnUniqueItem(std::string itemName)
 
 void Item::setNewAnimation(bool showAnimation)
 {
-	int8_t it = ItemCAnimTbl[_iCurs];
+	int8_t it = ItemCAnimTbl[static_cast<uint8_t>(_iCurs)];
 	int8_t numberOfFrames = ItemAnimLs[it];
 	OptionalClxSpriteList sprite = itemanims[it] ? OptionalClxSpriteList { *itemanims[static_cast<size_t>(it)] } : std::nullopt;
-	if (_iCurs != ICURS_MAGIC_ROCK)
+	if (_iCurs != ItemCursorGraphic::MagicRock)
 		AnimInfo.setNewAnimation(sprite, numberOfFrames, 1, AnimationDistributionFlags::ProcessAnimationPending, 0, numberOfFrames);
 	else
 		AnimInfo.setNewAnimation(sprite, numberOfFrames, 1);

@@ -107,17 +107,17 @@ void LoadButtonArt(ButtonTexture *buttonArt, SDL_Renderer *renderer)
 
 void LoadPotionArt(ButtonTexture *potionArt, SDL_Renderer *renderer)
 {
-	item_cursor_graphic potionGraphics[] {
-		ICURS_POTION_OF_HEALING,
-		ICURS_POTION_OF_MANA,
-		ICURS_POTION_OF_REJUVENATION,
-		ICURS_POTION_OF_FULL_HEALING,
-		ICURS_POTION_OF_FULL_MANA,
-		ICURS_POTION_OF_FULL_REJUVENATION,
-		ICURS_SCROLL_OF
+	ItemCursorGraphic potionGraphics[] {
+		ItemCursorGraphic::PotionHealing,
+		ItemCursorGraphic::PotionMana,
+		ItemCursorGraphic::PotionRejuvenation,
+		ItemCursorGraphic::PotionFullHealing,
+		ItemCursorGraphic::PotionFullMana,
+		ItemCursorGraphic::PotionFullRejuvenation,
+		ItemCursorGraphic::ScrollRed
 	};
 
-	int potionFrame = static_cast<int>(CURSOR_FIRSTITEM) + static_cast<int>(ICURS_POTION_OF_HEALING);
+	int potionFrame = static_cast<int>(CURSOR_FIRSTITEM) + static_cast<int>(ItemCursorGraphic::PotionHealing);
 	Size potionSize = GetInvItemSize(potionFrame);
 
 	auto surface = SDLWrap::CreateRGBSurfaceWithFormat(
@@ -138,8 +138,8 @@ void LoadPotionArt(ButtonTexture *potionArt, SDL_Renderer *renderer)
 		ErrSdl();
 
 	Point position { 0, 0 };
-	for (item_cursor_graphic graphic : potionGraphics) {
-		const int cursorID = static_cast<int>(CURSOR_FIRSTITEM) + graphic;
+	for (ItemCursorGraphic graphic : potionGraphics) {
+		const int cursorID = static_cast<int>(CURSOR_FIRSTITEM) + static_cast<uint8_t>(graphic);
 		position.y += potionSize.height;
 		ClxDraw(Surface(surface.get()), position, GetInvItemSprite(cursorID));
 	}

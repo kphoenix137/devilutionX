@@ -292,7 +292,7 @@ bool AutoEquip(Player &player, const Item &item, inv_body_loc bodyLocation, bool
 		ChangeEquipment(player, bodyLocation, item);
 
 		if (*sgOptions.Audio.autoEquipSound && &player == MyPlayer) {
-			PlaySFX(ItemInvSnds[ItemCAnimTbl[item._iCurs]]);
+			PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(item._iCurs)]]);
 		}
 
 		CalcPlrInv(player, true);
@@ -416,7 +416,7 @@ void CheckInvPaste(Player &player, Point cursorPosition)
 		return;
 
 	if (&player == MyPlayer)
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[player.HoldItem._iCurs]]);
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(player.HoldItem._iCurs)]]);
 
 	switch (il) {
 	case ILOC_HELM:
@@ -514,7 +514,7 @@ void CheckInvPaste(Player &player, Point cursorPosition)
 					player.HoldItem._ivalue -= ig;
 					SetPlrHandGoldCurs(player.HoldItem);
 					player.InvList[invIndex]._ivalue = MaxGold;
-					player.InvList[invIndex]._iCurs = ICURS_GOLD_LARGE;
+					player.InvList[invIndex]._iCurs = ItemCursorGraphic::GoldLarge;
 				}
 			} else {
 				int invIndex = player._pNumInv;
@@ -825,7 +825,7 @@ void CheckInvCut(Player &player, Point cursorPosition, bool automaticMove, bool 
 
 		if (&player == MyPlayer) {
 			if (automaticallyEquipped) {
-				PlaySFX(ItemInvSnds[ItemCAnimTbl[holdItem._iCurs]]);
+				PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(holdItem._iCurs)]]);
 			} else if (!automaticMove || automaticallyMoved) {
 				PlaySFX(IS_IGRAB);
 			}
@@ -844,7 +844,7 @@ void CheckInvCut(Player &player, Point cursorPosition, bool automaticMove, bool 
 				NewCursor(holdItem);
 				if (!IsHardwareCursor() && !dropItem) {
 					// For a hardware cursor, we set the "hot point" to the center of the item instead.
-					Size cursSize = GetInvItemSize(holdItem._iCurs + CURSOR_FIRSTITEM);
+					Size cursSize = GetInvItemSize(static_cast<uint8_t>(holdItem._iCurs) + CURSOR_FIRSTITEM);
 					SetCursorPos(cursorPosition - Displacement(cursSize / 2));
 				}
 			}
@@ -1118,7 +1118,7 @@ void DrawInv(const Surface &out)
 			int screenY = slotPos[slot].y;
 			InvDrawSlotBack(out, GetPanelPosition(UiPanels::Inventory, { screenX, screenY }), { slotSize[slot].width * InventorySlotSizeInPixels.width, slotSize[slot].height * InventorySlotSizeInPixels.height }, myPlayer.InvBody[slot]._iMagical);
 
-			const int cursId = myPlayer.InvBody[slot]._iCurs + CURSOR_FIRSTITEM;
+			const int cursId = static_cast<uint8_t>(myPlayer.InvBody[slot]._iCurs) + CURSOR_FIRSTITEM;
 
 			auto frameSize = GetInvItemSize(cursId);
 
@@ -1166,7 +1166,7 @@ void DrawInv(const Surface &out)
 	for (int j = 0; j < InventoryGridCells; j++) {
 		if (myPlayer.InvGrid[j] > 0) { // first slot of an item
 			int ii = myPlayer.InvGrid[j] - 1;
-			int cursId = myPlayer.InvList[ii]._iCurs + CURSOR_FIRSTITEM;
+			int cursId = static_cast<uint8_t>(myPlayer.InvList[ii]._iCurs) + CURSOR_FIRSTITEM;
 
 			const ClxSprite sprite = GetInvItemSprite(cursId);
 			const Point position = GetPanelPosition(UiPanels::Inventory, InvRect[j + SLOTXY_INV_FIRST]) + Displacement { 0, -1 };
@@ -1198,7 +1198,7 @@ void DrawInvBelt(const Surface &out)
 
 		const Point position { InvRect[i + SLOTXY_BELT_FIRST].x + mainPanelPosition.x, InvRect[i + SLOTXY_BELT_FIRST].y + mainPanelPosition.y - 1 };
 		InvDrawSlotBack(out, position, InventorySlotSizeInPixels, myPlayer.SpdList[i]._iMagical);
-		const int cursId = myPlayer.SpdList[i]._iCurs + CURSOR_FIRSTITEM;
+		const int cursId = static_cast<uint8_t>(myPlayer.SpdList[i]._iCurs) + CURSOR_FIRSTITEM;
 
 		const ClxSprite sprite = GetInvItemSprite(cursId);
 
@@ -1535,7 +1535,7 @@ void TransferItemToStash(Player &player, int location)
 		return;
 	}
 
-	PlaySFX(ItemInvSnds[ItemCAnimTbl[item._iCurs]]);
+	PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(item._iCurs)]]);
 
 	if (location < INVITEM_INV_FIRST) {
 		RemoveEquipment(player, static_cast<inv_body_loc>(location), false);
@@ -2108,7 +2108,7 @@ bool UseInvItem(size_t pnum, int cii)
 		return true;
 	}
 
-	int idata = ItemCAnimTbl[item->_iCurs];
+	int idata = ItemCAnimTbl[static_cast<uint8_t>(item->_iCurs)];
 	if (item->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
 	else if (&player == MyPlayer)
@@ -2178,7 +2178,7 @@ int CalculateGold(Player &player)
 
 Size GetInventorySize(const Item &item)
 {
-	int itemSizeIndex = item._iCurs + CURSOR_FIRSTITEM;
+	int itemSizeIndex = static_cast<uint8_t>(item._iCurs) + CURSOR_FIRSTITEM;
 	auto size = GetInvItemSize(itemSizeIndex);
 
 	return { size.width / InventorySlotSizeInPixels.width, size.height / InventorySlotSizeInPixels.height };

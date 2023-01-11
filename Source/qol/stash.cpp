@@ -132,7 +132,7 @@ void CheckStashPaste(Point cursorPosition)
 		return; // Found a second item
 	}
 
-	PlaySFX(ItemInvSnds[ItemCAnimTbl[player.HoldItem._iCurs]]);
+	PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(player.HoldItem._iCurs)]]);
 
 	player.HoldItem.position = firstSlot + Displacement { 0, itemSize.height - 1 };
 
@@ -216,7 +216,7 @@ void CheckStashCut(Point cursorPosition, bool automaticMove)
 		CalcPlrInv(player, true);
 		holdItem._iStatFlag = player.CanUseItem(holdItem);
 		if (automaticallyEquipped) {
-			PlaySFX(ItemInvSnds[ItemCAnimTbl[holdItem._iCurs]]);
+			PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(holdItem._iCurs)]]);
 		} else if (!automaticMove || automaticallyMoved) {
 			PlaySFX(IS_IGRAB);
 		}
@@ -235,7 +235,7 @@ void CheckStashCut(Point cursorPosition, bool automaticMove)
 			NewCursor(holdItem);
 			if (!IsHardwareCursor()) {
 				// For a hardware cursor, we set the "hot point" to the center of the item instead.
-				Size cursSize = GetInvItemSize(holdItem._iCurs + CURSOR_FIRSTITEM);
+				Size cursSize = GetInvItemSize(static_cast<uint8_t>(holdItem._iCurs) + CURSOR_FIRSTITEM);
 				SetCursorPos(cursorPosition - Displacement(cursSize / 2));
 			}
 		}
@@ -290,7 +290,7 @@ void TransferItemToInventory(Player &player, uint16_t itemId)
 		return;
 	}
 
-	PlaySFX(ItemInvSnds[ItemCAnimTbl[item._iCurs]]);
+	PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(item._iCurs)]]);
 
 	Stash.RemoveStashItem(itemId);
 }
@@ -373,7 +373,7 @@ void DrawStash(const Surface &out)
 			continue; // Not the first slot of the item
 		}
 
-		int frame = item._iCurs + CURSOR_FIRSTITEM;
+		int frame = static_cast<uint8_t>(item._iCurs) + CURSOR_FIRSTITEM;
 
 		const Point position = GetStashSlotCoord(item.position) + offset;
 		const ClxSprite sprite = GetInvItemSprite(frame);
@@ -492,7 +492,7 @@ bool UseStashItem(uint16_t c)
 	if (item->_iMiscId == IMISC_BOOK)
 		PlaySFX(IS_RBOOK);
 	else
-		PlaySFX(ItemInvSnds[ItemCAnimTbl[item->_iCurs]]);
+		PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(item->_iCurs)]]);
 
 	UseItem(MyPlayerId, item->_iMiscId, item->_iSpell);
 

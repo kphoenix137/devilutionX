@@ -253,7 +253,7 @@ void LoadItemData(LoadHelper &file, Item &item)
 	item._iLoc = static_cast<item_equip_type>(file.NextLE<int8_t>());
 	item._iClass = static_cast<item_class>(file.NextLE<uint8_t>());
 	file.Skip(1); // Alignment
-	item._iCurs = file.NextLE<int32_t>();
+	item._iCurs = static_cast<ItemCursorGraphic>(file.NextLE<int32_t>());
 	item._ivalue = file.NextLE<int32_t>();
 	item._iIvalue = file.NextLE<int32_t>();
 	item._iMinDam = file.NextLE<int32_t>();
@@ -1019,7 +1019,7 @@ void SaveItem(SaveHelper &file, const Item &item)
 	file.WriteLE<int8_t>(item._iLoc);
 	file.WriteLE<uint8_t>(item._iClass);
 	file.Skip(1); // Alignment
-	file.WriteLE<int32_t>(item._iCurs);
+	file.WriteLE<int32_t>(static_cast<uint8_t>(item._iCurs));
 	file.WriteLE<int32_t>(item._ivalue);
 	file.WriteLE<int32_t>(item._iIvalue);
 	file.WriteLE<int32_t>(item._iMinDam);

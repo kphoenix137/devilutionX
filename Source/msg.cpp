@@ -998,7 +998,7 @@ void PrepareItemForNetwork(const Item &item, TItem &messageItem)
 
 void PrepareEarForNetwork(const Item &item, TEar &ear)
 {
-	ear.bCursval = item._ivalue | ((item._iCurs - ICURS_EAR_SORCERER) << 6);
+	ear.bCursval = item._ivalue | ((static_cast<uint8_t>(item._iCurs) - static_cast<uint8_t>(ItemCursorGraphic::EarSorcerer)) << 6);
 	CopyUtf8(ear.heroname, item._iIName, sizeof(ear.heroname));
 }
 

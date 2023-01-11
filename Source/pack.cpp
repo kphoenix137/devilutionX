@@ -57,7 +57,7 @@ void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
 			packedItem.bMDur = item._iIName[8];
 			packedItem.bCh = item._iIName[9];
 			packedItem.bMCh = item._iIName[10];
-			packedItem.wValue = SDL_SwapLE16(item._ivalue | (item._iIName[11] << 8) | ((item._iCurs - ICURS_EAR_SORCERER) << 6));
+			packedItem.wValue = SDL_SwapLE16(item._ivalue | (item._iIName[11] << 8) | ((static_cast<uint8_t>(item._iCurs) - static_cast<uint8_t>(ItemCursorGraphic::EarSorcerer)) << 6));
 			packedItem.dwBuff = SDL_SwapLE32(LoadBE32(&item._iIName[12]));
 		} else {
 			packedItem.iSeed = SDL_SwapLE32(item._iSeed);

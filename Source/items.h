@@ -195,7 +195,7 @@ struct Item {
 	char _iIName[64] = {};
 	item_equip_type _iLoc = ILOC_NONE;
 	item_class _iClass = ICLASS_NONE;
-	uint8_t _iCurs = 0;
+	ItemCursorGraphic _iCurs = ItemCursorGraphic::PotionFullMana;
 	int _ivalue = 0;
 	int _iIvalue = 0;
 	uint8_t _iMinDam = 0;
@@ -483,7 +483,7 @@ void CalcPlrItemVals(Player &player, bool Loadgfx);
 void CalcPlrInv(Player &player, bool Loadgfx);
 void InitializeItem(Item &item, _item_indexes itemData);
 void GenerateNewSeed(Item &h);
-int GetGoldCursor(int value);
+ItemCursorGraphic GetGoldCursor(int value);
 
 /**
  * @brief Update the gold cursor on the given gold item
@@ -535,9 +535,9 @@ void SpawnHealer(int lvl);
 void MakeGoldStack(Item &goldItem, int value);
 int ItemNoFlippy();
 void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta);
-void CreateMagicArmor(Point position, ItemType itemType, int icurs, bool sendmsg, bool delta);
+void CreateMagicArmor(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta);
 void CreateAmulet(Point position, int lvl, bool sendmsg, bool delta);
-void CreateMagicWeapon(Point position, ItemType itemType, int icurs, bool sendmsg, bool delta);
+void CreateMagicWeapon(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta);
 bool GetItemRecord(int nSeed, uint16_t wCI, int nIndex);
 void SetItemRecord(int nSeed, uint16_t wCI, int nIndex);
 void PutItemRecord(int nSeed, uint16_t wCI, int nIndex);

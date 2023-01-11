@@ -885,9 +885,9 @@ void SpawnLoot(Monster &monster, bool sendmsg)
 			stream_stop();
 		Quests[Q_NAKRUL]._qlog = false;
 		UberDiabloMonsterIndex = -2;
-		CreateMagicWeapon(monster.position.tile, ItemType::Sword, ICURS_GREAT_SWORD, sendmsg, false);
-		CreateMagicWeapon(monster.position.tile, ItemType::Staff, ICURS_WAR_STAFF, sendmsg, false);
-		CreateMagicWeapon(monster.position.tile, ItemType::Bow, ICURS_LONG_WAR_BOW, sendmsg, false);
+		CreateMagicWeapon(monster.position.tile, ItemType::Sword, ItemCursorGraphic::GreatSword, sendmsg, false);
+		CreateMagicWeapon(monster.position.tile, ItemType::Staff, ItemCursorGraphic::WarStaff, sendmsg, false);
+		CreateMagicWeapon(monster.position.tile, ItemType::Bow, ItemCursorGraphic::LongWarBow, sendmsg, false);
 		CreateSpellBook(monster.position.tile, SPL_APOCA, sendmsg, false);
 	} else if (!monster.isPlayerMinion()) {
 		SpawnItem(monster, monster.position.tile, sendmsg);

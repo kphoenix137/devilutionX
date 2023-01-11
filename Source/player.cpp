@@ -3004,16 +3004,16 @@ StartPlayerKill(Player &player, int earflag)
 						CopyUtf8(ear._iIName, player._pName, sizeof(ear._iIName));
 						switch (player._pClass) {
 						case HeroClass::Sorcerer:
-							ear._iCurs = ICURS_EAR_SORCERER;
+							ear._iCurs = ItemCursorGraphic::EarSorcerer;
 							break;
 						case HeroClass::Warrior:
-							ear._iCurs = ICURS_EAR_WARRIOR;
+							ear._iCurs = ItemCursorGraphic::EarWarrior;
 							break;
 						case HeroClass::Rogue:
 						case HeroClass::Monk:
 						case HeroClass::Bard:
 						case HeroClass::Barbarian:
-							ear._iCurs = ICURS_EAR_ROGUE;
+							ear._iCurs = ItemCursorGraphic::EarRogue;
 							break;
 						}
 

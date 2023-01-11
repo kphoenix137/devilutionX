@@ -115,7 +115,7 @@ void SyncPlrInv(TSyncHeader *pHdr)
 			pHdr->bItemMDur = item._iIName[8];
 			pHdr->bItemCh = item._iIName[9];
 			pHdr->bItemMCh = item._iIName[10];
-			pHdr->wItemVal = SDL_SwapLE16((item._iIName[11] << 8) | ((item._iCurs - ICURS_EAR_SORCERER) << 6) | item._ivalue);
+			pHdr->wItemVal = SDL_SwapLE16((item._iIName[11] << 8) | ((static_cast<uint8_t>(item._iCurs) - static_cast<uint8_t>(ItemCursorGraphic::EarSorcerer)) << 6) | item._ivalue);
 			pHdr->dwItemBuff = SDL_SwapLE32((item._iIName[12] << 24) | (item._iIName[13] << 16) | (item._iIName[14] << 8) | item._iIName[15]);
 		} else {
 			pHdr->wItemCI = SDL_SwapLE16(item._iCreateInfo);
