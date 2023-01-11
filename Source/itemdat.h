@@ -111,7 +111,7 @@ enum class ItemCursorGraphic : uint8_t {
 	PotionFullMana,
 	ScrollRed,
 	ScrollBrown, // unused
-	ScrollBlue,  // unused
+	ScrollBlue, // unused
 	GoldSmall,
 	GoldMedium,
 	GoldLarge,
@@ -130,14 +130,14 @@ enum class ItemCursorGraphic : uint8_t {
 	EarSorcerer,
 	EarWarrior,
 	EarRogue,
-	Sphere,     // unused
-	Cube,    // unused
+	Sphere, // unused
+	Cube, // unused
 	Pyramid, // unused
 	BloodStone,
-	JSphere,        // unused
-	JCube,    // unused
+	JSphere, // unused
+	JCube, // unused
 	JPyramid, // unused
-	Vial,     // unused
+	Vial, // unused
 	Oil,
 	ElixirVitality,
 	PotionHealing,
@@ -149,15 +149,15 @@ enum class ItemCursorGraphic : uint8_t {
 	ElixirStrength,
 	PotionMana,
 	Brain,
-	Claw,  // unused
+	Claw, // unused
 	Fang, // unused
 	Bread, // unused
 	OpticAmulet,
 	Amulet,
 	Amulet2, // unused
 	Amulet3, // unused
-	Amulet4,   // unused
-	Pouch1,         // unused
+	Amulet4, // unused
+	Pouch1, // unused
 	Wizardspike,
 	Dagger,
 	BigBottle, // unused
@@ -319,20 +319,20 @@ enum class ItemCursorGraphic : uint8_t {
 	StafMana, // unused
 	Flambeau,
 	GnatSting,
-	AxeAncient,
-	ClubCarnag,
-	MaceDark,
-	ClubDecay,
-	AxeDecay,
-	SwrdDecay,
-	MaceDecay,
-	StafDecay,
+	AxeAncient, // unused
+	ClubCarnag, // unused
+	MaceDark, // unused
+	ClubDecay, // unused
+	AxeDecay, // unused
+	SwrdDecay, // unused
+	MaceDecay, // unused
+	StafDecay, // unused
 	Blitzen,
-	ClubOuch,
-	SwrdDevast,
-	AxeDevast,
-	MornDevast,
-	MaceDevast,
+	ClubOuch, // unused
+	SwrdDevast, // unused
+	AxeDevast, // unused
+	MornDevast, // unused
+	MaceDevast, // unused
 	DemonPlateArmor,
 	BovinePlate,
 	// clang-format on
