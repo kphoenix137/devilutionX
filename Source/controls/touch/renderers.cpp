@@ -114,7 +114,7 @@ void LoadPotionArt(ButtonTexture *potionArt, SDL_Renderer *renderer)
 		ItemCursorGraphic::PotionFullHealing,
 		ItemCursorGraphic::PotionFullMana,
 		ItemCursorGraphic::PotionFullRejuvenation,
-		ItemCursorGraphic::ScrollRed
+		ItemCursorGraphic::Scroll
 	};
 
 	int potionFrame = static_cast<int>(CURSOR_FIRSTITEM) + static_cast<int>(ItemCursorGraphic::PotionHealing);

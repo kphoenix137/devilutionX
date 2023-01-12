@@ -280,11 +280,11 @@ void PrintStoreItem(const Item &item, int l, UiFlags flags)
 
 	if (item._iIdentified) {
 		if (item._iMagical != ITEM_QUALITY_UNIQUE) {
-			if (item._iPrePower != -1) {
+			if (item._iPrePower != ItemEffectType::Invalid) {
 				AppendStrView(productLine, PrintItemPower(item._iPrePower, item));
 			}
 		}
-		if (item._iSufPower != -1) {
+		if (item._iSufPower != ItemEffectType::Invalid) {
 			if (!productLine.empty())
 				AppendStrView(productLine, _(",  "));
 			AppendStrView(productLine, PrintItemPower(item._iSufPower, item));
@@ -302,9 +302,9 @@ void PrintStoreItem(const Item &item, int l, UiFlags flags)
 	}
 
 	if (item._itype != ItemType::Misc) {
-		if (item._iClass == ICLASS_WEAPON)
+		if (item._iClass == ItemClass::Weapon)
 			productLine = fmt::format(fmt::runtime(_("Damage: {:d}-{:d}  ")), item._iMinDam, item._iMaxDam);
-		else if (item._iClass == ICLASS_ARMOR)
+		else if (item._iClass == ItemClass::Armor)
 			productLine = fmt::format(fmt::runtime(_("Armor: {:d}  ")), item._iAC);
 		if (item._iMaxDur != DUR_INDESTRUCTIBLE && item._iMaxDur != 0)
 			productLine += fmt::format(fmt::runtime(_("Dur: {:d}/{:d},  ")), item._iDurability, item._iMaxDur);
@@ -504,9 +504,9 @@ bool SmithSellOk(int i)
 		return false;
 	if (pI->_itype == ItemType::Staff && (!gbIsHellfire || IsValidSpell(pI->_iSpell)))
 		return false;
-	if (pI->_iClass == ICLASS_QUEST)
+	if (pI->_iClass == ItemClass::Quest)
 		return false;
-	if (pI->IDidx == IDI_LAZSTAFF)
+	if (pI->IDidx == ItemIndex::StaffLazarus)
 		return false;
 
 	return true;
@@ -797,13 +797,13 @@ bool WitchSellOk(int i)
 		rv = true;
 	if (pI->_iMiscId > 29 && pI->_iMiscId < 41)
 		rv = false;
-	if (pI->_iClass == ICLASS_QUEST)
+	if (pI->_iClass == ItemClass::Quest)
 		rv = false;
 	if (pI->_itype == ItemType::Staff && (!gbIsHellfire || IsValidSpell(pI->_iSpell)))
 		rv = true;
-	if (pI->IDidx >= IDI_FIRSTQUEST && pI->IDidx <= IDI_LASTQUEST)
+	if (pI->IDidx >= ItemIndex::FirstQuest && pI->IDidx <= ItemIndex::LastQuest)
 		rv = false;
-	if (pI->IDidx == IDI_LAZSTAFF)
+	if (pI->IDidx == ItemIndex::StaffLazarus)
 		rv = false;
 	return rv;
 }

@@ -193,8 +193,8 @@ struct Item {
 	item_quality _iMagical = ITEM_QUALITY_NORMAL;
 	char _iName[64] = {};
 	char _iIName[64] = {};
-	item_equip_type _iLoc = ILOC_NONE;
-	item_class _iClass = ICLASS_NONE;
+	ItemEquipType _iLoc = ItemEquipType::None;
+	ItemClass _iClass = ItemClass::None;
 	ItemCursorGraphic _iCurs = ItemCursorGraphic::PotionFullMana;
 	int _ivalue = 0;
 	int _iIvalue = 0;
@@ -204,7 +204,7 @@ struct Item {
 	ItemSpecialEffect _iFlags = ItemSpecialEffect::None;
 	item_misc_id _iMiscId = IMISC_NONE;
 	spell_id _iSpell = SPL_NULL;
-	_item_indexes IDidx = IDI_NONE;
+	ItemIndex IDidx = ItemIndex::None;
 	int _iCharges = 0;
 	int _iMaxCharges = 0;
 	int _iDurability = 0;
@@ -233,8 +233,8 @@ struct Item {
 	int16_t _iLMinDam = 0;
 	int16_t _iLMaxDam = 0;
 	int16_t _iPLEnAc = 0;
-	enum item_effect_type _iPrePower = IPL_INVALID;
-	enum item_effect_type _iSufPower = IPL_INVALID;
+	enum ItemEffectType _iPrePower = ItemEffectType::Invalid;
+	enum ItemEffectType _iSufPower = ItemEffectType::Invalid;
 	int _iVAdd1 = 0;
 	int _iVMult1 = 0;
 	int _iVAdd2 = 0;
@@ -284,12 +284,12 @@ struct Item {
 		}
 
 		switch (this->_iLoc) {
-		case ILOC_AMULET:
-		case ILOC_ARMOR:
-		case ILOC_HELM:
-		case ILOC_ONEHAND:
-		case ILOC_RING:
-		case ILOC_TWOHAND:
+		case ItemEquipType::Amulet:
+		case ItemEquipType::Armor:
+		case ItemEquipType::Helm:
+		case ItemEquipType::OneHand:
+		case ItemEquipType::Ring:
+		case ItemEquipType::TwoHand:
 			return true;
 
 		default:
@@ -414,7 +414,7 @@ struct Item {
 		}
 	}
 
-	[[nodiscard]] bool keyAttributesMatch(int32_t seed, _item_indexes itemIndex, uint16_t createInfo) const
+	[[nodiscard]] bool keyAttributesMatch(int32_t seed, ItemIndex itemIndex, uint16_t createInfo) const
 	{
 		return _iSeed == seed && IDidx == itemIndex && _iCreateInfo == createInfo;
 	}
@@ -481,7 +481,7 @@ void InitItemGFX();
 void InitItems();
 void CalcPlrItemVals(Player &player, bool Loadgfx);
 void CalcPlrInv(Player &player, bool Loadgfx);
-void InitializeItem(Item &item, _item_indexes itemData);
+void InitializeItem(Item &item, ItemIndex itemData);
 void GenerateNewSeed(Item &h);
 ItemCursorGraphic GetGoldCursor(int value);
 
@@ -494,19 +494,19 @@ void CreatePlrItems(Player &player);
 bool ItemSpaceOk(Point position);
 int AllocateItem();
 Point GetSuperItemLoc(Point position);
-void GetItemAttrs(Item &item, _item_indexes itemData, int lvl);
+void GetItemAttrs(Item &item, ItemIndex itemData, int lvl);
 void SetupItem(Item &item);
 Item *SpawnUnique(_unique_items uid, Point position, bool sendmsg = true);
 void SpawnItem(Monster &monster, Point position, bool sendmsg);
 void CreateRndItem(Point position, bool onlygood, bool sendmsg, bool delta);
 void CreateRndUseful(Point position, bool sendmsg);
 void CreateTypeItem(Point position, bool onlygood, ItemType itemType, int imisc, bool sendmsg, bool delta);
-void RecreateItem(const Player &player, Item &item, _item_indexes idx, uint16_t icreateinfo, int iseed, int ivalue, bool isHellfire);
+void RecreateItem(const Player &player, Item &item, ItemIndex idx, uint16_t icreateinfo, int iseed, int ivalue, bool isHellfire);
 void RecreateEar(Item &item, uint16_t ic, int iseed, uint8_t bCursval, string_view heroName);
 void CornerstoneSave();
 void CornerstoneLoad(Point position);
-void SpawnQuestItem(_item_indexes itemid, Point position, int randarea, int selflag, bool sendmsg);
-void SpawnRewardItem(_item_indexes itemid, Point position, bool sendmsg);
+void SpawnQuestItem(ItemIndex itemid, Point position, int randarea, int selflag, bool sendmsg);
+void SpawnRewardItem(ItemIndex itemid, Point position, bool sendmsg);
 void SpawnMapOfDoom(Point position, bool sendmsg);
 void SpawnRuneBomb(Point position, bool sendmsg);
 void SpawnTheodore(Point position, bool sendmsg);
@@ -520,7 +520,7 @@ void CheckIdentify(Player &player, int cii);
 void DoRepair(Player &player, int cii);
 void DoRecharge(Player &player, int cii);
 bool DoOil(Player &player, int cii);
-[[nodiscard]] StringOrView PrintItemPower(char plidx, const Item &item);
+[[nodiscard]] StringOrView PrintItemPower(ItemEffectType plidx, const Item &item);
 void DrawUniqueInfo(const Surface &out);
 void PrintItemDetails(const Item &item);
 void PrintItemDur(const Item &item);

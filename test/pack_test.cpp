@@ -169,12 +169,12 @@ const ItemPack PackedDiabloItems[] = {
 	{  844854815,       0x11A,  75,   3,  255,   255,   0,    0,      0,      0 }, // Tower Shield of the ages
 	{ 1151513535,       0x11E,  73,   2,   12,    32,   0,    0,      0,      0 }, // Sapphire Large Shield
 	{  640243885,           6,  27,   0,    0,     0,   0,    0,      0,      0 }, // Scroll of Town Portal
-	{  741806938,           9,  25,   0,    0,     0,   0,    0,      0,      0 }, // IDI_MANA
+	{  741806938,           9,  25,   0,    0,     0,   0,    0,      0,      0 }, // ItemIndex::PotionMana
 	{ 1456608333,         257,  79,   0,    0,     0,   0,    0,      0,      0 }, // Mana
 	{  554676945,          16,  30,   0,    0,     0,   0,    0,      0,      0 }, // Full mana
 	{  355389938,           0,  24,   0,    0,     0,   0,    0,      0,      0 }, // Healing
 	{  868435486,          16,  29,   0,    0,     0,   0,    0,      0,      0 }, // Full healing
-	{ 1372832903,           0,   4,   0,   30,    30,   0,    0,      0,      0 }, // IDI_ROGUE
+	{ 1372832903,           0,   4,   0,   30,    30,   0,    0,      0,      0 }, // ItemIndex::RogueBow
 	{  896239556,        2068,  53,   3,   56,    60,   0,    0,      0,      0 }, // Jade Helm of the wolf
 	{ 1286225254,         269, 151,   3,    0,     0,   0,    0,      0,      0 }, // Steel Ring of accuracy
 	{  548642293,         266,  21,   0,    0,     0,   0,    0,      0,      0 }, // Blood Stone
@@ -191,7 +191,7 @@ const ItemPack PackedDiabloItems[] = {
 	{ 1272669062,         258, 115,   0,   10,    20,   0,    0,      0,      0 }, // Falchion
 	{ 1133884051,         278, 120,   2,   18,    40,   0,    0,      0,      0 }, // Long Sword of vim
 	{ 1743897351,         259, 146,   2,   10,    25,  60,   60,      0,      0 }, // Frog's Staff of Holy Bolt
-	{  429107209,           0,   5,   0,   25,    25,   9,   40,      0,      0 }, // IDI_SORCERER
+	{  429107209,           0,   5,   0,   25,    25,   9,   40,      0,      0 }, // ItemIndex::SorcererStaff
 	{  466015738,         257, 146,   0,   18,    25,  50,   50,      0,      0 }, // Staff of Charged Bolt
 	{  686949358,         193,  48,   3,   12,    15,   0,    0,      0,      0 }, // Cap of the mind armor
 	{  888855755,         195,  58,   3,   30,    30,   0,    0,      0,      0 }, // Armor of protection
@@ -397,7 +397,7 @@ TEST_F(PackTest, UnPackItem_diablo_unique_bug)
 	UnPackItem(pkItemBug, *MyPlayer, id, false);
 	ASSERT_STREQ(id._iIName, "Veil of Steel");
 	ASSERT_EQ(id._itype, ItemType::Helm);
-	ASSERT_EQ(id._iClass, ICLASS_ARMOR);
+	ASSERT_EQ(id._iClass, ItemClass::Armor);
 	ASSERT_EQ(id._iCurs, 85);
 	ASSERT_EQ(id._iIvalue, 63800);
 	ASSERT_EQ(id._iAC, 18);
@@ -411,7 +411,7 @@ TEST_F(PackTest, UnPackItem_diablo_unique_bug)
 	ASSERT_EQ(id._iPLMana, -1920);
 	ASSERT_EQ(id._iPLLight, -2);
 	ASSERT_EQ(id._iUid, 6);
-	ASSERT_EQ(id.IDidx, IDI_STEELVEIL);
+	ASSERT_EQ(id.IDidx, ItemIndex::VeilSteel);
 
 	ItemPack is;
 	PackItem(is, id, gbIsHellfire);
@@ -754,17 +754,17 @@ TEST_F(PackTest, PackItem_empty)
 	ASSERT_EQ(SDL_SwapLE16(idx), 0xFFFF);
 }
 
-static void compareGold(const ItemPack &is, int iCurs)
+static void compareGold(const ItemPack &is, ItemCursorGraphic iCurs)
 {
 	Item id;
 	UnPackItem(is, *MyPlayer, id, false);
 	ASSERT_EQ(id._iCurs, iCurs);
-	ASSERT_EQ(id.IDidx, IDI_GOLD);
+	ASSERT_EQ(id.IDidx, ItemIndex::Gold);
 	// Copy the value out before comparing to avoid loading a misaligned address.
 	const auto wvalue = SDL_SwapLE16(is.wValue);
 	ASSERT_EQ(id._ivalue, wvalue);
 	ASSERT_EQ(id._itype, ItemType::Gold);
-	ASSERT_EQ(id._iClass, ICLASS_GOLD);
+	ASSERT_EQ(id._iClass, ItemClass::Gold);
 
 	ItemPack is2;
 	PackItem(is2, id, gbIsHellfire);
@@ -773,20 +773,20 @@ static void compareGold(const ItemPack &is, int iCurs)
 
 TEST_F(PackTest, UnPackItem_gold_small)
 {
-	const auto is = SwappedLE(ItemPack { 0, 0, IDI_GOLD, 0, 0, 0, 0, 0, 1000, 0 });
-	compareGold(is, GoldSmall);
+	const auto is = SwappedLE(ItemPack { 0, 0, ItemIndex::Gold, 0, 0, 0, 0, 0, 1000, 0 });
+	compareGold(is, ItemCursorGraphic::GoldSmall);
 }
 
 TEST_F(PackTest, UnPackItem_gold_medium)
 {
-	const auto is = SwappedLE(ItemPack { 0, 0, IDI_GOLD, 0, 0, 0, 0, 0, 1001, 0 });
-	compareGold(is, GoldMedium);
+	const auto is = SwappedLE(ItemPack { 0, 0, ItemIndex::Gold, 0, 0, 0, 0, 0, 1001, 0 });
+	compareGold(is, ItemCursorGraphic::GoldMedium);
 }
 
 TEST_F(PackTest, UnPackItem_gold_large)
 {
-	const auto is = SwappedLE(ItemPack { 0, 0, IDI_GOLD, 0, 0, 0, 0, 0, 2500, 0 });
-	compareGold(is, GoldLarge);
+	const auto is = SwappedLE(ItemPack { 0, 0, ItemIndex::Gold, 0, 0, 0, 0, 0, 2500, 0 });
+	compareGold(is, ItemCursorGraphic::GoldLarge);
 }
 
 TEST_F(PackTest, UnPackItem_ear)
