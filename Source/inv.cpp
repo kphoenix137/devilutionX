@@ -890,15 +890,6 @@ void CheckQuestItem(Player &player, Item &questItem)
 {
 	Player &myPlayer = *MyPlayer;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	if (questItem.IDidx == IDI_OPTAMULET && Quests[Q_BLIND]._qactive == QUEST_ACTIVE) {
-=======
-	if (questItem.IDidx == ItemIndex::OpticAmulet && Quests[Q_BLIND]._qactive == QUEST_ACTIVE)
->>>>>>> 9622e65d3 (Complete more enum classes)
-		Quests[Q_BLIND]._qactive = QUEST_DONE;
-		NetSendCmdQuest(true, Quests[Q_BLIND]);
-=======
 	if (questItem.IDidx == ItemIndex::OpticAmulet && Quests[Q_BLIND]._qactive == QUEST_ACTIVE) {
 		Quests[Q_BLIND]._qactive = QUEST_DONE;
 		NetSendCmdQuest(true, Quests[Q_BLIND]);
