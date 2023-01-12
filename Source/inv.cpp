@@ -901,7 +901,7 @@ void CheckQuestItem(Player &player, Item &questItem)
 =======
 	if (questItem.IDidx == ItemIndex::OpticAmulet && Quests[Q_BLIND]._qactive == QUEST_ACTIVE) {
 		Quests[Q_BLIND]._qactive = QUEST_DONE;
->>>>>>> 00942aced (Fix conflict)
+		NetSendCmdQuest(true, Quests[Q_BLIND]);
 	}
 
 	if (questItem.IDidx == ItemIndex::BlackMushroom && Quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE && Quests[Q_MUSHROOM]._qvar1 == QS_MUSHSPAWNED) {
