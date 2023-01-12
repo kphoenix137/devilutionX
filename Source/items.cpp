@@ -155,17 +155,17 @@ int gnNumGetRecords;
 
 int OilLevels[] = { 1, 10, 1, 10, 4, 1, 5, 17, 1, 10 };
 int OilValues[] = { 500, 2500, 500, 2500, 1500, 100, 2500, 15000, 500, 2500 };
-item_misc_id OilMagic[] = {
-	IMISC_OILACC,
-	IMISC_OILMAST,
-	IMISC_OILSHARP,
-	IMISC_OILDEATH,
-	IMISC_OILSKILL,
-	IMISC_OILBSMTH,
-	IMISC_OILFORT,
-	IMISC_OILPERM,
-	IMISC_OILHARD,
-	IMISC_OILIMP,
+ItemMiscID OilMagic[] = {
+	ItemMiscID::OilAccuracy,
+	ItemMiscID::OilMastery,
+	ItemMiscID::OilSharpness,
+	ItemMiscID::OilDeath,
+	ItemMiscID::OilSkill,
+	ItemMiscID::OilBlacksmith,
+	ItemMiscID::OilFortitude,
+	ItemMiscID::OilPermanence,
+	ItemMiscID::OilHardening,
+	ItemMiscID::OilImperviousness,
 };
 char OilNames[10][25] = {
 	N_("Oil of Accuracy"),
@@ -612,40 +612,40 @@ void GetBookSpell(Item &item, int lvl)
 	if (gbIsSpawn && lvl > 5)
 		lvl = 5;
 
-	int s = SPL_FIREBOLT;
-	enum spell_id bs = SPL_FIREBOLT;
+	int s = static_cast<int8_t>(SpellID::Firebolt);
+	enum SpellID bs = SpellID::Firebolt;
 	while (rv > 0) {
-		int sLevel = GetSpellBookLevel(static_cast<spell_id>(s));
+		int sLevel = GetSpellBookLevel(static_cast<SpellID>(s));
 		if (sLevel != -1 && lvl >= sLevel) {
 			rv--;
-			bs = static_cast<spell_id>(s);
+			bs = static_cast<SpellID>(s);
 		}
 		s++;
 		if (!gbIsMultiplayer) {
-			if (s == SPL_RESURRECT)
-				s = SPL_TELEKINESIS;
+			if (s == static_cast<int8_t>(SpellID::Resurrect))
+				s = static_cast<int8_t>(SpellID::Telekinesis);
 		}
 		if (!gbIsMultiplayer) {
-			if (s == SPL_HEALOTHER)
-				s = SPL_FLARE;
+			if (s == static_cast<int8_t>(SpellID::HealOther))
+				s = static_cast<int8_t>(SpellID::BloodStar);
 		}
 		if (s == maxSpells)
 			s = 1;
 	}
-	const string_view spellName = pgettext("spell", spelldata[bs].sNameText);
+	const string_view spellName = pgettext("spell", spelldata[static_cast<int8_t>(bs)].sNameText);
 	const size_t iNameLen = string_view(item._iName).size();
 	const size_t iINameLen = string_view(item._iIName).size();
 	CopyUtf8(item._iName + iNameLen, spellName, sizeof(item._iName) - iNameLen);
 	CopyUtf8(item._iIName + iINameLen, spellName, sizeof(item._iIName) - iINameLen);
 	item._iSpell = bs;
-	item._iMinMag = spelldata[bs].sMinInt;
-	item._ivalue += spelldata[bs].sBookCost;
-	item._iIvalue += spelldata[bs].sBookCost;
-	if (spelldata[bs].sType == STYPE_FIRE)
+	item._iMinMag = spelldata[static_cast<int8_t>(bs)].sMinInt;
+	item._ivalue += spelldata[static_cast<int8_t>(bs)].sBookCost;
+	item._iIvalue += spelldata[static_cast<int8_t>(bs)].sBookCost;
+	if (spelldata[static_cast<int8_t>(bs)].sType == STYPE_FIRE)
 		item._iCurs = ItemCursorGraphic::BookRed;
-	else if (spelldata[bs].sType == STYPE_LIGHTNING)
+	else if (spelldata[static_cast<int8_t>(bs)].sType == STYPE_LIGHTNING)
 		item._iCurs = ItemCursorGraphic::BookBlue;
-	else if (spelldata[bs].sType == STYPE_MAGIC)
+	else if (spelldata[static_cast<int8_t>(bs)].sType == STYPE_MAGIC)
 		item._iCurs = ItemCursorGraphic::BookGrey;
 }
 
@@ -754,7 +754,7 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iMaxCharges = item._iCharges;
 		break;
 	case ItemEffectType::Spell:
-		item._iSpell = static_cast<spell_id>(power.param1);
+		item._iSpell = static_cast<SpellID>(power.param1);
 		item._iCharges = power.param2;
 		item._iMaxCharges = power.param2;
 		break;
@@ -965,7 +965,7 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case ItemEffectType::NoMinimumStrength:
 		item._iMinStr = 0;
 		break;
-	case ItemEffectType::InventoryCursorGraphic:
+	case ItemEffectType::Graphic:
 		item._iCurs = static_cast<ItemCursorGraphic>(power.param1);
 		break;
 	case ItemEffectType::Lightning:
@@ -1056,7 +1056,7 @@ void SaveItemAffix(const Player &player, Item &item, const PLStruct &affix)
 	}
 }
 
-void GetStaffPower(const Player &player, Item &item, int lvl, int bs, bool onlygood)
+void GetStaffPower(const Player &player, Item &item, int lvl, SpellID bs, bool onlygood)
 {
 	int preidx = -1;
 	if (FlipCoin(10) || onlygood) {
@@ -1082,9 +1082,9 @@ void GetStaffPower(const Player &player, Item &item, int lvl, int bs, bool onlyg
 		}
 	}
 
-	string_view baseName = _(AllItemsList[item.IDidx].iName);
-	string_view shortName = _(AllItemsList[item.IDidx].iSName);
-	string_view spellName = pgettext("spell", spelldata[bs].sNameText);
+	string_view baseName = _(AllItemsList[static_cast<int16_t>(item.IDidx)].iName);
+	string_view shortName = _(AllItemsList[static_cast<int16_t>(item.IDidx)].iSName);
+	string_view spellName = pgettext("spell", spelldata[static_cast<int8_t>(bs)].sNameText);
 	string_view normalFmt = pgettext("spell", /* TRANSLATORS: Constructs item names. Format: {Item} of {Spell}. Example: War Staff of Firewall */ "{0} of {1}");
 
 	CopyUtf8(item._iName, fmt::format(fmt::runtime(normalFmt), baseName, spellName), sizeof(item._iName));
@@ -1188,7 +1188,7 @@ void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, Affi
 
 	CopyUtf8(item._iIName, GenerateMagicItemName(item._iName, preidx, sufidx), sizeof(item._iIName));
 	if (!StringInPanel(item._iIName)) {
-		CopyUtf8(item._iIName, GenerateMagicItemName(_(AllItemsList[item.IDidx].iSName), preidx, sufidx), sizeof(item._iIName));
+		CopyUtf8(item._iIName, GenerateMagicItemName(_(AllItemsList[static_cast<int16_t>(item.IDidx)].iSName), preidx, sufidx), sizeof(item._iIName));
 	}
 	if (preidx != -1 || sufidx != -1)
 		CalcItemValue(item);
@@ -1210,31 +1210,31 @@ void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood)
 	if (gbIsSpawn && lvl > 10)
 		lvl = 10;
 
-	int s = SPL_FIREBOLT;
-	enum spell_id bs = SPL_NULL;
+	int s = static_cast<int8_t>(SpellID::Firebolt);
+	enum SpellID bs = SpellID::Null;
 	while (rv > 0) {
-		int sLevel = GetSpellStaffLevel(static_cast<spell_id>(s));
+		int sLevel = GetSpellStaffLevel(static_cast<SpellID>(s));
 		if (sLevel != -1 && l >= sLevel) {
 			rv--;
-			bs = static_cast<spell_id>(s);
+			bs = static_cast<SpellID>(s);
 		}
 		s++;
-		if (!gbIsMultiplayer && s == SPL_RESURRECT)
-			s = SPL_TELEKINESIS;
-		if (!gbIsMultiplayer && s == SPL_HEALOTHER)
-			s = SPL_FLARE;
+		if (!gbIsMultiplayer && s == static_cast<int8_t>(SpellID::Resurrect))
+			s = static_cast<int8_t>(SpellID::Telekinesis);
+		if (!gbIsMultiplayer && s == static_cast<int8_t>(SpellID::HealOther))
+			s = static_cast<int8_t>(SpellID::BloodStar);
 		if (s == maxSpells)
-			s = SPL_FIREBOLT;
+			s = static_cast<int8_t>(SpellID::Firebolt);
 	}
 
-	int minc = spelldata[bs].sStaffMin;
-	int maxc = spelldata[bs].sStaffMax - minc + 1;
+	int minc = spelldata[static_cast<int8_t>(bs)].sStaffMin;
+	int maxc = spelldata[static_cast<int8_t>(bs)].sStaffMax - minc + 1;
 	item._iSpell = bs;
 	item._iCharges = minc + GenerateRnd(maxc);
 	item._iMaxCharges = item._iCharges;
 
-	item._iMinMag = spelldata[bs].sMinInt;
-	int v = item._iCharges * spelldata[bs].sStaffCost / 5;
+	item._iMinMag = spelldata[static_cast<int8_t>(bs)].sMinInt;
+	int v = item._iCharges * spelldata[static_cast<int8_t>(bs)].sStaffCost / 5;
 	item._ivalue += v;
 	item._iIvalue += v;
 	GetStaffPower(player, item, lvl, bs, onlygood);
@@ -1309,16 +1309,16 @@ void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool
 
 ItemIndex GetItemIndexForDroppableItem(bool considerDropRate, tl::function_ref<bool(const ItemData &item)> isItemOkay)
 {
-	static std::array<ItemIndex, ItemIndex::Last * 2> ril;
+	static std::array<ItemIndex, static_cast<int16_t>(ItemIndex::Last) * 2> ril;
 
 	size_t ri = 0;
-	for (std::underlying_type_t<ItemIndex> i = ItemIndex::Gold; i <= ItemIndex::Last; i++) {
-		if (!IsItemAvailable(i))
+	for (std::underlying_type_t<ItemIndex> i = static_cast<int16_t>(ItemIndex::Gold); i <= static_cast<int16_t>(ItemIndex::Last); i++) {
+		if (!IsItemAvailable(static_cast<ItemIndex>(i)))
 			continue;
 		const ItemData &item = AllItemsList[i];
 		if (item.iRnd == ItemDropRate::Never)
 			continue;
-		if (IsAnyOf(item.iSpell, SPL_RESURRECT, SPL_HEALOTHER) && !gbIsMultiplayer)
+		if (IsAnyOf(item.iSpell, SpellID::Resurrect, SpellID::HealOther) && !gbIsMultiplayer)
 			continue;
 		if (!isItemOkay(item))
 			continue;
@@ -1339,7 +1339,7 @@ ItemIndex RndUItem(Monster *monster)
 	if (monster != nullptr)
 		itemMaxLevel = monster->level(sgGameInitInfo.nDifficulty);
 	return GetItemIndexForDroppableItem(false, [&itemMaxLevel](const ItemData &item) {
-		if (item.itype == ItemType::Misc && item.iMiscId == IMISC_BOOK)
+		if (item.itype == ItemType::Misc && item.iMiscId == ItemMiscID::Book)
 			return true;
 		if (itemMaxLevel < item.iMinMLvl)
 			return false;
@@ -1362,7 +1362,7 @@ ItemIndex RndAllItems()
 	});
 }
 
-ItemIndex RndTypeItems(ItemType itemType, int imid, int lvl)
+ItemIndex RndTypeItems(ItemType itemType, ItemMiscID imid, int lvl)
 {
 	int itemMaxLevel = lvl * 2;
 	return GetItemIndexForDroppableItem(false, [&itemMaxLevel, &itemType, &imid](const ItemData &item) {
@@ -1370,7 +1370,7 @@ ItemIndex RndTypeItems(ItemType itemType, int imid, int lvl)
 			return false;
 		if (item.itype != itemType)
 			return false;
-		if (imid != -1 && item.iMiscId != imid)
+		if (imid != ItemMiscID::Invalid && item.iMiscId != imid)
 			return false;
 		return true;
 	});
@@ -1384,10 +1384,10 @@ _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 		return UITEM_INVALID;
 
 	int numu = 0;
-	for (int j = 0; UniqueItems[j].UIItemId != UITYPE_INVALID; j++) {
+	for (int j = 0; UniqueItems[j].UIItemId != UniqueBaseItem::Invalid; j++) {
 		if (!IsUniqueAvailable(j))
 			break;
-		if (UniqueItems[j].UIItemId == AllItemsList[item.IDidx].iItemId
+		if (UniqueItems[j].UIItemId == AllItemsList[static_cast<int16_t>(item.IDidx)].iItemId
 		    && lvl >= UniqueItems[j].UIMinLvl
 		    && (recreate || !UniqueItemFlags[j] || gbIsMultiplayer)) {
 			uok[j] = true;
@@ -1423,7 +1423,7 @@ void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
 	CopyUtf8(item._iIName, _(UniqueItems[uid].UIName), sizeof(item._iIName));
 	item._iIvalue = UniqueItems[uid].UIValue;
 
-	if (item._iMiscId == IMISC_UNIQUE)
+	if (item._iMiscId == ItemMiscID::Unique)
 		item._iSeed = uid;
 
 	item._iUid = uid;
@@ -1454,18 +1454,18 @@ void SetupAllItems(const Player &player, Item &item, ItemIndex idx, int iseed, i
 	else if (uper == 1)
 		item._iCreateInfo |= CF_UPER1;
 
-	if (item._iMiscId != IMISC_UNIQUE) {
+	if (item._iMiscId != ItemMiscID::Unique) {
 		int iblvl = -1;
 		if (GenerateRnd(100) <= 10 || GenerateRnd(100) <= lvl) {
 			iblvl = lvl;
 		}
-		if (iblvl == -1 && item._iMiscId == IMISC_STAFF) {
+		if (iblvl == -1 && item._iMiscId == ItemMiscID::Staff) {
 			iblvl = lvl;
 		}
-		if (iblvl == -1 && item._iMiscId == IMISC_RING) {
+		if (iblvl == -1 && item._iMiscId == ItemMiscID::Ring) {
 			iblvl = lvl;
 		}
-		if (iblvl == -1 && item._iMiscId == IMISC_AMULET) {
+		if (iblvl == -1 && item._iMiscId == ItemMiscID::Amulet) {
 			iblvl = lvl;
 		}
 		if (onlygood)
@@ -1620,89 +1620,89 @@ void ItemDoppel()
 		idoppely = 16;
 }
 
-void PrintItemOil(char iDidx)
+void PrintItemOil(ItemMiscID iDidx)
 {
 	switch (iDidx) {
-	case IMISC_OILACC:
+	case ItemMiscID::OilAccuracy:
 		AddPanelString(_("increases a weapon's"));
 		AddPanelString(_("chance to hit"));
 		break;
-	case IMISC_OILMAST:
+	case ItemMiscID::OilMastery:
 		AddPanelString(_("greatly increases a"));
 		AddPanelString(_("weapon's chance to hit"));
 		break;
-	case IMISC_OILSHARP:
+	case ItemMiscID::OilSharpness:
 		AddPanelString(_("increases a weapon's"));
 		AddPanelString(_("damage potential"));
 		break;
-	case IMISC_OILDEATH:
+	case ItemMiscID::OilDeath:
 		AddPanelString(_("greatly increases a weapon's"));
 		AddPanelString(_("damage potential - not bows"));
 		break;
-	case IMISC_OILSKILL:
+	case ItemMiscID::OilSkill:
 		AddPanelString(_("reduces attributes needed"));
 		AddPanelString(_("to use armor or weapons"));
 		break;
-	case IMISC_OILBSMTH:
+	case ItemMiscID::OilBlacksmith:
 		AddPanelString(/*xgettext:no-c-format*/ _("restores 20% of an"));
 		AddPanelString(_("item's durability"));
 		break;
-	case IMISC_OILFORT:
+	case ItemMiscID::OilFortitude:
 		AddPanelString(_("increases an item's"));
 		AddPanelString(_("current and max durability"));
 		break;
-	case IMISC_OILPERM:
+	case ItemMiscID::OilPermanence:
 		AddPanelString(_("makes an item indestructible"));
 		break;
-	case IMISC_OILHARD:
+	case ItemMiscID::OilHardening:
 		AddPanelString(_("increases the armor class"));
 		AddPanelString(_("of armor and shields"));
 		break;
-	case IMISC_OILIMP:
+	case ItemMiscID::OilImperviousness:
 		AddPanelString(_("greatly increases the armor"));
 		AddPanelString(_("class of armor and shields"));
 		break;
-	case IMISC_RUNEF:
+	case ItemMiscID::RuneFire:
 		AddPanelString(_("sets fire trap"));
 		break;
-	case IMISC_RUNEL:
-	case IMISC_GR_RUNEL:
+	case ItemMiscID::RuneLightning:
+	case ItemMiscID::GreaterRuneLightning:
 		AddPanelString(_("sets lightning trap"));
 		break;
-	case IMISC_GR_RUNEF:
+	case ItemMiscID::GreaterRuneFire:
 		AddPanelString(_("sets fire trap"));
 		break;
-	case IMISC_RUNES:
+	case ItemMiscID::RuneStone:
 		AddPanelString(_("sets petrification trap"));
 		break;
-	case IMISC_FULLHEAL:
+	case ItemMiscID::PotionFullHealing:
 		AddPanelString(_("restore all life"));
 		break;
-	case IMISC_HEAL:
+	case ItemMiscID::PotionHealing:
 		AddPanelString(_("restore some life"));
 		break;
-	case IMISC_MANA:
+	case ItemMiscID::PotionMana:
 		AddPanelString(_("restore some mana"));
 		break;
-	case IMISC_FULLMANA:
+	case ItemMiscID::PotionFullMana:
 		AddPanelString(_("restore all mana"));
 		break;
-	case IMISC_ELIXSTR:
+	case ItemMiscID::ElixirStrength:
 		AddPanelString(_("increase strength"));
 		break;
-	case IMISC_ELIXMAG:
+	case ItemMiscID::ElixirMagic:
 		AddPanelString(_("increase magic"));
 		break;
-	case IMISC_ELIXDEX:
+	case ItemMiscID::ElixirDexterity:
 		AddPanelString(_("increase dexterity"));
 		break;
-	case IMISC_ELIXVIT:
+	case ItemMiscID::ElixirVitality:
 		AddPanelString(_("increase vitality"));
 		break;
-	case IMISC_REJUV:
+	case ItemMiscID::PotionRejuvenation:
 		AddPanelString(_("restore some life and mana"));
 		break;
-	case IMISC_FULLREJUV:
+	case ItemMiscID::PotionFullRejuvenation:
 		AddPanelString(_("restore all life and mana"));
 		break;
 	}
@@ -1716,21 +1716,21 @@ void DrawUniqueInfoWindow(const Surface &out)
 
 void printItemMiscKBM(const Item &item, const bool isOil, const bool isCastOnTarget)
 {
-	if (item._iMiscId == IMISC_MAPOFDOOM) {
+	if (item._iMiscId == ItemMiscID::Map) {
 		AddPanelString(_("Right-click to view"));
 	} else if (isOil) {
 		PrintItemOil(item._iMiscId);
 		AddPanelString(_("Right-click to use"));
 	} else if (isCastOnTarget) {
 		AddPanelString(_("Right-click to read, then\nleft-click to target"));
-	} else if (IsAnyOf(item._iMiscId, IMISC_BOOK, IMISC_NOTE, IMISC_SCROLL, IMISC_SCROLLT)) {
+	} else if (IsAnyOf(item._iMiscId, ItemMiscID::Book, ItemMiscID::ReconstructedNote, ItemMiscID::Scroll, ItemMiscID::ScrollTargeted)) {
 		AddPanelString(_("Right-click to read"));
 	}
 }
 
 void printItemMiscGenericGamepad(const Item &item, const bool isOil, bool isCastOnTarget)
 {
-	if (item._iMiscId == IMISC_MAPOFDOOM) {
+	if (item._iMiscId == ItemMiscID::Map) {
 		AddPanelString(_("Activate to view"));
 	} else if (isOil) {
 		PrintItemOil(item._iMiscId);
@@ -1741,7 +1741,7 @@ void printItemMiscGenericGamepad(const Item &item, const bool isOil, bool isCast
 		}
 	} else if (isCastOnTarget) {
 		AddPanelString(_("Select from spell book, then\ncast to read"));
-	} else if (IsAnyOf(item._iMiscId, IMISC_BOOK, IMISC_NOTE, IMISC_SCROLL, IMISC_SCROLLT)) {
+	} else if (IsAnyOf(item._iMiscId, ItemMiscID::Book, ItemMiscID::ReconstructedNote, ItemMiscID::Scroll, ItemMiscID::ScrollTargeted)) {
 		AddPanelString(_("Activate to read"));
 	}
 }
@@ -1768,7 +1768,7 @@ void printItemMiscGamepad(const Item &item, bool isOil, bool isCastOnTarget)
 		break;
 	}
 
-	if (item._iMiscId == IMISC_MAPOFDOOM) {
+	if (item._iMiscId == ItemMiscID::Map) {
 		AddPanelString(fmt::format(fmt::runtime(_("{} to view")), activateButton));
 	} else if (isOil) {
 		PrintItemOil(item._iMiscId);
@@ -1779,26 +1779,26 @@ void printItemMiscGamepad(const Item &item, bool isOil, bool isCastOnTarget)
 		}
 	} else if (isCastOnTarget) {
 		AddPanelString(fmt::format(fmt::runtime(_("Select from spell book,\nthen {} to read")), castButton));
-	} else if (IsAnyOf(item._iMiscId, IMISC_BOOK, IMISC_NOTE, IMISC_SCROLL, IMISC_SCROLLT)) {
+	} else if (IsAnyOf(item._iMiscId, ItemMiscID::Book, ItemMiscID::ReconstructedNote, ItemMiscID::Scroll, ItemMiscID::ScrollTargeted)) {
 		AddPanelString(fmt::format(fmt::runtime(_("{} to read")), activateButton));
 	}
 }
 
 void PrintItemMisc(const Item &item)
 {
-	if (item._iMiscId == IMISC_EAR) {
+	if (item._iMiscId == ItemMiscID::Ear) {
 		AddPanelString(fmt::format(fmt::runtime(pgettext("player", "Level: {:d}")), item._ivalue));
 		return;
 	}
-	if (item._iMiscId == IMISC_AURIC) {
+	if (item._iMiscId == ItemMiscID::AuricAmulet) {
 		AddPanelString(_("Doubles gold capacity"));
 		return;
 	}
-	const bool isOil = (item._iMiscId >= IMISC_USEFIRST && item._iMiscId <= IMISC_USELAST)
-	    || (item._iMiscId > IMISC_OILFIRST && item._iMiscId < IMISC_OILLAST)
-	    || (item._iMiscId > IMISC_RUNEFIRST && item._iMiscId < IMISC_RUNELAST);
-	const bool isCastOnTarget = (item._iMiscId == IMISC_SCROLLT && item._iSpell != SPL_FLASH)
-	    || (item._iMiscId == IMISC_SCROLL && IsAnyOf(item._iSpell, SPL_TOWN, SPL_IDENTIFY));
+	const bool isOil = (item._iMiscId >= ItemMiscID::UseFirst && item._iMiscId <= ItemMiscID::UseLast)
+	    || (item._iMiscId > ItemMiscID::OilFirst && item._iMiscId < ItemMiscID::OilLast)
+	    || (item._iMiscId > ItemMiscID::RuneFirst && item._iMiscId < ItemMiscID::RuneLast);
+	const bool isCastOnTarget = (item._iMiscId == ItemMiscID::ScrollTargeted && item._iSpell != SpellID::Flash)
+	    || (item._iMiscId == ItemMiscID::Scroll && IsAnyOf(item._iSpell, SpellID::TownPortal, SpellID::Identify));
 
 	switch (ControlMode) {
 	case ControlTypes::None:
@@ -1889,7 +1889,7 @@ bool PremiumItemOk(const Player &player, const ItemData &item)
 		return false;
 
 	if (gbIsMultiplayer) {
-		if (item.iMiscId == IMISC_OILOF)
+		if (item.iMiscId == ItemMiscID::Oil)
 			return false;
 		if (item.itype == ItemType::Ring)
 			return false;
@@ -1989,21 +1989,21 @@ bool WitchItemOk(const Player &player, const ItemData &item)
 {
 	if (IsNoneOf(item.itype, ItemType::Misc, ItemType::Staff))
 		return false;
-	if (item.iMiscId == IMISC_MANA)
+	if (item.iMiscId == ItemMiscID::PotionMana)
 		return false;
-	if (item.iMiscId == IMISC_FULLMANA)
+	if (item.iMiscId == ItemMiscID::PotionFullMana)
 		return false;
-	if (item.iSpell == SPL_TOWN)
+	if (item.iSpell == SpellID::TownPortal)
 		return false;
-	if (item.iMiscId == IMISC_FULLHEAL)
+	if (item.iMiscId == ItemMiscID::PotionFullHealing)
 		return false;
-	if (item.iMiscId == IMISC_HEAL)
+	if (item.iMiscId == ItemMiscID::PotionHealing)
 		return false;
-	if (item.iMiscId > IMISC_OILFIRST && item.iMiscId < IMISC_OILLAST)
+	if (item.iMiscId > ItemMiscID::OilFirst && item.iMiscId < ItemMiscID::OilLast)
 		return false;
-	if (item.iSpell == SPL_RESURRECT && !gbIsMultiplayer)
+	if (item.iSpell == SpellID::Resurrect && !gbIsMultiplayer)
 		return false;
-	if (item.iSpell == SPL_HEALOTHER && !gbIsMultiplayer)
+	if (item.iSpell == SpellID::HealOther && !gbIsMultiplayer)
 		return false;
 
 	return true;
@@ -2024,25 +2024,25 @@ bool HealerItemOk(const Player &player, const ItemData &item)
 	if (item.itype != ItemType::Misc)
 		return false;
 
-	if (item.iMiscId == IMISC_SCROLL)
-		return item.iSpell == SPL_HEAL;
-	if (item.iMiscId == IMISC_SCROLLT)
-		return item.iSpell == SPL_HEALOTHER && gbIsMultiplayer;
+	if (item.iMiscId == ItemMiscID::Scroll)
+		return item.iSpell == SpellID::Healing;
+	if (item.iMiscId == ItemMiscID::ScrollTargeted)
+		return item.iSpell == SpellID::HealOther && gbIsMultiplayer;
 
 	if (!gbIsMultiplayer) {
-		if (item.iMiscId == IMISC_ELIXSTR)
+		if (item.iMiscId == ItemMiscID::ElixirStrength)
 			return !gbIsHellfire || player._pBaseStr < player.GetMaximumAttributeValue(CharacterAttribute::Strength);
-		if (item.iMiscId == IMISC_ELIXMAG)
+		if (item.iMiscId == ItemMiscID::ElixirMagic)
 			return !gbIsHellfire || player._pBaseMag < player.GetMaximumAttributeValue(CharacterAttribute::Magic);
-		if (item.iMiscId == IMISC_ELIXDEX)
+		if (item.iMiscId == ItemMiscID::ElixirDexterity)
 			return !gbIsHellfire || player._pBaseDex < player.GetMaximumAttributeValue(CharacterAttribute::Dexterity);
-		if (item.iMiscId == IMISC_ELIXVIT)
+		if (item.iMiscId == ItemMiscID::ElixirVitality)
 			return !gbIsHellfire || player._pBaseVit < player.GetMaximumAttributeValue(CharacterAttribute::Vitality);
 	}
 
-	if (item.iMiscId == IMISC_REJUV)
+	if (item.iMiscId == ItemMiscID::PotionRejuvenation)
 		return true;
-	if (item.iMiscId == IMISC_FULLREJUV)
+	if (item.iMiscId == ItemMiscID::PotionFullRejuvenation)
 		return true;
 
 	return false;
@@ -2092,7 +2092,7 @@ void RecreateWitchItem(const Player &player, Item &item, ItemIndex idx, int lvl,
 {
 	if (IsAnyOf(idx, ItemIndex::PotionMana, ItemIndex::PotionFullMana, ItemIndex::ScrollTownPortal)) {
 		GetItemAttrs(item, idx, lvl);
-	} else if (gbIsHellfire && idx >= 114 && idx <= 117) {
+	} else if (gbIsHellfire && static_cast<int16_t>(idx) >= 114 && static_cast<int16_t>(idx) <= 117) {
 		SetRndSeed(iseed);
 		AdvanceRndSeed();
 		GetItemAttrs(item, idx, lvl);
@@ -2103,7 +2103,7 @@ void RecreateWitchItem(const Player &player, Item &item, ItemIndex idx, int lvl,
 		int iblvl = -1;
 		if (GenerateRnd(100) <= 5)
 			iblvl = 2 * lvl;
-		if (iblvl == -1 && item._iMiscId == IMISC_STAFF)
+		if (iblvl == -1 && item._iMiscId == ItemMiscID::Staff)
 			iblvl = 2 * lvl;
 		if (iblvl != -1)
 			GetItemBonus(player, item, iblvl / 2, iblvl, true, true);
@@ -2143,7 +2143,7 @@ void RecreateTownItem(const Player &player, Item &item, ItemIndex idx, uint16_t 
 		RecreateHealerItem(player, item, idx, icreateinfo & CF_LEVEL, iseed);
 }
 
-void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, ItemCursorGraphic icurs, bool sendmsg, bool delta)
+void CreateMagicItem(Point position, int lvl, ItemType itemType, ItemMiscID imid, ItemCursorGraphic icurs, bool sendmsg, bool delta)
 {
 	if (ActiveItemCount >= MAXITEMS)
 		return;
@@ -2197,15 +2197,16 @@ ItemIndex RndItemForMonsterLevel(int8_t monsterLevel)
 
 } // namespace
 
-bool IsItemAvailable(int i)
+bool IsItemAvailable(ItemIndex i)
 {
-	if (i < 0 || i > static_cast<int16_t>(ItemIndex::Last))
+	if (i < ItemIndex::Gold || i > ItemIndex::Last)
 		return false;
 
 	if (gbIsSpawn) {
-		if (i >= 62 && i <= 71)
+		// BUGFIX: Change ItemIndex::Buckler to ItemIndex::FullPlateMail
+		if (i >= ItemIndex::RingMail && i <= ItemIndex::Buckler)
 			return false; // Medium and heavy armors
-		if (IsAnyOf(i, 105, 107, 108, 110, 111, 113))
+		if (IsAnyOf(i, ItemIndex::ScrollStoneCurse, ItemIndex::ScrollGuardian, ItemIndex::NonItem, ItemIndex::ScrollGolem, ItemIndex::ScrollNone, ItemIndex::ScrollApocalypse))
 			return false; // Unavailable scrolls
 	}
 
@@ -2213,13 +2214,13 @@ bool IsItemAvailable(int i)
 		return true;
 
 	return (
-	           i != static_cast<int16_t>(ItemIndex::Map)                                                      // Cathedral Map
-	           && i != static_cast<int16_t>(ItemIndex::BovinePlate)                                           // Bovine Plate
-	           && (i < static_cast<int16_t>(ItemIndex::Oil) || i > static_cast<int16_t>(ItemIndex::GreySuit)) // Hellfire exclusive items
-	           && (i < 83 || i > 86)                                                                          // Oils
-	           && i != 92                                                                                     // Scroll of Search
-	           && (i < 161 || i > 165)                                                                        // Runes
-	           && i != static_cast<int16_t>(ItemIndex::SorcererStaff)                                         // Short Staff of Mana
+	           i != ItemIndex::Map                                      // Cathedral Map
+	           && i != ItemIndex::BovinePlate                           // Bovine Plate
+	           && (i < ItemIndex::Oil || i > ItemIndex::GreySuit)       // Hellfire exclusive items
+	           && (i < ItemIndex::BlacksmithOil || i > ItemIndex::Oil)  // Oils
+	           && i != ItemIndex::ScrollSearch                          // Scroll of Search
+	           && (i < ItemIndex::RuneFire || i > ItemIndex::RuneStone) // Runes
+	           && i != ItemIndex::SorcererStaff                         // Short Staff of Mana
 	           )
 	    || (
 	        // Bard items are technically Hellfire-exclusive
@@ -2699,7 +2700,7 @@ void InitializeItem(Item &item, ItemIndex itemData)
 	item._iMiscId = pAllItem.iMiscId;
 	item._iSpell = pAllItem.iSpell;
 
-	if (pAllItem.iMiscId == IMISC_STAFF) {
+	if (pAllItem.iMiscId == ItemMiscID::Staff) {
 		item._iCharges = gbIsHellfire ? 18 : 40;
 	}
 
@@ -2824,7 +2825,7 @@ void CreatePlrItems(Player &player)
 		GenerateNewSeed(player.SpdList[1]);
 		break;
 	case HeroClass::Barbarian:
-		InitializeItem(player.InvBody[INVLOC_HAND_LEFT], ItemIndex::BarbarianClub);
+		InitializeItem(player.InvBody[INVLOC_HAND_LEFT], ItemIndex::SpikedClub);
 		GenerateNewSeed(player.InvBody[INVLOC_HAND_LEFT]);
 
 		InitializeItem(player.InvBody[INVLOC_HAND_RIGHT], ItemIndex::WarriorShield);
@@ -2925,10 +2926,10 @@ void GetItemAttrs(Item &item, ItemIndex itemData, int lvl)
 	item._iPrePower = ItemEffectType::Invalid;
 	item._iSufPower = ItemEffectType::Invalid;
 
-	if (item._iMiscId == IMISC_BOOK)
+	if (item._iMiscId == ItemMiscID::Book)
 		GetBookSpell(item, lvl);
 
-	if (gbIsHellfire && item._iMiscId == IMISC_OILOF)
+	if (gbIsHellfire && item._iMiscId == ItemMiscID::Oil)
 		GetOilType(item, lvl);
 
 	if (item._itype != ItemType::Gold)
@@ -3054,7 +3055,7 @@ void CreateRndUseful(Point position, bool sendmsg)
 		NetSendCmdPItem(false, CMD_DROPITEM, item.position, item);
 }
 
-void CreateTypeItem(Point position, bool onlygood, ItemType itemType, int imisc, bool sendmsg, bool delta)
+void CreateTypeItem(Point position, bool onlygood, ItemType itemType, ItemMiscID imisc, bool sendmsg, bool delta)
 {
 	ItemIndex idx;
 
@@ -3476,7 +3477,7 @@ bool DoOil(Player &player, int cii)
 	case ItemEffectType::Charges:
 		return _("Extra charges");
 	case ItemEffectType::Spell:
-		return fmt::format(fmt::runtime(ngettext("{:d} {:s} charge", "{:d} {:s} charges", item._iMaxCharges)), item._iMaxCharges, pgettext("spell", spelldata[item._iSpell].sNameText));
+		return fmt::format(fmt::runtime(ngettext("{:d} {:s} charge", "{:d} {:s} charges", item._iMaxCharges)), item._iMaxCharges, pgettext("spell", spelldata[static_cast<int8_t>(item._iSpell)].sNameText));
 	case ItemEffectType::FireDamage:
 		if (item._iFMinDam == item._iFMaxDam)
 			return fmt::format(fmt::runtime(_("Fire hit damage: {:d}")), item._iFMinDam);
@@ -3600,7 +3601,7 @@ bool DoOil(Player &player, int cii)
 		return _("life stealing");
 	case ItemEffectType::NoMinimumStrength:
 		return _("no strength requirement");
-	case ItemEffectType::InventoryCursorGraphic:
+	case ItemEffectType::Graphic:
 		return { string_view(" ") };
 	case ItemEffectType::Lightning:
 		if (item._iFMinDam == item._iFMaxDam)
@@ -3684,7 +3685,7 @@ void PrintItemDetails(const Item &item)
 		else
 			AddPanelString(fmt::format(fmt::runtime(_(/* TRANSLATORS: Dur: is durability */ "armor: {:d}  Dur: {:d}/{:d}")), item._iAC, item._iDurability, item._iMaxDur));
 	}
-	if (item._iMiscId == IMISC_STAFF && item._iMaxCharges != 0) {
+	if (item._iMiscId == ItemMiscID::Staff && item._iMaxCharges != 0) {
 		AddPanelString(fmt::format(fmt::runtime(_("Charges: {:d}/{:d}")), item._iCharges, item._iMaxCharges));
 	}
 	if (item._iPrePower != ItemEffectType::Invalid) {
@@ -3718,7 +3719,7 @@ void PrintItemDur(const Item &item)
 			else
 				AddPanelString(fmt::format(fmt::runtime(_("damage: {:d}-{:d}  Dur: {:d}/{:d}")), item._iMinDam, item._iMaxDam, item._iDurability, item._iMaxDur));
 		}
-		if (item._iMiscId == IMISC_STAFF && item._iMaxCharges > 0) {
+		if (item._iMiscId == ItemMiscID::Staff && item._iMaxCharges > 0) {
 			AddPanelString(fmt::format(fmt::runtime(_("Charges: {:d}/{:d}")), item._iCharges, item._iMaxCharges));
 		}
 		if (item._iMagical != ITEM_QUALITY_NORMAL)
@@ -3731,7 +3732,7 @@ void PrintItemDur(const Item &item)
 			AddPanelString(fmt::format(fmt::runtime(_("armor: {:d}  Dur: {:d}/{:d}")), item._iAC, item._iDurability, item._iMaxDur));
 		if (item._iMagical != ITEM_QUALITY_NORMAL)
 			AddPanelString(_("Not Identified"));
-		if (item._iMiscId == IMISC_STAFF && item._iMaxCharges > 0) {
+		if (item._iMiscId == ItemMiscID::Staff && item._iMaxCharges > 0) {
 			AddPanelString(fmt::format(fmt::runtime(_("Charges: {:d}/{:d}")), item._iCharges, item._iMaxCharges));
 		}
 	}
@@ -3740,39 +3741,39 @@ void PrintItemDur(const Item &item)
 	PrintItemInfo(item);
 }
 
-void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
+void UseItem(size_t pnum, ItemMiscID mid, SpellID spl)
 {
 	Player &player = Players[pnum];
 
 	switch (mid) {
-	case IMISC_HEAL:
+	case ItemMiscID::PotionHealing:
 		player.RestorePartialLife();
 		if (&player == MyPlayer) {
 			RedrawComponent(PanelDrawComponent::Health);
 		}
 		break;
-	case IMISC_FULLHEAL:
+	case ItemMiscID::PotionFullHealing:
 		player.RestoreFullLife();
 		if (&player == MyPlayer) {
 			RedrawComponent(PanelDrawComponent::Health);
 		}
 		break;
-	case IMISC_MANA:
+	case ItemMiscID::PotionMana:
 		player.RestorePartialMana();
 		if (&player == MyPlayer) {
 			RedrawComponent(PanelDrawComponent::Mana);
 		}
 		break;
-	case IMISC_FULLMANA:
+	case ItemMiscID::PotionFullMana:
 		player.RestoreFullMana();
 		if (&player == MyPlayer) {
 			RedrawComponent(PanelDrawComponent::Mana);
 		}
 		break;
-	case IMISC_ELIXSTR:
+	case ItemMiscID::ElixirStrength:
 		ModifyPlrStr(player, 1);
 		break;
-	case IMISC_ELIXMAG:
+	case ItemMiscID::ElixirMagic:
 		ModifyPlrMag(player, 1);
 		if (gbIsHellfire) {
 			player.RestoreFullMana();
@@ -3781,10 +3782,10 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 			}
 		}
 		break;
-	case IMISC_ELIXDEX:
+	case ItemMiscID::ElixirDexterity:
 		ModifyPlrDex(player, 1);
 		break;
-	case IMISC_ELIXVIT:
+	case ItemMiscID::ElixirVitality:
 		ModifyPlrVit(player, 1);
 		if (gbIsHellfire) {
 			player.RestoreFullLife();
@@ -3793,7 +3794,7 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 			}
 		}
 		break;
-	case IMISC_REJUV: {
+	case ItemMiscID::PotionRejuvenation: {
 		player.RestorePartialLife();
 		player.RestorePartialMana();
 		if (&player == MyPlayer) {
@@ -3801,7 +3802,7 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 			RedrawComponent(PanelDrawComponent::Mana);
 		}
 	} break;
-	case IMISC_FULLREJUV:
+	case ItemMiscID::PotionFullRejuvenation:
 		player.RestoreFullLife();
 		player.RestoreFullMana();
 		if (&player == MyPlayer) {
@@ -3809,9 +3810,9 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 			RedrawComponent(PanelDrawComponent::Mana);
 		}
 		break;
-	case IMISC_SCROLL:
-	case IMISC_SCROLLT:
-		if (ControlMode == ControlTypes::KeyboardAndMouse && spelldata[spl].sTargeted) {
+	case ItemMiscID::Scroll:
+	case ItemMiscID::ScrollTargeted:
+		if (ControlMode == ControlTypes::KeyboardAndMouse && spelldata[static_cast<int8_t>(spl)].sTargeted) {
 			player._pTSpell = spl;
 			if (&player == MyPlayer)
 				NewCursor(CURSOR_TELEPORT);
@@ -3823,18 +3824,18 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 			player.destAction = ACTION_SPELL;
 			player.destParam1 = cursPosition.x;
 			player.destParam2 = cursPosition.y;
-			if (&player == MyPlayer && spl == SPL_NOVA)
+			if (&player == MyPlayer && spl == SpellID::Nova)
 				NetSendCmdLoc(pnum, true, CMD_NOVA, cursPosition);
 		}
 		break;
-	case IMISC_BOOK:
+	case ItemMiscID::Book:
 		player._pMemSpells |= GetSpellBitmask(spl);
-		if (player._pSplLvl[spl] < MaxSpellLevel)
-			player._pSplLvl[spl]++;
+		if (player._pSplLvl[static_cast<int8_t>(spl)] < MaxSpellLevel)
+			player._pSplLvl[static_cast<int8_t>(spl)]++;
 		if (HasNoneOf(player._pIFlags, ItemSpecialEffect::NoMana)) {
-			player._pMana += spelldata[spl].sManaCost << 6;
+			player._pMana += spelldata[static_cast<int8_t>(spl)].sManaCost << 6;
 			player._pMana = std::min(player._pMana, player._pMaxMana);
-			player._pManaBase += spelldata[spl].sManaCost << 6;
+			player._pManaBase += spelldata[static_cast<int8_t>(spl)].sManaCost << 6;
 			player._pManaBase = std::min(player._pManaBase, player._pMaxManaBase);
 		}
 		if (&player == MyPlayer) {
@@ -3847,19 +3848,19 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 		}
 		RedrawComponent(PanelDrawComponent::Mana);
 		break;
-	case IMISC_MAPOFDOOM:
+	case ItemMiscID::Map:
 		doom_init();
 		break;
-	case IMISC_OILACC:
-	case IMISC_OILMAST:
-	case IMISC_OILSHARP:
-	case IMISC_OILDEATH:
-	case IMISC_OILSKILL:
-	case IMISC_OILBSMTH:
-	case IMISC_OILFORT:
-	case IMISC_OILPERM:
-	case IMISC_OILHARD:
-	case IMISC_OILIMP:
+	case ItemMiscID::OilAccuracy:
+	case ItemMiscID::OilMastery:
+	case ItemMiscID::OilSharpness:
+	case ItemMiscID::OilDeath:
+	case ItemMiscID::OilSkill:
+	case ItemMiscID::OilBlacksmith:
+	case ItemMiscID::OilFortitude:
+	case ItemMiscID::OilPermanence:
+	case ItemMiscID::OilHardening:
+	case ItemMiscID::OilImperviousness:
 		player._pOilType = mid;
 		if (&player != MyPlayer) {
 			return;
@@ -3872,34 +3873,34 @@ void UseItem(size_t pnum, item_misc_id mid, spell_id spl)
 		}
 		NewCursor(CURSOR_OIL);
 		break;
-	case IMISC_SPECELIX:
+	case ItemMiscID::SpectralElixir:
 		ModifyPlrStr(player, 3);
 		ModifyPlrMag(player, 3);
 		ModifyPlrDex(player, 3);
 		ModifyPlrVit(player, 3);
 		break;
-	case IMISC_RUNEF:
-		player._pTSpell = SPL_RUNEFIRE;
+	case ItemMiscID::RuneFire:
+		player._pTSpell = SpellID::RuneFire;
 		if (&player == MyPlayer)
 			NewCursor(CURSOR_TELEPORT);
 		break;
-	case IMISC_RUNEL:
-		player._pTSpell = SPL_RUNELIGHT;
+	case ItemMiscID::RuneLightning:
+		player._pTSpell = SpellID::RuneLightning;
 		if (&player == MyPlayer)
 			NewCursor(CURSOR_TELEPORT);
 		break;
-	case IMISC_GR_RUNEL:
-		player._pTSpell = SPL_RUNENOVA;
+	case ItemMiscID::GreaterRuneLightning:
+		player._pTSpell = SpellID::GreaterRuneLightning;
 		if (&player == MyPlayer)
 			NewCursor(CURSOR_TELEPORT);
 		break;
-	case IMISC_GR_RUNEF:
-		player._pTSpell = SPL_RUNEIMMOLAT;
+	case ItemMiscID::GreaterRuneFire:
+		player._pTSpell = SpellID::GreaterRuneFire;
 		if (&player == MyPlayer)
 			NewCursor(CURSOR_TELEPORT);
 		break;
-	case IMISC_RUNES:
-		player._pTSpell = SPL_RUNESTONE;
+	case ItemMiscID::RuneStone:
+		player._pTSpell = SpellID::RuneStone;
 		if (&player == MyPlayer)
 			NewCursor(CURSOR_TELEPORT);
 		break;
@@ -4025,7 +4026,7 @@ void SpawnWitch(int lvl)
 		if (gbIsHellfire) {
 			if (i < PinnedItemCount + MaxPinnedBookCount && bookCount < pinnedBookCount) {
 				ItemIndex bookType = PinnedBookTypes[i - PinnedItemCount];
-				if (lvl >= AllItemsList[bookType].iMinMLvl) {
+				if (lvl >= AllItemsList[static_cast<int16_t>(bookType)].iMinMLvl) {
 					item._iSeed = AdvanceRndSeed();
 					SetRndSeed(item._iSeed);
 					AdvanceRndSeed();
@@ -4052,7 +4053,7 @@ void SpawnWitch(int lvl)
 			int maxlvl = -1;
 			if (GenerateRnd(100) <= 5)
 				maxlvl = 2 * lvl;
-			if (maxlvl == -1 && item._iMiscId == IMISC_STAFF)
+			if (maxlvl == -1 && item._iMiscId == ItemMiscID::Staff)
 				maxlvl = 2 * lvl;
 			if (maxlvl != -1)
 				GetItemBonus(*MyPlayer, item, maxlvl / 2, maxlvl, true, true);
@@ -4232,7 +4233,7 @@ int ItemNoFlippy()
 	return r;
 }
 
-void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta)
+void CreateSpellBook(Point position, SpellID ispell, bool sendmsg, bool delta)
 {
 	int lvl = currlevel;
 
@@ -4243,7 +4244,7 @@ void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta)
 		}
 	}
 
-	ItemIndex idx = RndTypeItems(ItemType::Misc, IMISC_BOOK, lvl);
+	ItemIndex idx = RndTypeItems(ItemType::Misc, ItemMiscID::Book, lvl);
 	if (ActiveItemCount >= MAXITEMS)
 		return;
 
@@ -4253,7 +4254,7 @@ void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta)
 	while (true) {
 		item = {};
 		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * lvl, 1, true, false, delta);
-		if (item._iMiscId == IMISC_BOOK && item._iSpell == ispell)
+		if (item._iMiscId == ItemMiscID::Book && item._iSpell == ispell)
 			break;
 	}
 	GetSuperItemSpace(position, ii);
@@ -4267,26 +4268,26 @@ void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta)
 void CreateMagicArmor(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta)
 {
 	int lvl = ItemsGetCurrlevel();
-	CreateMagicItem(position, lvl, itemType, IMISC_NONE, icurs, sendmsg, delta);
+	CreateMagicItem(position, lvl, itemType, ItemMiscID::None, icurs, sendmsg, delta);
 }
 
 void CreateAmulet(Point position, int lvl, bool sendmsg, bool delta)
 {
-	CreateMagicItem(position, lvl, ItemType::Amulet, IMISC_AMULET, ItemCursorGraphic::Amulet, sendmsg, delta);
+	CreateMagicItem(position, lvl, ItemType::Amulet, ItemMiscID::Amulet, ItemCursorGraphic::Amulet, sendmsg, delta);
 }
 
 void CreateMagicWeapon(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta)
 {
-	int imid = IMISC_NONE;
+	ItemMiscID imid = ItemMiscID::None;
 	if (itemType == ItemType::Staff)
-		imid = IMISC_STAFF;
+		imid = ItemMiscID::Staff;
 
 	int curlv = ItemsGetCurrlevel();
 
 	CreateMagicItem(position, curlv, itemType, imid, icurs, sendmsg, delta);
 }
 
-bool GetItemRecord(int nSeed, uint16_t wCI, int nIndex)
+bool GetItemRecord(int nSeed, uint16_t wCI, ItemIndex nIndex)
 {
 	uint32_t ticks = SDL_GetTicks();
 
@@ -4303,7 +4304,7 @@ bool GetItemRecord(int nSeed, uint16_t wCI, int nIndex)
 	return true;
 }
 
-void SetItemRecord(int nSeed, uint16_t wCI, int nIndex)
+void SetItemRecord(int nSeed, uint16_t wCI, ItemIndex nIndex)
 {
 	uint32_t ticks = SDL_GetTicks();
 
@@ -4318,7 +4319,7 @@ void SetItemRecord(int nSeed, uint16_t wCI, int nIndex)
 	gnNumGetRecords++;
 }
 
-void PutItemRecord(int nSeed, uint16_t wCI, int nIndex)
+void PutItemRecord(int nSeed, uint16_t wCI, ItemIndex nIndex)
 {
 	uint32_t ticks = SDL_GetTicks();
 
@@ -4392,7 +4393,7 @@ std::string DebugSpawnUniqueItem(std::string itemName)
 	UniqueItem uniqueItem;
 	bool foundUnique = false;
 	int uniqueIndex = 0;
-	for (int j = 0; UniqueItems[j].UIItemId != UITYPE_INVALID; j++) {
+	for (int j = 0; UniqueItems[j].UIItemId != UniqueBaseItem::Invalid; j++) {
 		if (!IsUniqueAvailable(j))
 			break;
 
@@ -4410,8 +4411,8 @@ std::string DebugSpawnUniqueItem(std::string itemName)
 		return "No unique found!";
 
 	ItemIndex uniqueBaseIndex = ItemIndex::Gold;
-	for (std::underlying_type_t<ItemIndex> j = ItemIndex::Gold; j <= ItemIndex::Last; j++) {
-		if (!IsItemAvailable(j))
+	for (std::underlying_type_t<ItemIndex> j = static_cast<int16_t>(ItemIndex::Gold); j <= static_cast<int16_t>(ItemIndex::Last); j++) {
+		if (!IsItemAvailable(static_cast<ItemIndex>(j)))
 			continue;
 		if (AllItemsList[j].iItemId == uniqueItem.UIItemId)
 			uniqueBaseIndex = static_cast<ItemIndex>(j);
@@ -4483,9 +4484,9 @@ void Item::setNewAnimation(bool showAnimation)
 
 void Item::updateRequiredStatsCacheForPlayer(const Player &player)
 {
-	if (_itype == ItemType::Misc && _iMiscId == IMISC_BOOK) {
-		_iMinMag = spelldata[_iSpell].sMinInt;
-		int8_t spellLevel = player._pSplLvl[_iSpell];
+	if (_itype == ItemType::Misc && _iMiscId == ItemMiscID::Book) {
+		_iMinMag = spelldata[static_cast<int8_t>(_iSpell)].sMinInt;
+		int8_t spellLevel = player._pSplLvl[static_cast<int8_t>(_iSpell)];
 		while (spellLevel != 0) {
 			_iMinMag += 20 * _iMinMag / 100;
 			spellLevel--;
@@ -4565,14 +4566,14 @@ bool ApplyOilToItem(Item &item, Player &player)
 	}
 
 	switch (player._pOilType) {
-	case IMISC_OILACC:
-	case IMISC_OILMAST:
-	case IMISC_OILSHARP:
+	case ItemMiscID::OilAccuracy:
+	case ItemMiscID::OilMastery:
+	case ItemMiscID::OilSharpness:
 		if (item._iClass == ItemClass::Armor) {
 			return false;
 		}
 		break;
-	case IMISC_OILDEATH:
+	case ItemMiscID::OilDeath:
 		if (item._iClass == ItemClass::Armor) {
 			return false;
 		}
@@ -4580,8 +4581,8 @@ bool ApplyOilToItem(Item &item, Player &player)
 			return false;
 		}
 		break;
-	case IMISC_OILHARD:
-	case IMISC_OILIMP:
+	case ItemMiscID::OilHardening:
+	case ItemMiscID::OilImperviousness:
 		if (item._iClass == ItemClass::Weapon) {
 			return false;
 		}
@@ -4591,34 +4592,34 @@ bool ApplyOilToItem(Item &item, Player &player)
 	}
 
 	switch (player._pOilType) {
-	case IMISC_OILACC:
+	case ItemMiscID::OilAccuracy:
 		if (item._iPLToHit < 50) {
 			item._iPLToHit += GenerateRnd(2) + 1;
 		}
 		break;
-	case IMISC_OILMAST:
+	case ItemMiscID::OilMastery:
 		if (item._iPLToHit < 100) {
 			item._iPLToHit += GenerateRnd(3) + 3;
 		}
 		break;
-	case IMISC_OILSHARP:
+	case ItemMiscID::OilSharpness:
 		if (item._iMaxDam - item._iMinDam < 30 && item._iMaxDam < 255) {
 			item._iMaxDam = item._iMaxDam + 1;
 		}
 		break;
-	case IMISC_OILDEATH:
+	case ItemMiscID::OilDeath:
 		if (item._iMaxDam - item._iMinDam < 30 && item._iMaxDam < 254) {
 			item._iMinDam = item._iMinDam + 1;
 			item._iMaxDam = item._iMaxDam + 2;
 		}
 		break;
-	case IMISC_OILSKILL:
+	case ItemMiscID::OilSkill:
 		r = GenerateRnd(6) + 5;
 		item._iMinStr = std::max(0, item._iMinStr - r);
 		item._iMinMag = std::max(0, item._iMinMag - r);
 		item._iMinDex = std::max(0, item._iMinDex - r);
 		break;
-	case IMISC_OILBSMTH:
+	case ItemMiscID::OilBlacksmith:
 		if (item._iMaxDur == DUR_INDESTRUCTIBLE)
 			return true;
 		if (item._iDurability < item._iMaxDur) {
@@ -4632,23 +4633,23 @@ bool ApplyOilToItem(Item &item, Player &player)
 			item._iDurability = item._iMaxDur;
 		}
 		break;
-	case IMISC_OILFORT:
+	case ItemMiscID::OilFortitude:
 		if (item._iMaxDur != DUR_INDESTRUCTIBLE && item._iMaxDur < 200) {
 			r = GenerateRnd(41) + 10;
 			item._iMaxDur += r;
 			item._iDurability += r;
 		}
 		break;
-	case IMISC_OILPERM:
+	case ItemMiscID::OilPermanence:
 		item._iDurability = DUR_INDESTRUCTIBLE;
 		item._iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
-	case IMISC_OILHARD:
+	case ItemMiscID::OilHardening:
 		if (item._iAC < 60) {
 			item._iAC += GenerateRnd(2) + 1;
 		}
 		break;
-	case IMISC_OILIMP:
+	case ItemMiscID::OilImperviousness:
 		if (item._iAC < 120) {
 			item._iAC += GenerateRnd(3) + 3;
 		}

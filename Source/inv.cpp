@@ -972,10 +972,10 @@ void CleanupItems(int ii)
 	}
 }
 
-bool CanUseStaff(Item &staff, spell_id spell)
+bool CanUseStaff(Item &staff, SpellID spell)
 {
 	return !staff.isEmpty()
-	    && IsAnyOf(staff._iMiscId, IMISC_STAFF, IMISC_UNIQUE)
+	    && IsAnyOf(staff._iMiscId, ItemMiscID::Staff, ItemMiscID::Unique)
 	    && staff._iSpell == spell
 	    && staff._iCharges > 0;
 }
@@ -1942,7 +1942,7 @@ int8_t CheckInvHLight()
 
 void ConsumeScroll(Player &player)
 {
-	const spell_id spellId = player.executedSpell.spellId;
+	const SpellID spellId = player.executedSpell.spellId;
 
 	const auto isCurrentSpell = [spellId](const Item &item) {
 		return item.isScrollOf(spellId) || item.isRuneOf(spellId);
@@ -1973,9 +1973,9 @@ void ConsumeScroll(Player &player)
 	RemoveInventoryOrBeltItem(player, isCurrentSpell);
 }
 
-bool CanUseScroll(Player &player, spell_id spell)
+bool CanUseScroll(Player &player, SpellID spell)
 {
-	if (leveltype == DTYPE_TOWN && !spelldata[spell].sTownSpell)
+	if (leveltype == DTYPE_TOWN && !spelldata[static_cast<int8_t>(spell)].sTownSpell)
 		return false;
 
 	return HasInventoryOrBeltItem(player, [spell](const Item &item) {
@@ -1994,7 +1994,7 @@ void ConsumeStaffCharge(Player &player)
 	CalcPlrStaff(player);
 }
 
-bool CanUseStaff(Player &player, spell_id spellId)
+bool CanUseStaff(Player &player, SpellID spellId)
 {
 	return CanUseStaff(player.InvBody[INVLOC_HAND_LEFT], spellId);
 }
@@ -2094,7 +2094,7 @@ bool UseInvItem(size_t pnum, int cii)
 		return true;
 	}
 
-	if (item->_iMiscId == IMISC_NONE && item->_itype == ItemType::Gold) {
+	if (item->_iMiscId == ItemMiscID::None && item->_itype == ItemType::Gold) {
 		StartGoldDrop();
 		return true;
 	}
@@ -2104,16 +2104,16 @@ bool UseInvItem(size_t pnum, int cii)
 		dropGoldValue = 0;
 	}
 
-	if (item->isScroll() && leveltype == DTYPE_TOWN && !spelldata[item->_iSpell].sTownSpell) {
+	if (item->isScroll() && leveltype == DTYPE_TOWN && !spelldata[static_cast<int8_t>(item->_iSpell)].sTownSpell) {
 		return true;
 	}
 
-	if (item->_iMiscId > IMISC_RUNEFIRST && item->_iMiscId < IMISC_RUNELAST && leveltype == DTYPE_TOWN) {
+	if (item->_iMiscId > ItemMiscID::RuneFirst && item->_iMiscId < ItemMiscID::RuneLast && leveltype == DTYPE_TOWN) {
 		return true;
 	}
 
 	int idata = ItemCAnimTbl[static_cast<uint8_t>(item->_iCurs)];
-	if (item->_iMiscId == IMISC_BOOK)
+	if (item->_iMiscId == ItemMiscID::Book)
 		PlaySFX(IS_RBOOK);
 	else if (&player == MyPlayer)
 		PlaySFX(ItemInvSnds[idata]);
@@ -2121,7 +2121,7 @@ bool UseInvItem(size_t pnum, int cii)
 	UseItem(pnum, item->_iMiscId, item->_iSpell);
 
 	if (speedlist) {
-		if (player.SpdList[c]._iMiscId == IMISC_NOTE) {
+		if (player.SpdList[c]._iMiscId == ItemMiscID::ReconstructedNote) {
 			InitQTextMsg(TEXT_BOOK9);
 			CloseInventory();
 			return true;
@@ -2132,9 +2132,9 @@ bool UseInvItem(size_t pnum, int cii)
 			player.queuedSpell.spellFrom = cii;
 		return true;
 	}
-	if (player.InvList[c]._iMiscId == IMISC_MAPOFDOOM)
+	if (player.InvList[c]._iMiscId == ItemMiscID::Map)
 		return true;
-	if (player.InvList[c]._iMiscId == IMISC_NOTE) {
+	if (player.InvList[c]._iMiscId == ItemMiscID::ReconstructedNote) {
 		InitQTextMsg(TEXT_BOOK9);
 		CloseInventory();
 		return true;

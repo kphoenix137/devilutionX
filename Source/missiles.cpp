@@ -644,7 +644,7 @@ bool GuardianTryFireAt(Missile &missile, Point target)
 		return false;
 
 	Direction dir = GetDirection(position, target);
-	AddMissile(position, target, dir, MIS_FIREBOLT, TARGET_MONSTERS, missile._misource, missile._midam, missile.sourcePlayer()->GetSpellLevel(SPL_FIREBOLT), &missile);
+	AddMissile(position, target, dir, MIS_FIREBOLT, TARGET_MONSTERS, missile._misource, missile._midam, missile.sourcePlayer()->GetSpellLevel(SpellID::Firebolt), &missile);
 	SetMissDir(missile, 2);
 	missile.var2 = 3;
 
@@ -747,122 +747,122 @@ bool IsMissileBlockedByTile(Point tile)
 	return object != nullptr && !object->_oMissFlag;
 }
 
-void GetDamageAmt(spell_id i, int *mind, int *maxd)
+void GetDamageAmt(SpellID i, int *mind, int *maxd)
 {
 	assert(MyPlayer != nullptr);
-	assert(i >= 0 && i < 64);
+	assert(static_cast<int8_t>(i) >= 0 && static_cast<int8_t>(i) < 64);
 
 	Player &myPlayer = *MyPlayer;
 
 	const int sl = myPlayer.GetSpellLevel(i);
 
 	switch (i) {
-	case SPL_FIREBOLT:
+	case SpellID::Firebolt:
 		*mind = (myPlayer._pMagic / 8) + sl + 1;
 		*maxd = *mind + 9;
 		break;
-	case SPL_HEAL:
-	case SPL_HEALOTHER:
+	case SpellID::Healing:
+	case SpellID::HealOther:
 		/// BUGFIX: healing calculation is unused
 		*mind = AddClassHealingBonus(myPlayer._pLevel + sl + 1, myPlayer._pClass) - 1;
 		*maxd = AddClassHealingBonus((4 * myPlayer._pLevel) + (6 * sl) + 10, myPlayer._pClass) - 1;
 		break;
-	case SPL_RUNELIGHT:
-	case SPL_LIGHTNING:
+	case SpellID::RuneLightning:
+	case SpellID::Lightning:
 		*mind = 2;
 		*maxd = 2 + myPlayer._pLevel;
 		break;
-	case SPL_FLASH:
+	case SpellID::Flash:
 		*mind = ScaleSpellEffect(myPlayer._pLevel, sl);
 		*mind += *mind / 2;
 		*maxd = *mind * 2;
 		break;
-	case SPL_IDENTIFY:
-	case SPL_TOWN:
-	case SPL_STONE:
-	case SPL_INFRA:
-	case SPL_RNDTELEPORT:
-	case SPL_MANASHIELD:
-	case SPL_DOOMSERP:
-	case SPL_BLODRIT:
-	case SPL_INVISIBIL:
-	case SPL_BLODBOIL:
-	case SPL_TELEPORT:
-	case SPL_ETHEREALIZE:
-	case SPL_REPAIR:
-	case SPL_RECHARGE:
-	case SPL_DISARM:
-	case SPL_RESURRECT:
-	case SPL_TELEKINESIS:
-	case SPL_BONESPIRIT:
-	case SPL_WARP:
-	case SPL_REFLECT:
-	case SPL_BERSERK:
-	case SPL_SEARCH:
-	case SPL_RUNESTONE:
+	case SpellID::Identify:
+	case SpellID::TownPortal:
+	case SpellID::StoneCurse:
+	case SpellID::Infravision:
+	case SpellID::Phasing:
+	case SpellID::ManaShield:
+	case SpellID::DoomSerpents:
+	case SpellID::BloodRitual:
+	case SpellID::Invisibility:
+	case SpellID::Rage:
+	case SpellID::Teleport:
+	case SpellID::Etherealize:
+	case SpellID::ItemRepair:
+	case SpellID::StaffRecharge:
+	case SpellID::TrapDisarm:
+	case SpellID::Resurrect:
+	case SpellID::Telekinesis:
+	case SpellID::BoneSpirit:
+	case SpellID::Warp:
+	case SpellID::Reflect:
+	case SpellID::Berserk:
+	case SpellID::Search:
+	case SpellID::RuneStone:
 		*mind = -1;
 		*maxd = -1;
 		break;
-	case SPL_FIREWALL:
-	case SPL_LIGHTWALL:
-	case SPL_FIRERING:
+	case SpellID::FireWall:
+	case SpellID::LightningWall:
+	case SpellID::RingFire:
 		*mind = 2 * myPlayer._pLevel + 4;
 		*maxd = *mind + 36;
 		break;
-	case SPL_FIREBALL:
-	case SPL_RUNEFIRE: {
+	case SpellID::Fireball:
+	case SpellID::RuneFire: {
 		int base = (2 * myPlayer._pLevel) + 4;
 		*mind = ScaleSpellEffect(base, sl);
 		*maxd = ScaleSpellEffect(base + 36, sl);
 	} break;
-	case SPL_GUARDIAN: {
+	case SpellID::Guardian: {
 		int base = (myPlayer._pLevel / 2) + 1;
 		*mind = ScaleSpellEffect(base, sl);
 		*maxd = ScaleSpellEffect(base + 9, sl);
 	} break;
-	case SPL_CHAIN:
+	case SpellID::ChainLightning:
 		*mind = 4;
 		*maxd = 4 + (2 * myPlayer._pLevel);
 		break;
-	case SPL_WAVE:
+	case SpellID::FlameWave:
 		*mind = 6 * (myPlayer._pLevel + 1);
 		*maxd = *mind + 54;
 		break;
-	case SPL_NOVA:
-	case SPL_IMMOLAT:
-	case SPL_RUNEIMMOLAT:
-	case SPL_RUNENOVA:
+	case SpellID::Nova:
+	case SpellID::Immolation:
+	case SpellID::GreaterRuneFire:
+	case SpellID::GreaterRuneLightning:
 		*mind = ScaleSpellEffect((myPlayer._pLevel + 5) / 2, sl) * 5;
 		*maxd = ScaleSpellEffect((myPlayer._pLevel + 30) / 2, sl) * 5;
 		break;
-	case SPL_FLAME:
+	case SpellID::Inferno:
 		*mind = 3;
 		*maxd = myPlayer._pLevel + 4;
 		*maxd += *maxd / 2;
 		break;
-	case SPL_GOLEM:
+	case SpellID::Golem:
 		*mind = 11;
 		*maxd = 17;
 		break;
-	case SPL_APOCA:
+	case SpellID::Apocalypse:
 		*mind = myPlayer._pLevel;
 		*maxd = *mind * 6;
 		break;
-	case SPL_ELEMENT:
+	case SpellID::Elemental:
 		*mind = ScaleSpellEffect(2 * myPlayer._pLevel + 4, sl);
 		/// BUGFIX: add here '*mind /= 2;'
 		*maxd = ScaleSpellEffect(2 * myPlayer._pLevel + 40, sl);
 		/// BUGFIX: add here '*maxd /= 2;'
 		break;
-	case SPL_CBOLT:
+	case SpellID::ChargedBolt:
 		*mind = 1;
 		*maxd = *mind + (myPlayer._pMagic / 4);
 		break;
-	case SPL_HBOLT:
+	case SpellID::HolyBolt:
 		*mind = myPlayer._pLevel + 9;
 		*maxd = *mind + 9;
 		break;
-	case SPL_FLARE:
+	case SpellID::BloodStar:
 		*mind = (myPlayer._pMagic / 2) + 3 * sl - (myPlayer._pMagic / 8);
 		*maxd = *mind;
 		break;
@@ -1221,7 +1221,7 @@ void AddBerserk(Missile &missile, AddMissileParameter &parameter)
 	if (targetMonsterPosition) {
 		auto &monster = Monsters[abs(dMonster[targetMonsterPosition->x][targetMonsterPosition->y]) - 1];
 		Player &player = *missile.sourcePlayer();
-		const int slvl = player.GetSpellLevel(SPL_BERSERK);
+		const int slvl = player.GetSpellLevel(SpellID::Berserk);
 		monster.flags |= MFLAG_BERSERK | MFLAG_GOLEM;
 		monster.minDamage = (GenerateRnd(10) + 120) * monster.minDamage / 100 + slvl;
 		monster.maxDamage = (GenerateRnd(10) + 120) * monster.maxDamage / 100 + slvl;
@@ -1298,29 +1298,29 @@ void AddStealPotions(Missile &missile, AddMissileParameter & /*parameter*/)
 				if (FlipCoin())
 					continue;
 				switch (beltItem._iMiscId) {
-				case IMISC_FULLHEAL:
-					ii = ItemMiscIdIdx(IMISC_HEAL);
+				case ItemMiscID::PotionFullHealing:
+					ii = ItemMiscIdIdx(ItemMiscID::PotionHealing);
 					break;
-				case IMISC_HEAL:
-				case IMISC_MANA:
+				case ItemMiscID::PotionHealing:
+				case ItemMiscID::PotionMana:
 					player.RemoveSpdBarItem(si);
 					break;
-				case IMISC_FULLMANA:
-					ii = ItemMiscIdIdx(IMISC_MANA);
+				case ItemMiscID::PotionFullMana:
+					ii = ItemMiscIdIdx(ItemMiscID::PotionMana);
 					break;
-				case IMISC_REJUV:
-					ii = ItemMiscIdIdx(PickRandomlyAmong({ IMISC_HEAL, IMISC_MANA }));
+				case ItemMiscID::PotionRejuvenation:
+					ii = ItemMiscIdIdx(PickRandomlyAmong({ ItemMiscID::PotionHealing, ItemMiscID::PotionMana }));
 					break;
-				case IMISC_FULLREJUV:
+				case ItemMiscID::PotionFullRejuvenation:
 					switch (GenerateRnd(3)) {
 					case 0:
-						ii = ItemMiscIdIdx(IMISC_FULLMANA);
+						ii = ItemMiscIdIdx(ItemMiscID::PotionFullMana);
 						break;
 					case 1:
-						ii = ItemMiscIdIdx(IMISC_FULLHEAL);
+						ii = ItemMiscIdIdx(ItemMiscID::PotionFullHealing);
 						break;
 					default:
-						ii = ItemMiscIdIdx(IMISC_REJUV);
+						ii = ItemMiscIdIdx(ItemMiscID::PotionRejuvenation);
 						break;
 					}
 					break;

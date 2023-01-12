@@ -12,7 +12,7 @@ namespace devilution {
 struct SpellListItem {
 	Point location;
 	spell_type type;
-	spell_id id;
+	SpellID id;
 	bool isSelected;
 };
 

@@ -290,7 +290,7 @@ void PrintStoreItem(const Item &item, int l, UiFlags flags)
 			AppendStrView(productLine, PrintItemPower(item._iSufPower, item));
 		}
 	}
-	if (item._iMiscId == IMISC_STAFF && item._iMaxCharges != 0) {
+	if (item._iMiscId == ItemMiscID::Staff && item._iMaxCharges != 0) {
 		if (!productLine.empty())
 			AppendStrView(productLine, _(",  "));
 		productLine.append(fmt::format(fmt::runtime(_("Charges: {:d}/{:d}")), item._iCharges, item._iMaxCharges));
@@ -495,7 +495,7 @@ bool SmithSellOk(int i)
 	if (pI->isEmpty())
 		return false;
 
-	if (pI->_iMiscId > IMISC_OILFIRST && pI->_iMiscId < IMISC_OILLAST)
+	if (pI->_iMiscId > ItemMiscID::OilFirst && pI->_iMiscId < ItemMiscID::OilLast)
 		return true;
 
 	if (pI->_itype == ItemType::Misc)
@@ -743,10 +743,10 @@ void ScrollWitchBuy(int idx)
 
 void WitchBookLevel(Item &bookItem)
 {
-	if (bookItem._iMiscId != IMISC_BOOK)
+	if (bookItem._iMiscId != ItemMiscID::Book)
 		return;
-	bookItem._iMinMag = spelldata[bookItem._iSpell].sMinInt;
-	int8_t spellLevel = MyPlayer->_pSplLvl[bookItem._iSpell];
+	bookItem._iMinMag = spelldata[static_cast<int8_t>(bookItem._iSpell)].sMinInt;
+	int8_t spellLevel = MyPlayer->_pSplLvl[static_cast<int8_t>(bookItem._iSpell)];
 	while (spellLevel > 0) {
 		bookItem._iMinMag += 20 * bookItem._iMinMag / 100;
 		spellLevel--;
@@ -795,7 +795,7 @@ bool WitchSellOk(int i)
 
 	if (pI->_itype == ItemType::Misc)
 		rv = true;
-	if (pI->_iMiscId > 29 && pI->_iMiscId < 41)
+	if (pI->_iMiscId > ItemMiscID::OilFirst && pI->_iMiscId < ItemMiscID::OilLast)
 		rv = false;
 	if (pI->_iClass == ItemClass::Quest)
 		rv = false;
@@ -884,7 +884,7 @@ bool WitchRechargeOk(int i)
 		return true;
 	}
 
-	if ((item._iMiscId == IMISC_UNIQUE || item._iMiscId == IMISC_STAFF) && item._iCharges < item._iMaxCharges) {
+	if ((item._iMiscId == ItemMiscID::Unique || item._iMiscId == ItemMiscID::Staff) && item._iCharges < item._iMaxCharges) {
 		return true;
 	}
 
@@ -894,7 +894,7 @@ bool WitchRechargeOk(int i)
 void AddStoreHoldRecharge(Item itm, int8_t i)
 {
 	storehold[storenumh] = itm;
-	storehold[storenumh]._ivalue += spelldata[itm._iSpell].sStaffCost;
+	storehold[storenumh]._ivalue += spelldata[static_cast<int8_t>(itm._iSpell)].sStaffCost;
 	storehold[storenumh]._ivalue = storehold[storenumh]._ivalue * (storehold[storenumh]._iMaxCharges - storehold[storenumh]._iCharges) / (storehold[storenumh]._iMaxCharges * 2);
 	storehold[storenumh]._iIvalue = storehold[storenumh]._ivalue;
 	storehidx[storenumh] = i;
@@ -914,7 +914,7 @@ void StartWitchRecharge()
 	const Player &myPlayer = *MyPlayer;
 	const auto &leftHand = myPlayer.InvBody[INVLOC_HAND_LEFT];
 
-	if ((leftHand._itype == ItemType::Staff || leftHand._iMiscId == IMISC_UNIQUE) && leftHand._iCharges != leftHand._iMaxCharges) {
+	if ((leftHand._itype == ItemType::Staff || leftHand._iMiscId == ItemMiscID::Unique) && leftHand._iCharges != leftHand._iMaxCharges) {
 		rechargeok = true;
 		AddStoreHoldRecharge(leftHand, -1);
 	}

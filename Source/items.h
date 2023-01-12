@@ -202,8 +202,8 @@ struct Item {
 	uint8_t _iMaxDam = 0;
 	int16_t _iAC = 0;
 	ItemSpecialEffect _iFlags = ItemSpecialEffect::None;
-	item_misc_id _iMiscId = IMISC_NONE;
-	spell_id _iSpell = SPL_NULL;
+	ItemMiscID _iMiscId = ItemMiscID::None;
+	SpellID _iSpell = SpellID::Null;
 	ItemIndex IDidx = ItemIndex::None;
 	int _iCharges = 0;
 	int _iMaxCharges = 0;
@@ -381,34 +381,34 @@ struct Item {
 
 	[[nodiscard]] bool isScroll() const
 	{
-		return IsAnyOf(_iMiscId, IMISC_SCROLL, IMISC_SCROLLT);
+		return IsAnyOf(_iMiscId, ItemMiscID::Scroll, ItemMiscID::ScrollTargeted);
 	}
 
-	[[nodiscard]] bool isScrollOf(spell_id spellId) const
+	[[nodiscard]] bool isScrollOf(SpellID spellId) const
 	{
 		return isScroll() && _iSpell == spellId;
 	}
 
 	[[nodiscard]] bool isRune() const
 	{
-		return _iMiscId > IMISC_RUNEFIRST && _iMiscId < IMISC_RUNELAST;
+		return _iMiscId > ItemMiscID::RuneFirst && _iMiscId < ItemMiscID::RuneLast;
 	}
 
-	[[nodiscard]] bool isRuneOf(spell_id spellId) const
+	[[nodiscard]] bool isRuneOf(SpellID spellId) const
 	{
 		if (!isRune())
 			return false;
 		switch (_iMiscId) {
-		case IMISC_RUNEF:
-			return spellId == SPL_RUNEFIRE;
-		case IMISC_RUNEL:
-			return spellId == SPL_RUNELIGHT;
-		case IMISC_GR_RUNEL:
-			return spellId == SPL_RUNENOVA;
-		case IMISC_GR_RUNEF:
-			return spellId == SPL_RUNEIMMOLAT;
-		case IMISC_RUNES:
-			return spellId == SPL_RUNESTONE;
+		case ItemMiscID::RuneFire:
+			return spellId == SpellID::RuneFire;
+		case ItemMiscID::RuneLightning:
+			return spellId == SpellID::RuneLightning;
+		case ItemMiscID::GreaterRuneLightning:
+			return spellId == SpellID::GreaterRuneLightning;
+		case ItemMiscID::GreaterRuneFire:
+			return spellId == SpellID::GreaterRuneFire;
+		case ItemMiscID::RuneStone:
+			return spellId == SpellID::RuneStone;
 		default:
 			return false;
 		}
@@ -454,7 +454,7 @@ struct Item {
 struct ItemGetRecordStruct {
 	int32_t nSeed;
 	uint16_t wCI;
-	int nIndex;
+	ItemIndex nIndex;
 	uint32_t dwTimestamp;
 };
 
@@ -475,7 +475,7 @@ extern CornerStoneStruct CornerStone;
 extern bool UniqueItemFlags[128];
 
 uint8_t GetOutlineColor(const Item &item, bool checkReq);
-bool IsItemAvailable(int i);
+bool IsItemAvailable(ItemIndex i);
 bool IsUniqueAvailable(int i);
 void InitItemGFX();
 void InitItems();
@@ -500,7 +500,7 @@ Item *SpawnUnique(_unique_items uid, Point position, bool sendmsg = true);
 void SpawnItem(Monster &monster, Point position, bool sendmsg);
 void CreateRndItem(Point position, bool onlygood, bool sendmsg, bool delta);
 void CreateRndUseful(Point position, bool sendmsg);
-void CreateTypeItem(Point position, bool onlygood, ItemType itemType, int imisc, bool sendmsg, bool delta);
+void CreateTypeItem(Point position, bool onlygood, ItemType itemType, ItemMiscID imisc, bool sendmsg, bool delta);
 void RecreateItem(const Player &player, Item &item, ItemIndex idx, uint16_t icreateinfo, int iseed, int ivalue, bool isHellfire);
 void RecreateEar(Item &item, uint16_t ic, int iseed, uint8_t bCursval, string_view heroName);
 void CornerstoneSave();
@@ -524,7 +524,7 @@ bool DoOil(Player &player, int cii);
 void DrawUniqueInfo(const Surface &out);
 void PrintItemDetails(const Item &item);
 void PrintItemDur(const Item &item);
-void UseItem(size_t pnum, item_misc_id Mid, spell_id spl);
+void UseItem(size_t pnum, ItemMiscID Mid, SpellID spl);
 bool UseItemOpensHive(const Item &item, Point position);
 bool UseItemOpensGrave(const Item &item, Point position);
 void SpawnSmith(int lvl);
@@ -534,13 +534,13 @@ void SpawnBoy(int lvl);
 void SpawnHealer(int lvl);
 void MakeGoldStack(Item &goldItem, int value);
 int ItemNoFlippy();
-void CreateSpellBook(Point position, spell_id ispell, bool sendmsg, bool delta);
+void CreateSpellBook(Point position, SpellID ispell, bool sendmsg, bool delta);
 void CreateMagicArmor(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta);
 void CreateAmulet(Point position, int lvl, bool sendmsg, bool delta);
 void CreateMagicWeapon(Point position, ItemType itemType, ItemCursorGraphic icurs, bool sendmsg, bool delta);
-bool GetItemRecord(int nSeed, uint16_t wCI, int nIndex);
-void SetItemRecord(int nSeed, uint16_t wCI, int nIndex);
-void PutItemRecord(int nSeed, uint16_t wCI, int nIndex);
+bool GetItemRecord(int nSeed, uint16_t wCI, ItemIndex nIndex);
+void SetItemRecord(int nSeed, uint16_t wCI, ItemIndex nIndex);
+void PutItemRecord(int nSeed, uint16_t wCI, ItemIndex nIndex);
 
 /**
  * @brief Resets item get records.

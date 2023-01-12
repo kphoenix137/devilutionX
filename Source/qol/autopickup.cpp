@@ -32,7 +32,7 @@ bool HasRoomForGold()
 	return false;
 }
 
-int NumMiscItemsInInv(int iMiscId)
+int NumMiscItemsInInv(ItemMiscID iMiscId)
 {
 	InventoryAndBeltPlayerItemsRange items { *MyPlayer };
 	return std::count_if(items.begin(), items.end(), [iMiscId](const Item &item) { return item._iMiscId == iMiscId; });
@@ -46,36 +46,36 @@ bool DoPickup(Item item)
 	if (item._itype == ItemType::Misc
 	    && (AutoPlaceItemInInventory(*MyPlayer, item, false) || AutoPlaceItemInBelt(*MyPlayer, item, false))) {
 		switch (item._iMiscId) {
-		case IMISC_HEAL:
+		case ItemMiscID::PotionHealing:
 			return *sgOptions.Gameplay.numHealPotionPickup > NumMiscItemsInInv(item._iMiscId);
-		case IMISC_FULLHEAL:
+		case ItemMiscID::PotionFullHealing:
 			return *sgOptions.Gameplay.numFullHealPotionPickup > NumMiscItemsInInv(item._iMiscId);
-		case IMISC_MANA:
+		case ItemMiscID::PotionMana:
 			return *sgOptions.Gameplay.numManaPotionPickup > NumMiscItemsInInv(item._iMiscId);
-		case IMISC_FULLMANA:
+		case ItemMiscID::PotionFullMana:
 			return *sgOptions.Gameplay.numFullManaPotionPickup > NumMiscItemsInInv(item._iMiscId);
-		case IMISC_REJUV:
+		case ItemMiscID::PotionRejuvenation:
 			return *sgOptions.Gameplay.numRejuPotionPickup > NumMiscItemsInInv(item._iMiscId);
-		case IMISC_FULLREJUV:
+		case ItemMiscID::PotionFullRejuvenation:
 			return *sgOptions.Gameplay.numFullRejuPotionPickup > NumMiscItemsInInv(item._iMiscId);
-		case IMISC_ELIXSTR:
-		case IMISC_ELIXMAG:
-		case IMISC_ELIXDEX:
-		case IMISC_ELIXVIT:
+		case ItemMiscID::ElixirStrength:
+		case ItemMiscID::ElixirMagic:
+		case ItemMiscID::ElixirDexterity:
+		case ItemMiscID::ElixirVitality:
 			return *sgOptions.Gameplay.autoElixirPickup;
-		case IMISC_OILFIRST:
-		case IMISC_OILOF:
-		case IMISC_OILACC:
-		case IMISC_OILMAST:
-		case IMISC_OILSHARP:
-		case IMISC_OILDEATH:
-		case IMISC_OILSKILL:
-		case IMISC_OILBSMTH:
-		case IMISC_OILFORT:
-		case IMISC_OILPERM:
-		case IMISC_OILHARD:
-		case IMISC_OILIMP:
-		case IMISC_OILLAST:
+		case ItemMiscID::OilFirst:
+		case ItemMiscID::Oil:
+		case ItemMiscID::OilAccuracy:
+		case ItemMiscID::OilMastery:
+		case ItemMiscID::OilSharpness:
+		case ItemMiscID::OilDeath:
+		case ItemMiscID::OilSkill:
+		case ItemMiscID::OilBlacksmith:
+		case ItemMiscID::OilFortitude:
+		case ItemMiscID::OilPermanence:
+		case ItemMiscID::OilHardening:
+		case ItemMiscID::OilImperviousness:
+		case ItemMiscID::OilLast:
 			return *sgOptions.Gameplay.autoOilPickup;
 		default:
 			return false;

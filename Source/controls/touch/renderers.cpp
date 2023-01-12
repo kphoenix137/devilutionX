@@ -380,24 +380,24 @@ std::optional<VirtualGamepadPotionType> PotionButtonRenderer::GetPotionType()
 		}
 
 		if (potionType == BLT_HEALING) {
-			if (item._iMiscId == IMISC_HEAL)
+			if (item._iMiscId == ItemMiscID::PotionHealing)
 				return GAMEPAD_HEALING;
-			if (item._iMiscId == IMISC_FULLHEAL)
+			if (item._iMiscId == ItemMiscID::PotionFullHealing)
 				return GAMEPAD_FULL_HEALING;
-			if (item.isScrollOf(SPL_HEAL))
+			if (item.isScrollOf(SpellID::Healing))
 				return GAMEPAD_SCROLL_OF_HEALING;
 		}
 
 		if (potionType == BLT_MANA) {
-			if (item._iMiscId == IMISC_MANA)
+			if (item._iMiscId == ItemMiscID::PotionMana)
 				return GAMEPAD_MANA;
-			if (item._iMiscId == IMISC_FULLMANA)
+			if (item._iMiscId == ItemMiscID::PotionFullMana)
 				return GAMEPAD_FULL_MANA;
 		}
 
-		if (item._iMiscId == IMISC_REJUV)
+		if (item._iMiscId == ItemMiscID::PotionRejuvenation)
 			return GAMEPAD_REJUVENATION;
-		if (item._iMiscId == IMISC_FULLREJUV)
+		if (item._iMiscId == ItemMiscID::PotionFullRejuvenation)
 			return GAMEPAD_FULL_REJUVENATION;
 	}
 

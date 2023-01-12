@@ -865,7 +865,7 @@ void SpawnLoot(Monster &monster, bool sendmsg)
 	}
 
 	if (Quests[Q_GARBUD].IsAvailable() && monster.uniqueType == UniqueMonsterType::Garbud) {
-		CreateTypeItem(monster.position.tile + Displacement { 1, 1 }, true, ItemType::Mace, IMISC_NONE, sendmsg, false);
+		CreateTypeItem(monster.position.tile + Displacement { 1, 1 }, true, ItemType::Mace, ItemMiscID::None, sendmsg, false);
 	} else if (monster.uniqueType == UniqueMonsterType::Defiler) {
 		if (effect_is_playing(USFX_DEFILER8))
 			stream_stop();
@@ -888,7 +888,7 @@ void SpawnLoot(Monster &monster, bool sendmsg)
 		CreateMagicWeapon(monster.position.tile, ItemType::Sword, ItemCursorGraphic::GreatSword, sendmsg, false);
 		CreateMagicWeapon(monster.position.tile, ItemType::Staff, ItemCursorGraphic::WarStaff, sendmsg, false);
 		CreateMagicWeapon(monster.position.tile, ItemType::Bow, ItemCursorGraphic::LongWarBow, sendmsg, false);
-		CreateSpellBook(monster.position.tile, SPL_APOCA, sendmsg, false);
+		CreateSpellBook(monster.position.tile, SpellID::Apocalypse, sendmsg, false);
 	} else if (!monster.isPlayerMinion()) {
 		SpawnItem(monster, monster.position.tile, sendmsg);
 	}
@@ -1419,7 +1419,7 @@ void MonsterTalk(Monster &monster)
 	    && (monster.flags & MFLAG_QUEST_COMPLETE) == 0) {
 		Quests[Q_ZHAR]._qactive = QUEST_ACTIVE;
 		Quests[Q_ZHAR]._qlog = true;
-		CreateTypeItem(monster.position.tile + Displacement { 1, 1 }, false, ItemType::Misc, IMISC_BOOK, true, false);
+		CreateTypeItem(monster.position.tile + Displacement { 1, 1 }, false, ItemType::Misc, ItemMiscID::Book, true, false);
 		monster.flags |= MFLAG_QUEST_COMPLETE;
 	}
 	if (monster.uniqueType == UniqueMonsterType::SnotSpill) {

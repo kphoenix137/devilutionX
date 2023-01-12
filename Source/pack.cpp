@@ -48,7 +48,7 @@ void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
 		if (gbIsSpawn) {
 			idx = RemapItemIdxToSpawn(idx);
 		}
-		packedItem.idx = SDL_SwapLE16(idx);
+		packedItem.idx = SDL_SwapLE16(static_cast<int16_t>(idx));
 		if (item.IDidx == ItemIndex::Ear) {
 			packedItem.iCreateInfo = SDL_SwapLE16(item._iIName[1] | (item._iIName[0] << 8));
 			packedItem.iSeed = SDL_SwapLE32(LoadBE32(&item._iIName[2]));

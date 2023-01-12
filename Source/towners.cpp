@@ -449,7 +449,7 @@ void TalkToWitch(Player &player, Towner & /*witch*/)
 				if (HasInventoryOrBeltItemWithId(player, ItemIndex::SpectralElixir)) {
 					InitQTextMsg(TEXT_MUSH12);
 					Quests[Q_MUSHROOM]._qactive = QUEST_DONE;
-					AllItemsList[ItemIndex::SpectralElixir].iUsable = true; /// BUGFIX: This will cause the elixir to be usable in the next game
+					AllItemsList[static_cast<int16_t>(ItemIndex::SpectralElixir)].iUsable = true; /// BUGFIX: This will cause the elixir to be usable in the next game
 					return;
 				}
 			}

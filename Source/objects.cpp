@@ -1950,9 +1950,9 @@ void OperateBook(Player &player, Object &book)
 	}
 
 	if (setlvlnum == SL_BONECHAMB) {
-		player._pMemSpells |= GetSpellBitmask(SPL_GUARDIAN);
-		if (player._pSplLvl[SPL_GUARDIAN] < MaxSpellLevel)
-			player._pSplLvl[SPL_GUARDIAN]++;
+		player._pMemSpells |= GetSpellBitmask(SpellID::Guardian);
+		if (player._pSplLvl[static_cast<int8_t>(SpellID::Guardian)] < MaxSpellLevel)
+			player._pSplLvl[static_cast<int8_t>(SpellID::Guardian)]++;
 		Quests[Q_SCHAMB]._qactive = QUEST_DONE;
 		PlaySfxLoc(IS_QUESTDN, book.position);
 		InitDiabloMsg(EMSG_BONECHAMB);
@@ -2185,7 +2185,7 @@ void OperateSlainHero(const Player &player, Object &corpse)
 	} else if (player._pClass == HeroClass::Rogue) {
 		CreateMagicWeapon(corpse.position, ItemType::Bow, ItemCursorGraphic::LongBattleBow, true, false);
 	} else if (player._pClass == HeroClass::Sorcerer) {
-		CreateSpellBook(corpse.position, SPL_LIGHTNING, true, false);
+		CreateSpellBook(corpse.position, SpellID::Lightning, true, false);
 	} else if (player._pClass == HeroClass::Monk) {
 		CreateMagicWeapon(corpse.position, ItemType::Staff, ItemCursorGraphic::WarStaff, true, false);
 	} else if (player._pClass == HeroClass::Bard) {
@@ -2491,7 +2491,7 @@ void OperateShrineEnchanted(Player &player)
 	}
 	if (cnt > 1) {
 		spell = 1;
-		for (int j = SPL_FIREBOLT; j < maxSpells; j++) { // BUGFIX: < MAX_SPELLS, there is no spell with MAX_SPELLS index (fixed)
+		for (int j = static_cast<int8_t>(SpellID::Firebolt); j < maxSpells; j++) { // BUGFIX: < MAX_SPELLS, there is no spell with MAX_SPELLS index (fixed)
 			if ((player._pMemSpells & spell) != 0) {
 				if (player._pSplLvl[j] < MaxSpellLevel)
 					player._pSplLvl[j]++;
@@ -2501,7 +2501,7 @@ void OperateShrineEnchanted(Player &player)
 		int r;
 		do {
 			r = GenerateRnd(maxSpells);
-		} while ((player._pMemSpells & GetSpellBitmask(r + 1)) == 0);
+		} while ((player._pMemSpells & GetSpellBitmask(static_cast<SpellID>(r + 1))) == 0);
 		if (player._pSplLvl[r + 1] >= 2)
 			player._pSplLvl[r + 1] -= 2;
 		else
@@ -2528,17 +2528,17 @@ void OperateShrineThaumaturgic(const Player &player)
 	InitDiabloMsg(EMSG_SHRINE_THAUMATURGIC);
 }
 
-void OperateShrineCostOfWisdom(Player &player, spell_id spellId, diablo_message message)
+void OperateShrineCostOfWisdom(Player &player, SpellID spellId, diablo_message message)
 {
 	if (&player != MyPlayer)
 		return;
 
 	player._pMemSpells |= GetSpellBitmask(spellId);
 
-	if (player._pSplLvl[spellId] < MaxSpellLevel)
-		player._pSplLvl[spellId]++;
-	if (player._pSplLvl[spellId] < MaxSpellLevel)
-		player._pSplLvl[spellId]++;
+	if (player._pSplLvl[static_cast<int8_t>(spellId)] < MaxSpellLevel)
+		player._pSplLvl[static_cast<int8_t>(spellId)]++;
+	if (player._pSplLvl[static_cast<int8_t>(spellId)] < MaxSpellLevel)
+		player._pSplLvl[static_cast<int8_t>(spellId)]++;
 
 	uint32_t t = player._pMaxManaBase / 10;
 	int v1 = player._pMana - player._pManaBase;
@@ -2593,19 +2593,19 @@ void OperateShrineEldritch(Player &player)
 		if (item._itype != ItemType::Misc) {
 			continue;
 		}
-		if (IsAnyOf(item._iMiscId, IMISC_HEAL, IMISC_MANA)) {
+		if (IsAnyOf(item._iMiscId, ItemMiscID::PotionHealing, ItemMiscID::PotionMana)) {
 			// Reinitializing the item zeroes out the seed, we save and restore here to avoid triggering false
 			// positives on duplicated item checks (e.g. when picking up the item).
 			auto seed = item._iSeed;
-			InitializeItem(item, ItemMiscIdIdx(IMISC_REJUV));
+			InitializeItem(item, ItemMiscIdIdx(ItemMiscID::PotionRejuvenation));
 			item._iSeed = seed;
 			item._iStatFlag = true;
 			continue;
 		}
-		if (IsAnyOf(item._iMiscId, IMISC_FULLHEAL, IMISC_FULLMANA)) {
+		if (IsAnyOf(item._iMiscId, ItemMiscID::PotionFullHealing, ItemMiscID::PotionFullMana)) {
 			// As above.
 			auto seed = item._iSeed;
-			InitializeItem(item, ItemMiscIdIdx(IMISC_FULLREJUV));
+			InitializeItem(item, ItemMiscIdIdx(ItemMiscID::PotionFullRejuvenation));
 			item._iSeed = seed;
 			item._iStatFlag = true;
 			continue;
@@ -2642,11 +2642,11 @@ void OperateShrineDivine(Player &player, Point spawnPosition)
 		return;
 
 	if (currlevel < 4) {
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLMANA, false, true);
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLHEAL, false, true);
+		CreateTypeItem(spawnPosition, false, ItemType::Misc, ItemMiscID::PotionFullMana, false, true);
+		CreateTypeItem(spawnPosition, false, ItemType::Misc, ItemMiscID::PotionFullHealing, false, true);
 	} else {
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLREJUV, false, true);
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLREJUV, false, true);
+		CreateTypeItem(spawnPosition, false, ItemType::Misc, ItemMiscID::PotionFullRejuvenation, false, true);
+		CreateTypeItem(spawnPosition, false, ItemType::Misc, ItemMiscID::PotionFullRejuvenation, false, true);
 	}
 
 	player._pMana = player._pMaxMana;
@@ -3049,7 +3049,7 @@ void OperateShrine(Player &player, Object &shrine, _sfx_id sType)
 		OperateShrineThaumaturgic(player);
 		break;
 	case ShrineFascinating:
-		OperateShrineCostOfWisdom(player, SPL_FIREBOLT, EMSG_SHRINE_FASCINATING);
+		OperateShrineCostOfWisdom(player, SpellID::Firebolt, EMSG_SHRINE_FASCINATING);
 		break;
 	case ShrineCryptic:
 		OperateShrineCryptic(player);
@@ -3067,7 +3067,7 @@ void OperateShrine(Player &player, Object &shrine, _sfx_id sType)
 		OperateShrineHoly(player);
 		break;
 	case ShrineSacred:
-		OperateShrineCostOfWisdom(player, SPL_CBOLT, EMSG_SHRINE_SACRED);
+		OperateShrineCostOfWisdom(player, SpellID::ChargedBolt, EMSG_SHRINE_SACRED);
 		break;
 	case ShrineSpiritual:
 		OperateShrineSpiritual(player);
@@ -3088,7 +3088,7 @@ void OperateShrine(Player &player, Object &shrine, _sfx_id sType)
 		OperateShrineSecluded(player);
 		break;
 	case ShrineOrnate:
-		OperateShrineCostOfWisdom(player, SPL_HBOLT, EMSG_SHRINE_ORNATE);
+		OperateShrineCostOfWisdom(player, SpellID::HolyBolt, EMSG_SHRINE_ORNATE);
 		break;
 	case ShrineGlimmering:
 		OperateShrineGlimmering(player);
@@ -3137,9 +3137,9 @@ void OperateBookStand(Object &bookStand, bool sendmsg, bool sendLootMsg)
 	bookStand._oAnimFrame += 2;
 	SetRndSeed(bookStand._oRndSeed);
 	if (FlipCoin(5))
-		CreateTypeItem(bookStand.position, false, ItemType::Misc, IMISC_BOOK, sendLootMsg, false);
+		CreateTypeItem(bookStand.position, false, ItemType::Misc, ItemMiscID::Book, sendLootMsg, false);
 	else
-		CreateTypeItem(bookStand.position, false, ItemType::Misc, IMISC_SCROLL, sendLootMsg, false);
+		CreateTypeItem(bookStand.position, false, ItemType::Misc, ItemMiscID::Scroll, sendLootMsg, false);
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, bookStand.position);
 }
@@ -3154,7 +3154,7 @@ void OperateBookcase(Object &bookcase, bool sendmsg, bool sendLootMsg)
 	bookcase._oSelFlag = 0;
 	bookcase._oAnimFrame -= 2;
 	SetRndSeed(bookcase._oRndSeed);
-	CreateTypeItem(bookcase.position, false, ItemType::Misc, IMISC_BOOK, sendLootMsg, false);
+	CreateTypeItem(bookcase.position, false, ItemType::Misc, ItemMiscID::Book, sendLootMsg, false);
 
 	if (Quests[Q_ZHAR].IsAvailable()) {
 		auto &zhar = Monsters[MAX_PLRS];
@@ -3194,13 +3194,13 @@ void OperateArmorStand(Object &armorStand, bool sendmsg, bool sendLootMsg)
 	SetRndSeed(armorStand._oRndSeed);
 	bool uniqueRnd = !FlipCoin();
 	if (currlevel <= 5) {
-		CreateTypeItem(armorStand.position, true, ItemType::LightArmor, IMISC_NONE, sendLootMsg, false);
+		CreateTypeItem(armorStand.position, true, ItemType::LightArmor, ItemMiscID::None, sendLootMsg, false);
 	} else if (currlevel >= 6 && currlevel <= 9) {
-		CreateTypeItem(armorStand.position, uniqueRnd, ItemType::MediumArmor, IMISC_NONE, sendLootMsg, false);
+		CreateTypeItem(armorStand.position, uniqueRnd, ItemType::MediumArmor, ItemMiscID::None, sendLootMsg, false);
 	} else if (currlevel >= 10 && currlevel <= 12) {
-		CreateTypeItem(armorStand.position, false, ItemType::HeavyArmor, IMISC_NONE, sendLootMsg, false);
+		CreateTypeItem(armorStand.position, false, ItemType::HeavyArmor, ItemMiscID::None, sendLootMsg, false);
 	} else if (currlevel >= 13) {
-		CreateTypeItem(armorStand.position, true, ItemType::HeavyArmor, IMISC_NONE, sendLootMsg, false);
+		CreateTypeItem(armorStand.position, true, ItemType::HeavyArmor, ItemMiscID::None, sendLootMsg, false);
 	}
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, armorStand.position);
@@ -3350,7 +3350,7 @@ void OperateWeaponRack(Object &weaponRack, bool sendmsg, bool sendLootMsg)
 	weaponRack._oSelFlag = 0;
 	weaponRack._oAnimFrame++;
 
-	CreateTypeItem(weaponRack.position, leveltype != DTYPE_CATHEDRAL, weaponType, IMISC_NONE, sendLootMsg, false);
+	CreateTypeItem(weaponRack.position, leveltype != DTYPE_CATHEDRAL, weaponType, ItemMiscID::None, sendLootMsg, false);
 
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, weaponRack.position);
@@ -4357,11 +4357,11 @@ void ObjChangeMapResync(int x1, int y1, int x2, int y2)
 	}
 }
 
-ItemIndex ItemMiscIdIdx(item_misc_id imiscid)
+ItemIndex ItemMiscIdIdx(ItemMiscID imiscid)
 {
-	std::underlying_type_t<ItemIndex> i = ItemIndex::Gold;
-	while (AllItemsList[i].iRnd == ItemDropRate::Never || AllItemsList[i].iMiscId != imiscid) {
-		i++;
+	ItemIndex i = ItemIndex::Gold;
+	while (AllItemsList[static_cast<int16_t>(i)].iRnd == ItemDropRate::Never || AllItemsList[static_cast<int16_t>(i)].iMiscId != imiscid) {
+		i = static_cast<ItemIndex>(static_cast<int16_t>(i) + 1);
 	}
 
 	return static_cast<ItemIndex>(i);

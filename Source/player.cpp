@@ -411,9 +411,9 @@ void StartRangeAttack(Player &player, Direction d, WorldTileCoord cx, WorldTileC
 	player.position.temp = WorldTilePosition { cx, cy };
 }
 
-player_graphic GetPlayerGraphicForSpell(spell_id spellId)
+player_graphic GetPlayerGraphicForSpell(SpellID spellId)
 {
-	switch (spelldata[spellId].sType) {
+	switch (spelldata[static_cast<int8_t>(spellId)].sType) {
 	case STYPE_FIRE:
 		return player_graphic::Fire;
 	case STYPE_LIGHTNING:
@@ -455,7 +455,7 @@ void StartSpell(Player &player, Direction d, WorldTileCoord cx, WorldTileCoord c
 		animationFlags = static_cast<AnimationDistributionFlags>(animationFlags | AnimationDistributionFlags::RepeatedAction);
 	NewPlrAnim(player, GetPlayerGraphicForSpell(player.queuedSpell.spellId), d, animationFlags, 0, player._pSFNum);
 
-	PlaySfxLoc(spelldata[player.queuedSpell.spellId].sSFX, player.position.tile);
+	PlaySfxLoc(spelldata[static_cast<int8_t>(player.queuedSpell.spellId)].sSFX, player.position.tile);
 
 	player._pmode = PM_SPELL;
 
@@ -1665,9 +1665,9 @@ void ValidatePlayer()
 	}
 
 	uint64_t msk = 0;
-	for (int b = SPL_FIREBOLT; b < MAX_SPELLS; b++) {
-		if (GetSpellBookLevel((spell_id)b) != -1) {
-			msk |= GetSpellBitmask(b);
+	for (int b = static_cast<int8_t>(SpellID::Firebolt); b < MAX_SPELLS; b++) {
+		if (GetSpellBookLevel(static_cast<SpellID>(b)) != -1) {
+			msk |= GetSpellBitmask(static_cast<SpellID>(b));
 			if (myPlayer._pSplLvl[b] > MaxSpellLevel)
 				myPlayer._pSplLvl[b] = MaxSpellLevel;
 		}
@@ -1940,7 +1940,7 @@ bool Player::isWalking() const
 int Player::GetManaShieldDamageReduction()
 {
 	constexpr int8_t Max = 7;
-	return 24 - std::min(_pSplLvl[SPL_MANASHIELD], Max) * 3;
+	return 24 - std::min(_pSplLvl[static_cast<int8_t>(SpellID::ManaShield)], Max) * 3;
 }
 
 void Player::RestorePartialLife()
@@ -1996,7 +1996,7 @@ player_graphic Player::getGraphic() const
 	case PM_BLOCK:
 		return player_graphic::Block;
 	case PM_SPELL:
-		switch (spelldata[executedSpell.spellId].sType) {
+		switch (spelldata[static_cast<int8_t>(executedSpell.spellId)].sType) {
 		case STYPE_FIRE:
 			return player_graphic::Fire;
 		case STYPE_LIGHTNING:
@@ -2084,7 +2084,7 @@ void Player::UpdatePreviewCelSprite(_cmd_id cmdId, Point point, uint16_t wParam1
 	case _cmd_id::CMD_TSPELLID: {
 		auto &monster = Monsters[wParam1];
 		dir = GetDirection(position.future, monster.position.future);
-		graphic = GetPlayerGraphicForSpell(static_cast<spell_id>(wParam2));
+		graphic = GetPlayerGraphicForSpell(static_cast<SpellID>(wParam2));
 		break;
 	}
 	case _cmd_id::CMD_ATTACKID: {
@@ -2107,7 +2107,7 @@ void Player::UpdatePreviewCelSprite(_cmd_id cmdId, Point point, uint16_t wParam1
 	case _cmd_id::CMD_TSPELLPID: {
 		Player &targetPlayer = Players[wParam1];
 		dir = GetDirection(position.future, targetPlayer.position.future);
-		graphic = GetPlayerGraphicForSpell(static_cast<spell_id>(wParam2));
+		graphic = GetPlayerGraphicForSpell(static_cast<SpellID>(wParam2));
 		break;
 	}
 	case _cmd_id::CMD_ATTACKPID: {
@@ -2131,11 +2131,11 @@ void Player::UpdatePreviewCelSprite(_cmd_id cmdId, Point point, uint16_t wParam1
 	case _cmd_id::CMD_SPELLXY:
 	case _cmd_id::CMD_TSPELLXY:
 		dir = GetDirection(position.tile, point);
-		graphic = GetPlayerGraphicForSpell(static_cast<spell_id>(wParam1));
+		graphic = GetPlayerGraphicForSpell(static_cast<SpellID>(wParam1));
 		break;
 	case _cmd_id::CMD_SPELLXYD:
 		dir = static_cast<Direction>(wParam2);
-		graphic = GetPlayerGraphicForSpell(static_cast<spell_id>(wParam1));
+		graphic = GetPlayerGraphicForSpell(static_cast<SpellID>(wParam1));
 		break;
 	case _cmd_id::CMD_WALKXY:
 		minimalWalkDistance = 1;
@@ -2519,29 +2519,29 @@ void CreatePlayer(Player &player, HeroClass c)
 
 	player._pRSplType = RSPLTYPE_SKILL;
 	if (c == HeroClass::Warrior) {
-		player._pAblSpells = GetSpellBitmask(SPL_REPAIR);
-		player._pRSpell = SPL_REPAIR;
+		player._pAblSpells = GetSpellBitmask(SpellID::ItemRepair);
+		player._pRSpell = SpellID::ItemRepair;
 	} else if (c == HeroClass::Rogue) {
-		player._pAblSpells = GetSpellBitmask(SPL_DISARM);
-		player._pRSpell = SPL_DISARM;
+		player._pAblSpells = GetSpellBitmask(SpellID::TrapDisarm);
+		player._pRSpell = SpellID::TrapDisarm;
 	} else if (c == HeroClass::Sorcerer) {
-		player._pAblSpells = GetSpellBitmask(SPL_RECHARGE);
-		player._pRSpell = SPL_RECHARGE;
+		player._pAblSpells = GetSpellBitmask(SpellID::StaffRecharge);
+		player._pRSpell = SpellID::StaffRecharge;
 	} else if (c == HeroClass::Monk) {
-		player._pAblSpells = GetSpellBitmask(SPL_SEARCH);
-		player._pRSpell = SPL_SEARCH;
+		player._pAblSpells = GetSpellBitmask(SpellID::Search);
+		player._pRSpell = SpellID::Search;
 	} else if (c == HeroClass::Bard) {
-		player._pAblSpells = GetSpellBitmask(SPL_IDENTIFY);
-		player._pRSpell = SPL_IDENTIFY;
+		player._pAblSpells = GetSpellBitmask(SpellID::Identify);
+		player._pRSpell = SpellID::Identify;
 	} else if (c == HeroClass::Barbarian) {
-		player._pAblSpells = GetSpellBitmask(SPL_BLODBOIL);
-		player._pRSpell = SPL_BLODBOIL;
+		player._pAblSpells = GetSpellBitmask(SpellID::Rage);
+		player._pRSpell = SpellID::Rage;
 	}
 
 	if (c == HeroClass::Sorcerer) {
-		player._pMemSpells = GetSpellBitmask(SPL_FIREBOLT);
+		player._pMemSpells = GetSpellBitmask(SpellID::Firebolt);
 		player._pRSplType = RSPLTYPE_SPELL;
-		player._pRSpell = SPL_FIREBOLT;
+		player._pRSpell = SpellID::Firebolt;
 	} else {
 		player._pMemSpells = 0;
 	}
@@ -2553,11 +2553,11 @@ void CreatePlayer(Player &player, HeroClass c)
 	player._pSpellFlags = SpellFlag::None;
 
 	if (player._pClass == HeroClass::Sorcerer) {
-		player._pSplLvl[SPL_FIREBOLT] = 2;
+		player._pSplLvl[static_cast<int8_t>(SpellID::Firebolt)] = 2;
 	}
 
 	// Initializing the hotkey bindings to no selection
-	std::fill(player._pSplHotKey, player._pSplHotKey + NumHotkeys, SPL_INVALID);
+	std::fill(player._pSplHotKey, player._pSplHotKey + NumHotkeys, SpellID::Invalid);
 
 	PlayerWeaponGraphic animWeaponId = PlayerWeaponGraphic::Unarmed;
 	switch (c) {
@@ -2727,10 +2727,10 @@ void InitPlayer(Player &player, bool firstTime)
 {
 	if (firstTime) {
 		player._pRSplType = RSPLTYPE_INVALID;
-		player._pRSpell = SPL_INVALID;
+		player._pRSpell = SpellID::Invalid;
 		if (&player == MyPlayer)
 			LoadHotkeys();
-		player._pSBkSpell = SPL_INVALID;
+		player._pSBkSpell = SpellID::Invalid;
 		player.queuedSpell.spellId = player._pRSpell;
 		player.queuedSpell.spellType = player._pRSplType;
 		player.pManaShield = false;
@@ -2783,17 +2783,17 @@ void InitPlayer(Player &player, bool firstTime)
 	}
 
 	if (player._pClass == HeroClass::Warrior) {
-		player._pAblSpells = GetSpellBitmask(SPL_REPAIR);
+		player._pAblSpells = GetSpellBitmask(SpellID::ItemRepair);
 	} else if (player._pClass == HeroClass::Rogue) {
-		player._pAblSpells = GetSpellBitmask(SPL_DISARM);
+		player._pAblSpells = GetSpellBitmask(SpellID::TrapDisarm);
 	} else if (player._pClass == HeroClass::Sorcerer) {
-		player._pAblSpells = GetSpellBitmask(SPL_RECHARGE);
+		player._pAblSpells = GetSpellBitmask(SpellID::StaffRecharge);
 	} else if (player._pClass == HeroClass::Monk) {
-		player._pAblSpells = GetSpellBitmask(SPL_SEARCH);
+		player._pAblSpells = GetSpellBitmask(SpellID::Search);
 	} else if (player._pClass == HeroClass::Bard) {
-		player._pAblSpells = GetSpellBitmask(SPL_IDENTIFY);
+		player._pAblSpells = GetSpellBitmask(SpellID::Identify);
 	} else if (player._pClass == HeroClass::Barbarian) {
-		player._pAblSpells = GetSpellBitmask(SPL_BLODBOIL);
+		player._pAblSpells = GetSpellBitmask(SpellID::Rage);
 	}
 
 	player._pNextExper = ExpLvlsTbl[player._pLevel];
@@ -3062,7 +3062,7 @@ void ApplyPlrDamage(Player &player, int dam, int minHP /*= 0*/, int frac /*= 0*/
 {
 	int totalDamage = (dam << 6) + frac;
 	if (totalDamage > 0 && player.pManaShield) {
-		int8_t manaShieldLevel = player._pSplLvl[SPL_MANASHIELD];
+		int8_t manaShieldLevel = player._pSplLvl[static_cast<int8_t>(SpellID::ManaShield)];
 		if (manaShieldLevel > 0) {
 			totalDamage += totalDamage / -player.GetManaShieldDamageReduction();
 		}
@@ -3391,7 +3391,7 @@ void CalcPlrStaff(Player &player)
 	}
 }
 
-void CheckPlrSpell(bool isShiftHeld, spell_id spellID, spell_type spellType)
+void CheckPlrSpell(bool isShiftHeld, SpellID spellID, spell_type spellType)
 {
 	bool addflag = false;
 
@@ -3414,16 +3414,16 @@ void CheckPlrSpell(bool isShiftHeld, spell_id spellID, spell_type spellType)
 		    (IsLeftPanelOpen() && GetLeftPanel().contains(MousePosition))      // inside left panel
 		    || (IsRightPanelOpen() && GetRightPanel().contains(MousePosition)) // inside right panel
 		) {
-			if (spellID != SPL_HEAL
-			    && spellID != SPL_IDENTIFY
-			    && spellID != SPL_REPAIR
-			    && spellID != SPL_INFRA
-			    && spellID != SPL_RECHARGE)
+			if (spellID != SpellID::Healing
+			    && spellID != SpellID::Identify
+			    && spellID != SpellID::ItemRepair
+			    && spellID != SpellID::Infravision
+			    && spellID != SpellID::StaffRecharge)
 				return;
 		}
 	}
 
-	if (leveltype == DTYPE_TOWN && !spelldata[spellID].sTownSpell) {
+	if (leveltype == DTYPE_TOWN && !spelldata[static_cast<int8_t>(spellID)].sTownSpell) {
 		myPlayer.Say(HeroSpeech::ICantCastThatHere);
 		return;
 	}
@@ -3467,16 +3467,16 @@ void CheckPlrSpell(bool isShiftHeld, spell_id spellID, spell_type spellType)
 	if (IsWallSpell(spellID)) {
 		LastMouseButtonAction = MouseActionType::Spell;
 		Direction sd = GetDirection(myPlayer.position.tile, cursPosition);
-		NetSendCmdLocParam4(true, CMD_SPELLXYD, cursPosition, spellID, spellType, static_cast<uint16_t>(sd), sl);
+		NetSendCmdLocParam4(true, CMD_SPELLXYD, cursPosition, static_cast<int8_t>(spellID), spellType, static_cast<uint16_t>(sd), sl);
 	} else if (pcursmonst != -1 && !isShiftHeld) {
 		LastMouseButtonAction = MouseActionType::SpellMonsterTarget;
-		NetSendCmdParam4(true, CMD_SPELLID, pcursmonst, spellID, spellType, sl);
+		NetSendCmdParam4(true, CMD_SPELLID, pcursmonst, static_cast<int8_t>(spellID), spellType, sl);
 	} else if (pcursplr != -1 && !isShiftHeld && !myPlayer.friendlyMode) {
 		LastMouseButtonAction = MouseActionType::SpellPlayerTarget;
-		NetSendCmdParam4(true, CMD_SPELLPID, pcursplr, spellID, spellType, sl);
+		NetSendCmdParam4(true, CMD_SPELLPID, pcursplr, static_cast<int8_t>(spellID), spellType, sl);
 	} else {
 		LastMouseButtonAction = MouseActionType::Spell;
-		NetSendCmdLocParam3(true, CMD_SPELLXY, cursPosition, spellID, spellType, sl);
+		NetSendCmdLocParam3(true, CMD_SPELLXY, cursPosition, static_cast<int8_t>(spellID), spellType, sl);
 	}
 }
 

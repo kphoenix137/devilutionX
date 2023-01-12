@@ -468,7 +468,7 @@ bool UseStashItem(uint16_t c)
 		return true;
 	}
 
-	if (!AllItemsList[item->IDidx].iUsable)
+	if (!AllItemsList[static_cast<int16_t>(item->IDidx)].iUsable)
 		return false;
 
 	if (!MyPlayer->CanUseItem(*item)) {
@@ -485,20 +485,20 @@ bool UseStashItem(uint16_t c)
 		return true;
 	}
 
-	if (item->_iMiscId > IMISC_RUNEFIRST && item->_iMiscId < IMISC_RUNELAST && leveltype == DTYPE_TOWN) {
+	if (item->_iMiscId > ItemMiscID::RuneFirst && item->_iMiscId < ItemMiscID::RuneLast && leveltype == DTYPE_TOWN) {
 		return true;
 	}
 
-	if (item->_iMiscId == IMISC_BOOK)
+	if (item->_iMiscId == ItemMiscID::Book)
 		PlaySFX(IS_RBOOK);
 	else
 		PlaySFX(ItemInvSnds[ItemCAnimTbl[static_cast<uint8_t>(item->_iCurs)]]);
 
 	UseItem(MyPlayerId, item->_iMiscId, item->_iSpell);
 
-	if (Stash.stashList[c]._iMiscId == IMISC_MAPOFDOOM)
+	if (Stash.stashList[c]._iMiscId == ItemMiscID::Map)
 		return true;
-	if (Stash.stashList[c]._iMiscId == IMISC_NOTE) {
+	if (Stash.stashList[c]._iMiscId == ItemMiscID::ReconstructedNote) {
 		InitQTextMsg(TEXT_BOOK9);
 		CloseInventory();
 		return true;

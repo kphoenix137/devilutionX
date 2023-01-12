@@ -401,7 +401,7 @@ TEST_F(PackTest, UnPackItem_diablo_unique_bug)
 	ASSERT_EQ(id._iCurs, 85);
 	ASSERT_EQ(id._iIvalue, 63800);
 	ASSERT_EQ(id._iAC, 18);
-	ASSERT_EQ(id._iMiscId, IMISC_UNIQUE);
+	ASSERT_EQ(id._iMiscId, ItemMiscID::Unique);
 	ASSERT_EQ(id._iPLAC, 60);
 	ASSERT_EQ(id._iPLStr, 15);
 	ASSERT_EQ(id._iPLVit, 15);
@@ -773,19 +773,19 @@ static void compareGold(const ItemPack &is, ItemCursorGraphic iCurs)
 
 TEST_F(PackTest, UnPackItem_gold_small)
 {
-	const auto is = SwappedLE(ItemPack { 0, 0, ItemIndex::Gold, 0, 0, 0, 0, 0, 1000, 0 });
+	const auto is = SwappedLE(ItemPack { 0, 0, static_cast<int16_t>(ItemIndex::Gold), 0, 0, 0, 0, 0, 1000, 0 });
 	compareGold(is, ItemCursorGraphic::GoldSmall);
 }
 
 TEST_F(PackTest, UnPackItem_gold_medium)
 {
-	const auto is = SwappedLE(ItemPack { 0, 0, ItemIndex::Gold, 0, 0, 0, 0, 0, 1001, 0 });
+	const auto is = SwappedLE(ItemPack { 0, 0, static_cast<int16_t>(ItemIndex::Gold), 0, 0, 0, 0, 0, 1001, 0 });
 	compareGold(is, ItemCursorGraphic::GoldMedium);
 }
 
 TEST_F(PackTest, UnPackItem_gold_large)
 {
-	const auto is = SwappedLE(ItemPack { 0, 0, ItemIndex::Gold, 0, 0, 0, 0, 0, 2500, 0 });
+	const auto is = SwappedLE(ItemPack { 0, 0, static_cast<int16_t>(ItemIndex::Gold), 0, 0, 0, 0, 0, 2500, 0 });
 	compareGold(is, ItemCursorGraphic::GoldLarge);
 }
 
