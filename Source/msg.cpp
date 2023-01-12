@@ -967,7 +967,6 @@ bool IsGItemValid(const TCmdGItem &message)
 		return false;
 
 	return IsItemAvailable(static_cast<ItemIndex>(SDL_SwapLE16(message.def.wIndx)));
-
 }
 
 bool IsPItemValid(const TCmdPItem &message)

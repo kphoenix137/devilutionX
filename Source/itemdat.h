@@ -591,6 +591,7 @@ enum class ItemSpecialEffectHf : uint8_t {
 use_enum_as_flags(ItemSpecialEffectHf);
 
 enum class ItemMiscID : int8_t {
+	// clang-format off
 	None,
 	UseFirst,
 	PotionFullHealing,
@@ -647,6 +648,7 @@ enum class ItemMiscID : int8_t {
 	AuricAmulet,
 	ReconstructedNote,
 	Invalid = -1,
+	// clang-format on
 };
 
 struct ItemData {
@@ -675,6 +677,7 @@ struct ItemData {
 };
 
 enum class ItemEffectType : int8_t {
+	// clang-format off
 	ToHit,
 	ToHitCurse,
 	DamagePercent,
@@ -757,6 +760,7 @@ enum class ItemEffectType : int8_t {
 	ManaToLife,
 	LifeToMana,
 	Invalid = -1,
+	// clang-format on
 };
 
 enum class GoodOrEvil : uint8_t {
