@@ -556,7 +556,7 @@ enum class ItemSpecialEffect : uint32_t {
 	PlayerNoMana           = 1 << 7, // unused
 	PlayerNoHeal           = 1 << 8, // unused
 	MultipleArrows         = 1 << 9,
-	HalfTrapDamage         = 1 << 10, // unused
+	HalfTrapDamage2        = 1 << 10, // unused
 	Knockback              = 1 << 11,
 	MonsterNoHeal          = 1 << 12,
 	StealMana3             = 1 << 13,
