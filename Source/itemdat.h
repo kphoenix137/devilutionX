@@ -508,7 +508,7 @@ enum class UniqueBaseItem : int8_t {
 	Helm,
 	GreatHelm,
 	Crown,
-	Unused,
+	Unused, // unused
 	Rags,
 	StuddedLeatherArmor,
 	Cloak,
@@ -525,7 +525,7 @@ enum class UniqueBaseItem : int8_t {
 	KiteShield,
 	GothicShield,
 	Ring,
-	Book,
+	Book, // unused
 	Amulet,
 	UndeadCrown,
 	EmpyreanBand,
@@ -546,14 +546,19 @@ enum class UniqueBaseItem : int8_t {
 enum class ItemSpecialEffect : uint32_t {
 	// clang-format off
 	None                   = 0,
+	Infravision            = 1 << 0, // unused
 	RandomStealLife        = 1 << 1,
 	RandomArrowVelocity    = 1 << 2,
 	FireArrows             = 1 << 3,
 	FireDamage             = 1 << 4,
 	LightningDamage        = 1 << 5,
 	DrainLife              = 1 << 6,
+	PlayerNoMana           = 1 << 7, // unused
+	PlayerNoHeal           = 1 << 8, // unused
 	MultipleArrows         = 1 << 9,
+	HalfTrapDamage         = 1 << 10, // unused
 	Knockback              = 1 << 11,
+	MonsterNoHeal          = 1 << 12,
 	StealMana3             = 1 << 13,
 	StealMana5             = 1 << 14,
 	StealLife3             = 1 << 15,
@@ -570,6 +575,7 @@ enum class ItemSpecialEffect : uint32_t {
 	Thorns                 = 1 << 26,
 	NoMana                 = 1 << 27,
 	HalfTrapDamage         = 1 << 28,
+	OneHanded              = 1 << 29, // unused
 	TripleDemonDamage      = 1 << 30,
 	ZeroResistance         = 1U << 31,
 	// clang-format on
@@ -690,11 +696,14 @@ enum class ItemEffectType : int8_t {
 	LightningResistance,
 	MagicResistance,
 	AllResistances,
-	SpellLevelAdd = 14,
+	SpellCost, // unused
+	SpellDuration, // unused
+	SpellLevelAdd,
 	Charges,
 	FireDamage,
 	LightningDamage,
-	Strength = 19,
+	Chaos, // unused
+	Strength,
 	StrengthCurse,
 	Magic,
 	MagicCurse,
@@ -715,16 +724,22 @@ enum class ItemEffectType : int8_t {
 	Indestructible,
 	LightRadius,
 	LightRadiusCurse,
-	MultipleArrows = 41, /* only used in hellfire */
+	Invisibility, // unused
+	MultipleArrows, /* only used in hellfire */
 	FireArrows,
 	LightningArrows,
 	Graphic,
 	Thorns,
 	NoMana,
-	Fireball = 50, /* only used in hellfire */
-	HalfTrapDamage = 52,
+	PlayerNoHeal, // unused
+	Fear, // unused
+	Rabid, // unused
+	Fireball, /* only used in hellfire */
+	SeeInvisible, // unused
+	HalfTrapDamage,
 	Knockback,
-	StealMana = 55,
+	MonsterNoHeal, // unused
+	StealMana,
 	StealLife,
 	TargetArmorClass,
 	FastAttack,
@@ -736,20 +751,25 @@ enum class ItemEffectType : int8_t {
 	SetDurability,
 	NoMinimumStrength,
 	Spell,
-	OneHanded = 68,
+	FastSwing, // unused
+	OneHanded,
 	TripleDemonDamage,
 	ZeroResistances,
-	DrainLife = 72,
+	Hyperspace, // unused
+	DrainLife,
 	RandomLifeSteal,
-	SetArmorClass = 75,
+	Infravision, // unused
+	SetArmorClass,
 	Lightning,
 	ChargedBolt,
-	SetArmorClassCurse = 79,
+	LevelFireResistance, // unused
+	SetArmorClassCurse,
 	LastDiablo = SetArmorClassCurse,
 	FireResistanceCurse,
 	LightningResistanceCurse,
 	MagicResistanceCurse,
-	Devastation = 84,
+	AllResistancesCurse, // unused
+	Devastation,
 	Decay,
 	Peril,
 	Jesters,
@@ -759,6 +779,7 @@ enum class ItemEffectType : int8_t {
 	ArmorClassVsUndead,
 	ManaToLife,
 	LifeToMana,
+	X, // unused
 	Invalid = -1,
 	// clang-format on
 };
