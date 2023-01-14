@@ -2170,6 +2170,43 @@ void AddAcid(Missile &missile, AddMissileParameter &parameter)
 	PutMissile(missile);
 }
 
+void AddDoom(Missile &missile, AddMissileParameter &parameter)
+{
+	std::optional<Point> targetMonsterPosition = FindClosestValidPosition(
+	    [](Point target) {
+		    if (!InDungeonBounds(target)) {
+			    return false;
+		    }
+
+		    int monsterId = abs(dMonster[target.x][target.y]) - 1;
+		    if (monsterId < 0)
+			    return false;
+
+		    return true;
+	    },
+	    parameter.dst, 0, 5);
+
+	if (!targetMonsterPosition) {
+		missile._miDelFlag = true;
+		parameter.spellFizzled = true;
+		return;
+	}
+
+	Player &player = Players[missile._misource];
+
+	UpdateMissileVelocity(missile, Point { missile.var1, missile.var2 }, 16);
+	SetMissDir(missile, GetDirection(missile.position.start, Point { missile.var1, missile.var2 }));
+
+	missile.position.tile = missile.position.start;
+	missile.position.start = missile.position.start;
+	missile._midam = 26;
+	int range = ((player._pLevel * 16) / 4) + (player._pLevel * 16);
+	missile._mirange = ScaleSpellEffect(range, missile._mispllvl) / 2;
+	missile._mirange += (missile._mirange * player._pISplDur) / 128;
+
+	PutMissile(missile);
+}
+
 void AddAcidpud(Missile &missile, AddMissileParameter & /*parameter*/)
 {
 	missile._miLightFlag = true;
@@ -3586,6 +3623,121 @@ void MI_Teleport(Missile &missile)
 	if (&player == MyPlayer) {
 		ViewPosition = player.position.tile;
 	}
+}
+
+void MI_Doom(Missile &missile)
+{
+	int k, l, m, n;
+	missile._mirange--;
+	int dam = missile._midam;
+	// check if monster moved
+	int16_t mid = dMonster[missile.var1][missile.var2];
+	if (mid != 0) {
+		if (mid > 0)
+			mid--;
+		else
+			mid = -(mid + 1);
+	}
+	// if he did search again
+	if (mid != missile.var3) {
+		for (m = 0; m < 6; ++m) {
+			n = CrawlNum[m];
+			l = n + 1;
+			for (k = CrawlTable[n]; k > 0; --k) {
+				mid = dMonster[missile.var1 + CrawlTable[l]][missile.var2 + CrawlTable[l + 1]];
+				if (mid != 0) {
+					if (mid > 0)
+						--mid;
+					else
+						mid = -(mid + 1);
+					if (mid == missile.var3) {
+						missile.var1 += CrawlTable[l];
+						missile.var2 += CrawlTable[l + 1];
+						k = -99;
+						m = 6;
+						break;
+					}
+				}
+				l += 2;
+			}
+		}
+		// if monster killed before doom kills it
+		if (k != -99) {
+			missile._miDelFlag = true;
+			PutMissile(missile);
+			return;
+		}
+		// get new velocity and directions
+		UpdateMissileVelocity(missile, Point { missile.var1, missile.var2 }, 16);
+		SetMissDir(missile, GetDirection(c, monster->position.tile));
+	}
+
+	// move missile
+	if (missile._mimfnum != 9) {
+		missile._mitxoff += missile._mixvel;
+		missile._mityoff += missile._miyvel;
+		GetMissilePos(missile);
+	}
+	// get mid for current missile pos - for checking if target monster killed
+	mid = dMonster[missile._mix][missile._miy];
+	if (mid != 0) {
+		if (mid > 0)
+			--mid;
+		else
+			mid = -(mid + 1);
+	}
+	// check for collision if not followed monster dont end missile
+	k = missile._mirange;
+	Player &player = Players[missile._misource];
+	if ((missile._mix != player._px) || (missile._miy != player._py))
+		CheckMissileCol(missile, missile._midam, missile._midam, 1, missile._mix, missile._miy, 0);
+	if ((missile._mirange == 0) && (mid != missile.var3) && missile._miHitFlag)
+		missile._mirange = k;
+
+	// if target monster not dead halt missile in place
+	if ((missile._mirange == 0) && (mid == missile.var3)) {
+		missile._mirange = k;
+		if ((monster._mhitpoints / 64) > 0) {
+			if (missile._mimfnum != 9) {
+				SetMissDir(missile, 9);
+			}
+		} else {
+			// target is killed so re-search
+			for (m = 1; m < 6; ++m) {
+				n = CrawlNum[m];
+				l = n + 1;
+				for (k = CrawlTable[n]; k > 0; --k) {
+					mid = dMonster[missile.var1 + CrawlTable[l]][missile.var2 + CrawlTable[l + 1]];
+					if (mid != 0) {
+						if (mid > 0)
+							--mid;
+						else
+							mid = -(mid + 1);
+						if ((monster._mhitpoints / 64) > 0) {
+							missile.var1 += CrawlTable[l];
+							missile.var2 += CrawlTable[l + 1];
+							missile.var3 = mid;
+							k = -99;
+							m = 6;
+							break;
+						}
+					}
+					l += 2;
+				}
+			}
+			// get new velocity and directions
+			if (k == 0)
+				missile._mirange = 0;
+			else {
+				UpdateMissileVelocity(missile, Point { missile.var1, missile.var2 }, 16);
+				SetMissDir(missile, GetDirection(c, monster->position.tile));
+			}
+		}
+	}
+	// delete or place missile
+	if (missile._mirange == 0)
+		missile._miDelFlag = true;
+	PutMissile(missile);
 }
 
 void MI_Stone(Missile &missile)
