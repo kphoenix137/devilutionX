@@ -163,12 +163,7 @@ Size GetInvItemSize(int cursId)
 
 void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite clx)
 {
-	const bool usable = item._iStatFlag;
-	if (usable) {
-		ClxDraw(out, position, clx);
-	} else {
-		ClxDrawTRN(out, position, clx, GetInfravisionTRN());
-	}
+	ClxDraw(out, position, clx);
 }
 
 void ResetCursor()
