@@ -3353,7 +3353,7 @@ void ProcessItems()
 				playFrame = 4;
 				break;
 			default:
-				playFrame = (item.AnimInfo.numberOfFrames - 8U) - 1;
+				playFrame = (item.AnimInfo.numberOfFrames - 8) - 1;
 				break;
 			}
 
