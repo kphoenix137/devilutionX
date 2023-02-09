@@ -3340,7 +3340,24 @@ void ProcessItems()
 			if (item._iSelFlag == 2 && item.AnimInfo.currentFrame == 20)
 				item.AnimInfo.currentFrame = 10;
 		} else {
-			if (item.AnimInfo.currentFrame == (item.AnimInfo.numberOfFrames - 1) / 2)
+			int8_t playFrame = 1;
+
+			switch (item._iCurs) {
+			case ICURS_TAVERN_SIGN:
+			case ICURS_STAFF_OF_LAZARUS:
+				playFrame = 1;
+				break;
+			case ICURS_GOLD_SMALL:
+			case ICURS_GOLD_MEDIUM:
+			case ICURS_GOLD_LARGE:
+				playFrame = 4;
+				break;
+			default:
+				playFrame = (item.AnimInfo.numberOfFrames - 8U) - 1;
+				break;
+			}
+
+			if (item.AnimInfo.currentFrame == playFrame)
 				PlaySfxLoc(ItemDropSnds[ItemCAnimTbl[item._iCurs]], item.position);
 
 			if (item.AnimInfo.isLastFrame()) {
