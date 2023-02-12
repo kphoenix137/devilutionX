@@ -1416,7 +1416,7 @@ _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 		return UITEM_INVALID;
 
 	// two algorithms to keep old items compatible
-	if ((item.dwBuff & CF_NONLEGACY) != 0) {
+	if ((item.dwBuff & CF_NONLEGACY) != 0)
 		return uok[GenerateRnd(uok.size())];
 	AdvanceRndSeed();
 	return uok[GenerateRnd(uok.size())];
