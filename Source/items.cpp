@@ -1476,6 +1476,11 @@ void SetupAllItems(const Player &player, Item &item, _item_indexes idx, int isee
 	else if (uper == 1)
 		item._iCreateInfo |= CF_UPER1;
 
+	item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+	item.dwBuff |= CF_DEBUG;
+#endif
+
 	if (item._iMiscId != IMISC_UNIQUE) {
 		int iblvl = -1;
 		if (GenerateRnd(100) <= 10 || GenerateRnd(100) <= lvl) {
@@ -2005,6 +2010,10 @@ void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
 	premiumItem._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumItem._iIdentified = true;
 	premiumItem._iStatFlag = player.CanUseItem(premiumItem);
+	premiumItem.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+	premiumItem.dwBuff |= CF_DEBUG;
+#endif
 }
 
 bool WitchItemOk(const Player &player, const ItemData &item)
@@ -2728,6 +2737,10 @@ void InitializeItem(Item &item, _item_indexes itemData)
 	item.IDidx = static_cast<_item_indexes>(itemData);
 	if (gbIsHellfire)
 		item.dwBuff |= CF_HELLFIRE;
+	item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+	item.dwBuff |= CF_DEBUG;
+#endif
 }
 
 void GenerateNewSeed(Item &item)
@@ -3720,6 +3733,11 @@ void PrintItemDetails(const Item &item)
 		ShowUniqueItemInfoBox = true;
 		curruitem = item;
 	}
+	if ((item.dwBuff & CF_DEBUG) != 0) {
+		AddPanelString(_("debug item"));
+	} else if ((item.dwBuff & CF_NONLEGACY) == 0) {
+		AddPanelString(_("legacy item"));
+	}
 	PrintItemInfo(item);
 }
 
@@ -3759,6 +3777,13 @@ void PrintItemDur(const Item &item)
 	}
 	if (IsAnyOf(item._itype, ItemType::Ring, ItemType::Amulet))
 		AddPanelString(_("Not Identified"));
+
+	if ((item.dwBuff & CF_DEBUG) != 0) {
+		AddPanelString(_("debug item"));
+	} else if ((item.dwBuff & CF_NONLEGACY) == 0) {
+		AddPanelString(_("legacy item"));
+	}
+
 	PrintItemInfo(item);
 }
 
@@ -3979,6 +4004,10 @@ void SpawnSmith(int lvl)
 
 		newItem._iCreateInfo = lvl | CF_SMITH;
 		newItem._iIdentified = true;
+		newItem.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+		newItem.dwBuff |= CF_DEBUG;
+#endif
 	}
 	for (int i = iCnt; i < SMITH_ITEMS; i++)
 		smithitem[i].clear();
@@ -4041,6 +4070,10 @@ void SpawnWitch(int lvl)
 			GetItemAttrs(item, PinnedItemTypes[i], 1);
 			item._iCreateInfo = lvl;
 			item._iStatFlag = true;
+			item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+			item.dwBuff |= CF_DEBUG;
+#endif
 			continue;
 		}
 
@@ -4054,6 +4087,10 @@ void SpawnWitch(int lvl)
 					GetItemAttrs(item, bookType, lvl);
 					item._iCreateInfo = lvl | CF_WITCH;
 					item._iIdentified = true;
+					item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+					item.dwBuff |= CF_DEBUG;
+#endif
 					bookCount++;
 					continue;
 				}
@@ -4082,6 +4119,10 @@ void SpawnWitch(int lvl)
 
 		item._iCreateInfo = lvl | CF_WITCH;
 		item._iIdentified = true;
+		item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+		item.dwBuff |= CF_DEBUG;
+#endif
 	}
 
 	SortVendor(witchitem + PinnedItemCount);
@@ -4199,6 +4240,10 @@ void SpawnBoy(int lvl)
 	boyitem._iCreateInfo = lvl | CF_BOY;
 	boyitem._iIdentified = true;
 	boylevel = lvl / 2;
+	boyitem.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+	boyitem.dwBuff |= CF_DEBUG;
+#endif
 }
 
 void SpawnHealer(int lvl)
@@ -4216,6 +4261,10 @@ void SpawnHealer(int lvl)
 			GetItemAttrs(item, PinnedItemTypes[i], 1);
 			item._iCreateInfo = lvl;
 			item._iStatFlag = true;
+			item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+			item.dwBuff |= CF_DEBUG;
+#endif
 			continue;
 		}
 
@@ -4230,6 +4279,10 @@ void SpawnHealer(int lvl)
 		GetItemAttrs(item, itype, lvl);
 		item._iCreateInfo = lvl | CF_HEALER;
 		item._iIdentified = true;
+		item.dwBuff |= CF_NONLEGACY;
+#ifdef _DEBUG
+		item.dwBuff |= CF_DEBUG;
+#endif
 	}
 
 	SortVendor(healitem + PinnedItemCount);
