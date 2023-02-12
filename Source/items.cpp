@@ -1400,26 +1400,36 @@ _item_indexes RndTypeItems(ItemType itemType, int imid, int lvl)
 
 _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 {
-	std::vector<_unique_items> uok;
+	std::bitset<128> uok = {};
 	if (GenerateRnd(100) > uper)
 		return UITEM_INVALID;
+	int numu = 0;
 	for (int j = 0; UniqueItems[j].UIItemId != UITYPE_INVALID; j++) {
 		if (!IsUniqueAvailable(j))
 			break;
 		if (UniqueItems[j].UIItemId == AllItemsList[item.IDidx].iItemId
 		    && lvl >= UniqueItems[j].UIMinLvl
 		    && (recreate || !UniqueItemFlags[j] || gbIsMultiplayer)) {
-			uok.push_back(static_cast<_unique_items>(j));
+			uok[j] = true;
+			numu++;
 		}
 	}
-	if (uok.empty())
+	if (numu == 0)
 		return UITEM_INVALID;
 
 	// two algorithms to keep old items compatible
 	if ((item.dwBuff & CF_NONLEGACY) != 0)
-		return uok[GenerateRnd(uok.size())];
-	AdvanceRndSeed();
-	return uok[GenerateRnd(uok.size())];
+		numu = GenerateRnd(numu) + 1;
+	else
+		AdvanceRndSeed();
+	uint8_t itemData = 0;
+	while (numu > 0) {
+		if (uok[itemData])
+			numu--;
+		if (numu > 0)
+			itemData = (itemData + 1) % 128;
+	}
+	return (_unique_items)itemData;
 }
 
 void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
