@@ -1421,6 +1421,20 @@ _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 		return UITEM_INVALID;
 
 	AdvanceRndSeed();
+	if (item.dwBuff & CF_NONLEGACY) {
+		int randomIndex = GenerateRnd(numu);
+		int selectedIndex = -1;
+		for (int i = 0; i < 128; i++) {
+			if (uok[i]) {
+				selectedIndex++;
+				if (selectedIndex == randomIndex) {
+					return static_cast<_unique_items>(i);
+				}
+			}
+		}
+		return UITEM_INVALID;
+	}
+
 	uint8_t itemData = 0;
 	while (numu > 0) {
 		if (uok[itemData])
@@ -1429,7 +1443,7 @@ _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 			itemData = (itemData + 1) % 128;
 	}
 
-	return (_unique_items)itemData;
+	return static_cast<_unique_items>(itemData);
 }
 
 void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
