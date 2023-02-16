@@ -17,6 +17,7 @@
 #include "engine/render/clx_render.hpp"
 #include "engine/render/text_render.hpp"
 #include "engine/size.hpp"
+#include "engine/trn.hpp"
 #include "hwcursor.hpp"
 #include "inv_iterators.hpp"
 #include "levels/town.h"
@@ -1022,7 +1023,7 @@ int CreateGoldItemInInventorySlot(Player &player, int slotIndex, int value)
 
 } // namespace
 
-void InvDrawSlotBack(const Surface &out, Point targetPosition, Size size, item_quality itemQuality)
+void InvDrawHLight(const Surface &out, Point targetPosition, Size size)
 {
 	SDL_Rect srcRect = MakeSdlRect(0, 0, size.width, size.height);
 	out.Clip(&srcRect, &targetPosition);
@@ -1035,16 +1036,39 @@ void InvDrawSlotBack(const Surface &out, Point targetPosition, Size size, item_q
 	for (int hgt = size.height; hgt != 0; hgt--, dst -= dstPitch + size.width) {
 		for (int wdt = size.width; wdt != 0; wdt--) {
 			std::uint8_t pix = *dst;
+			pix += 1;
+			*dst++ = pix;
+		}
+	}
+}
+
+void InvDrawSlotBack(const Surface &out, Point targetPosition, Size size, item_quality itemQuality, bool hlight)
+{
+	SDL_Rect srcRect = MakeSdlRect(0, 0, size.width, size.height);
+	out.Clip(&srcRect, &targetPosition);
+	if (size.width <= 0 || size.height <= 0)
+		return;
+
+	std::uint8_t *dst = &out[targetPosition];
+	const auto dstPitch = out.pitch();
+	int adjustment = -1;
+	if (hlight)
+		adjustment += 1;
+
+
+	for (int hgt = size.height; hgt != 0; hgt--, dst -= dstPitch + size.width) {
+		for (int wdt = size.width; wdt != 0; wdt--) {
+			std::uint8_t pix = *dst;
 			if (pix >= PAL16_GRAY) {
 				switch (itemQuality) {
 				case ITEM_QUALITY_MAGIC:
-					pix -= PAL16_GRAY - PAL16_BLUE - 1;
+					pix -= PAL16_GRAY - PAL16_BLUE + adjustment;
 					break;
 				case ITEM_QUALITY_UNIQUE:
-					pix -= PAL16_GRAY - PAL16_YELLOW - 1;
+					pix -= PAL16_GRAY - PAL16_YELLOW + adjustment;
 					break;
 				default:
-					pix -= PAL16_GRAY - PAL16_BEIGE - 1;
+					pix -= PAL16_GRAY - PAL16_BEIGE + adjustment;
 					break;
 				}
 			}
@@ -1135,7 +1159,8 @@ void DrawInv(const Surface &out)
 			const Point position = GetPanelPosition(UiPanels::Inventory, { screenX, screenY });
 
 			if (pcursinvitem == slot) {
-				ClxDrawOutline(out, GetOutlineColor(myPlayer.InvBody[slot], true), position, sprite);
+				//ClxDrawOutline(out, GetOutlineColor(myPlayer.InvBody[slot], true), position, sprite)
+				//shitpiss
 			}
 
 			DrawItem(myPlayer.InvBody[slot], out, position, sprite);
@@ -1154,12 +1179,28 @@ void DrawInv(const Surface &out)
 	}
 
 	for (int i = 0; i < InventoryGridCells; i++) {
-		if (myPlayer.InvGrid[i] != 0) {
-			InvDrawSlotBack(
-			    out,
-			    GetPanelPosition(UiPanels::Inventory, InvRect[i + SLOTXY_INV_FIRST]) + Displacement { 0, -1 },
-			    InventorySlotSizeInPixels,
-			    myPlayer.InvList[abs(myPlayer.InvGrid[i]) - 1]._iMagical);
+
+		bool doHLight = false;
+		int ii = myPlayer.InvGrid[i] - 1;
+		Item &cursItem = GetInventoryItem(myPlayer, pcursinvitem);
+		Item &selectedItem = myPlayer.InvList[abs(myPlayer.InvGrid[i]) - 1];
+		if (cursItem._iSeed == selectedItem._iSeed) {
+			doHLight = true;
+		}
+		if (myPlayer.InvGrid[i] != 0) {;
+			if (doHLight) {
+				InvDrawSlotBack(
+				    out,
+				    GetPanelPosition(UiPanels::Inventory, InvRect[i + SLOTXY_INV_FIRST]) + Displacement { 0, -1 },
+				    InventorySlotSizeInPixels,
+				    myPlayer.InvList[abs(myPlayer.InvGrid[i]) - 1]._iMagical, true);
+			} else {
+				InvDrawSlotBack(
+				    out,
+				    GetPanelPosition(UiPanels::Inventory, InvRect[i + SLOTXY_INV_FIRST]) + Displacement { 0, -1 },
+				    InventorySlotSizeInPixels,
+				    myPlayer.InvList[abs(myPlayer.InvGrid[i]) - 1]._iMagical);
+			}
 		}
 	}
 
@@ -1170,11 +1211,13 @@ void DrawInv(const Surface &out)
 
 			const ClxSprite sprite = GetInvItemSprite(cursId);
 			const Point position = GetPanelPosition(UiPanels::Inventory, InvRect[j + SLOTXY_INV_FIRST]) + Displacement { 0, -1 };
-			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
-				ClxDrawOutline(out, GetOutlineColor(myPlayer.InvList[ii], true), position, sprite);
-			}
 
-			DrawItem(myPlayer.InvList[ii], out, position, sprite);
+			if (pcursinvitem == ii + INVITEM_INV_FIRST) {
+				DrawItem(myPlayer.InvList[ii], out, position, sprite, true);
+			} else {
+				DrawItem(myPlayer.InvList[ii], out, position, sprite);
+			}
+				
 		}
 	}
 }

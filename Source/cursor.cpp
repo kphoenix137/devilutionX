@@ -241,14 +241,13 @@ void FreeHalfSizeItemSprites()
 	}
 }
 
-void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite clx)
+void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite clx, bool hlight /*= false*/)
 {
 	const bool usable = item._iStatFlag;
-	if (usable) {
-		ClxDraw(out, position, clx);
-	} else {
-		ClxDrawTRN(out, position, clx, GetInfravisionTRN());
-	}
+		if (hlight)
+			ClxDrawTRN(out, position, clx, GetHLightTRN());
+		else
+			ClxDraw(out, position, clx);
 }
 
 void ResetCursor()
