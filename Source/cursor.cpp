@@ -473,6 +473,14 @@ void CheckCursMove()
 	if (myPlayer._pInvincible) {
 		return;
 	}
+	if (invflag && GetRightPanel().contains(MousePosition)) {
+		pcursinvitem = CheckInvHLight();
+		return;
+	}
+	if (IsStashOpen && GetLeftPanel().contains(MousePosition)) {
+		pcursstashitem = CheckStashHLight(MousePosition);
+		return;
+	}
 	if (!myPlayer.HoldItem.isEmpty() || spselflag) {
 		cursPosition = { mx, my };
 		return;
@@ -483,13 +491,6 @@ void CheckCursMove()
 	}
 	if (DoomFlag) {
 		return;
-	}
-	if (invflag && GetRightPanel().contains(MousePosition)) {
-		pcursinvitem = CheckInvHLight();
-		return;
-	}
-	if (IsStashOpen && GetLeftPanel().contains(MousePosition)) {
-		pcursstashitem = CheckStashHLight(MousePosition);
 	}
 	if (sbookflag && GetRightPanel().contains(MousePosition)) {
 		return;
