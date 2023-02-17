@@ -64,7 +64,7 @@ std::optional<std::array<uint8_t, 256>> GetClassTRN(Player &player)
 
 uint8_t *GetHLightTRN()
 {
-	const char *path = "plrgfx\\hlight.trn";
+	const char *path = "plrgfx\\hlight2.trn";
 	uint8_t *trn = (uint8_t *)malloc(256 * sizeof(uint8_t)); // allocate memory for the buffer
 
 	if (trn && LoadOptionalFileInMem(path, trn, 256)) { // check if memory allocation succeeded and file loaded

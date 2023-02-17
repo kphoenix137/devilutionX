@@ -85,7 +85,7 @@ enum item_color : uint8_t {
 extern bool invflag;
 extern const Point InvRect[73];
 
-void InvDrawSlotBack(const Surface &out, Point targetPosition, Size size, item_quality itemQuality, bool hlight = false);
+void InvDrawSlotBack(const Surface &out, Point targetPosition, Size size, Item &item, bool hlight = false);
 /**
  * @brief Checks whether the given item can be placed on the belt. Takes item size as well as characteristics into account. Items
  * that cannot be placed on the belt have to be placed in the inventory instead.
