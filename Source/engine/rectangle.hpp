@@ -78,15 +78,15 @@ struct RectangleOf {
 	/**
 	* @brief Whether this rectangle intersects with the given rectangle
 	*/
-	/* template <typename OtherCoordT, typename OtherSizeT>
+	template <typename OtherCoordT, typename OtherSizeT>
 	constexpr bool intersects(const RectangleOf<OtherCoordT, OtherSizeT> &other) const
 	{
-		const auto left = std::max(position.x, other.position.x);
-		const auto top = std::max(position.y, other.position.y);
-		const auto right = std::min(position.x + size.width, other.position.x + other.size.width);
-		const auto bottom = std::min(position.y + size.height, other.position.y + other.size.height);
+		const auto left = (position.x > other.position.x) ? position.x : other.position.x;
+		const auto top = (position.y > other.position.y) ? position.y : other.position.y;
+		const auto right = (position.x + size.width < other.position.x + other.size.width) ? position.x + size.width : other.position.x + other.size.width;
+		const auto bottom = (position.y + size.height < other.position.y + other.size.height) ? position.y + size.height : other.position.y + other.size.height;
 		return (left < right) && (top < bottom);
-	}*/
+	}
 };
 
 using Rectangle = RectangleOf<int, int>;
