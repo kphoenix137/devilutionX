@@ -1,5 +1,8 @@
 #pragma once
 
+//#include <algorithm>
+//#include <utility>
+
 #include "engine/point.hpp"
 #include "engine/size.hpp"
 
@@ -71,6 +74,19 @@ struct RectangleOf {
 			SizeOf<SizeT>(size.width - factor.deltaX * 2, size.height - factor.deltaY * 2)
 		};
 	}
+
+	/**
+	* @brief Whether this rectangle intersects with the given rectangle
+	*/
+	/* template <typename OtherCoordT, typename OtherSizeT>
+	constexpr bool intersects(const RectangleOf<OtherCoordT, OtherSizeT> &other) const
+	{
+		const auto left = std::max(position.x, other.position.x);
+		const auto top = std::max(position.y, other.position.y);
+		const auto right = std::min(position.x + size.width, other.position.x + other.size.width);
+		const auto bottom = std::min(position.y + size.height, other.position.y + other.size.height);
+		return (left < right) && (top < bottom);
+	}*/
 };
 
 using Rectangle = RectangleOf<int, int>;
