@@ -243,7 +243,6 @@ void FreeHalfSizeItemSprites()
 
 void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite clx, bool hlight /*= false*/)
 {
-	const bool usable = item._iStatFlag;
 		if (hlight)
 			ClxDrawTRN(out, position, clx, GetHLightTRN());
 		else
@@ -294,7 +293,6 @@ void DrawSoftwareCursor(const Surface &out, Point position, int cursId)
 	const ClxSprite sprite = GetInvItemSprite(cursId);
 	if (!MyPlayer->HoldItem.isEmpty()) {
 		const auto &heldItem = MyPlayer->HoldItem;
-		ClxDrawOutline(out, GetOutlineColor(heldItem, true), position, sprite);
 		DrawItem(heldItem, out, position, sprite);
 	} else {
 		ClxDraw(out, position, sprite);
