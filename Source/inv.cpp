@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <fmt/format.h>
+#include <set>
 
 #include "DiabloUI/ui_flags.hpp"
 #include "controls/plrctrls.h"
@@ -260,6 +261,58 @@ bool CanEquip(Player &player, const Item &item, inv_body_loc bodyLocation)
 	case INVLOC_HAND_LEFT:
 	case INVLOC_HAND_RIGHT:
 		return CanWield(player, item);
+
+	case INVLOC_HEAD:
+		return item._iLoc == ILOC_HELM;
+
+	case INVLOC_RING_LEFT:
+	case INVLOC_RING_RIGHT:
+		return item._iLoc == ILOC_RING;
+
+	default:
+		return false;
+	}
+}
+
+/**
+ * @brief A specialized version of 'CanEquip(int, Item&, int)' that specifically checks whether the item can be equipped
+ * in one/both of the player's hands.
+ * @param player The player whose inventory will be checked for compatibility with the item.
+ * @param item The item to check.
+ * @return 'True' if the player can currently equip the item in either one of his hands (i.e. the required hands are empty and
+ * allow the item), and 'False' otherwise.
+ */
+bool IsValidWield(Player &player, const Item &item)
+{
+	if (!CanEquip(item) || IsNoneOf(player.GetItemLocation(item), ILOC_ONEHAND, ILOC_TWOHAND))
+		return false;
+
+	return true;
+}
+
+/**
+ * @brief Checks whether the specified item can be equipped in the desired body location on the player.
+ * @param player The player whose inventory will be checked for compatibility with the item.
+ * @param item The item to check.
+ * @param bodyLocation The location in the inventory to be checked against.
+ * @return 'True' if the player can currently equip the item in the specified body location and 'False' otherwise.
+ */
+bool IsValidEquip(Player &player, const Item &item, inv_body_loc bodyLocation)
+{
+	if (!CanEquip(item) || player._pmode > PM_WALK_SIDEWAYS) {
+		return false;
+	}
+
+	switch (bodyLocation) {
+	case INVLOC_AMULET:
+		return item._iLoc == ILOC_AMULET;
+
+	case INVLOC_CHEST:
+		return item._iLoc == ILOC_ARMOR;
+
+	case INVLOC_HAND_LEFT:
+	case INVLOC_HAND_RIGHT:
+		return IsValidWield(player, item);
 
 	case INVLOC_HEAD:
 		return item._iLoc == ILOC_HELM;
@@ -1098,9 +1151,9 @@ void InvDrawSwapSlotBack(const Surface &out, Point targetPosition, Size size, bo
 			std::uint8_t pix = *dst;
 			if (pix >= PAL16_GRAY) {
 				if (canPlace)
-					pix -= PAL16_GRAY - PAL16_ORANGE + 1;
+					pix -= PAL16_GRAY - PAL16_ORANGE;
 				else
-					pix -= PAL16_GRAY - PAL16_RED + 1;
+					pix -= PAL16_GRAY - PAL16_RED + 2;
 			}
 			*dst++ = pix;
 		}
@@ -1155,6 +1208,9 @@ void DrawInv(const Surface &out)
 	bool hLight = false;
 	Item &cursItem = GetInventoryItem(myPlayer, pcursinvitem);
 
+	bool highlight = false;
+	bool canPlace = true;
+
 	Rectangle mouseRect {
 		MousePosition + Displacement { (heldItemSizeInPixels.width / 2) - ((heldItemSize.width - 1) * InventorySlotSizeInPixels.width / 2) - (heldItemSize.width - 1), (heldItemSizeInPixels.height / 2) - ((heldItemSize.height - 1) * InventorySlotSizeInPixels.height / 2) - (heldItemSize.height - 1) - 1 },
 		{ ((heldItemSize.width - 1) * InventorySlotSizeInPixels.width) + (heldItemSize.width) + 1,
@@ -1189,18 +1245,24 @@ void DrawInv(const Surface &out)
 	for (int slot = INVLOC_HEAD; slot < NUM_INVLOC; slot++) {
 		Item &selectedItem = myPlayer.InvBody[slot];
 		const Size slotSizeInPixels { slotSize[slot].width * InventorySlotSizeInPixels.width, slotSize[slot].height * InventorySlotSizeInPixels.height };
-		bool highlight = false;
-		bool canPlace = true;
 
-		if (!myPlayer.CanUseItem(heldItem))
+		// We need to set highlight and canPlace to false and true respectively to reset them from previous loops
+		highlight = false;
+		canPlace = true;
+
+		// If the item can't be equipped, or if we're hoving over a slot the item cannot be equipped to
+		if (!myPlayer.CanUseItem(heldItem) || !IsValidEquip(myPlayer, heldItem, static_cast<inv_body_loc>(slot)))
 			canPlace = false;
 
+		// If we are hovering over an equipped item, make the sprite and slot back brighter
 		if (&cursItem == &selectedItem)
 			highlight = true;
 
+		// If the iterated slot has an equipped item
 		if (!selectedItem.isEmpty()) {
 			Point selectedItemPos { slotPos[slot].x, slotPos[slot].y };
 
+			// If holding an item, and hovering over an equipped item, draw swap slot back
 			if (!heldItem.isEmpty() && &selectedItem == &cursItem) {
 				InvDrawSwapSlotBack(
 				    out,
@@ -1208,7 +1270,7 @@ void DrawInv(const Surface &out)
 				    slotSizeInPixels,
 				    canPlace);
 			} else {
-
+				// Draw slot back behind item
 				InvDrawSlotBack(
 				    out,
 				    GetPanelPosition(UiPanels::Inventory, { selectedItemPos.x, selectedItemPos.y }),
@@ -1230,6 +1292,7 @@ void DrawInv(const Surface &out)
 
 			DrawItem(selectedItem, out, position, sprite, highlight);
 
+			// If a two-handed item is equipped, draw the sprite and slot back on the right weapon slot
 			if (slot == INVLOC_HAND_LEFT) {
 				if (myPlayer.GetItemLocation(selectedItem) == ILOC_TWOHAND) {
 					if (!heldItem.isEmpty() && &selectedItem == &cursItem) {
@@ -1253,12 +1316,15 @@ void DrawInv(const Surface &out)
 					ClxDrawLightBlended(out, { dstX, dstY }, sprite, highlight);
 				}
 			}
+		// If there is no item in the equipment slot we are iterating, and currently are holding an item
 		} else if (!heldItem.isEmpty()) {
+			// Get a rectangle area of the current iterated slot
 			Rectangle slotRect {
 				GetPanelPosition(UiPanels::Inventory, slotPos[slot] + Displacement { 0, -slotSizeInPixels.height }),
 				{ slotSizeInPixels.width,
 				    slotSizeInPixels.height }
 			};
+			// Draw swap slot back in the iterated slot
 			if (slotRect.contains(MousePosition + Displacement { heldItemSizeInPixels.width / 2, heldItemSizeInPixels.height / 2 })) {
 				InvDrawSwapSlotBack(
 				    out,
@@ -1276,22 +1342,44 @@ void DrawInv(const Surface &out)
 		const Point &selectedItemPos = InvRect[i + SLOTXY_INV_FIRST];
 		const Point position = GetPanelPosition(UiPanels::Inventory, selectedItemPos) + Displacement { 0, -1 };
 
+		// We need to set highlight and canPlace to false and true respectively to reset them from previous loops
+		highlight = false;
+		canPlace = true;
+
+		// Get a rectangle area of the current iterated slot
 		Rectangle slotRect {
 			position + Displacement { 0, -1 - InventorySlotSizeInPixels.height },
-			{ InventorySlotSizeInPixels.width,
-			    InventorySlotSizeInPixels.height }
+			InventorySlotSizeInPixels
 		};
 
-		if (!heldItem.isEmpty() && selectedItemSlot != 0 && &selectedItem == &cursItem) {
+		// If holding an item and hovering over an item, draw swap slot back instead of slot back OR if holding an item and the cursor graphic is over a slot, color that slot with swap slot back
+		if ((!heldItem.isEmpty() && selectedItemSlot != 0 && &selectedItem == &cursItem) || (!heldItem.isEmpty() && mouseRect.intersects(slotRect))) {
+			// If the cursor rectangle overlaps any slot rectangles
+				std::set<int8_t> overlappedSlots;
+				// Iterate over all the slots
+				for (int ii = 0; ii < InventoryGridCells; ii++) {
+					const int8_t &iteratedItemSlot = myPlayer.InvGrid[ii];
+					const Point &iteratedItemPos = InvRect[ii + SLOTXY_INV_FIRST];
+					const Point &iteratedPosition = GetPanelPosition(UiPanels::Inventory, iteratedItemPos) + Displacement { 0, -1 };
+					Rectangle iteratedSlotRect {
+						iteratedPosition + Displacement { 0, -1 - InventorySlotSizeInPixels.height },
+						InventorySlotSizeInPixels
+					};
+					// If the slot overlaps the mouse rectangle and is not empty, add it to the set
+					if (mouseRect.intersects(iteratedSlotRect) && iteratedItemSlot != 0) {
+						overlappedSlots.insert(abs(iteratedItemSlot));
+					}
+				}
+				// If the number of overlapped slots is greater than 1, we can't place the item
+				if (overlappedSlots.size() > 1) {
+					canPlace = false;
+				}	
 			InvDrawSwapSlotBack(
 			    out,
 			    position,
-			    InventorySlotSizeInPixels);
-		} else if (!heldItem.isEmpty() && mouseRect.intersects(slotRect)) {
-				InvDrawSwapSlotBack(
-				    out,
-				    position,
-				    InventorySlotSizeInPixels);
+			    InventorySlotSizeInPixels,
+				canPlace);
+		// Otherwise, color any slots that contain items
 		} else if (selectedItemSlot != 0) {
 			bool highlight = false;
 			if (&cursItem == &selectedItem)
