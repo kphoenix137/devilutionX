@@ -244,8 +244,184 @@ void FreeHalfSizeItemSprites()
 void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite clx)
 {
 	const bool usable = item._iStatFlag;
+
+	enum color8 : uint8_t {
+		COL8_BLUE,
+		COL8_RED,
+		COL8_YELLOW,
+		COL8_ORANGE
+	};
+
+	enum color16 : uint8_t {
+		COL16_BEIGE,
+		COL16_BLUE,
+		COL16_YELLOW,
+		COL16_ORANGE,
+		COL16_RED,
+		COL16_GRAY
+	};
+
+	const uint8_t pal8Colors[] = { PAL8_BLUE, PAL8_RED, PAL8_YELLOW, PAL8_ORANGE };
+	const uint8_t pal16Colors[] = { PAL16_BEIGE, PAL16_BLUE, PAL16_YELLOW, PAL16_ORANGE, PAL16_RED, PAL16_GRAY };
+	uint8_t pal8Trn[4];
+	uint8_t pal16Trn[6];
+
+	// Copy values from pal8Trn to pal8Trn
+	for (int i = 0; i < 4; i++) {
+		pal8Trn[i] = pal8Colors[i];
+	}
+
+	// Copy values from pal16Colors to pal16Trn
+	for (int i = 0; i < 6; i++) {
+		pal16Trn[i] = pal16Colors[i];
+	}
+
+	if (item._iMagical == ITEM_QUALITY_MAGIC) {
+		switch (item._iPrePower) {
+		case IPL_TOHIT:
+			break;
+		case IPL_TOHIT_CURSE:
+			break;
+		case IPL_DAMP:
+			pal16Trn[COL16_BLUE] = pal16Colors[COL16_RED] - 1;
+			break;
+		case IPL_DAMP_CURSE:
+			break;
+		case IPL_DOPPELGANGER:
+			break;
+		case IPL_TOHIT_DAMP:
+			pal16Trn[COL16_BLUE] = pal16Colors[COL16_RED];
+			break;
+		case IPL_TOHIT_DAMP_CURSE:
+			break;
+		case IPL_ACP:
+			break;
+		case IPL_ACP_CURSE:
+			break;
+		case IPL_AC_CURSE:
+			break;
+		case IPL_FIRERES:
+			break;
+		case IPL_LIGHTRES:
+			break;
+		case IPL_MAGICRES:
+			break;
+		case IPL_ALLRES:
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_GRAY] + 2;
+			pal16Trn[COL16_BLUE] = pal16Colors[COL16_GRAY] + 2;
+			pal16Trn[COL16_YELLOW] = pal16Colors[COL16_RED];
+			break;
+		case IPL_SPLLVLADD:
+			break;
+		case IPL_CHARGES:
+			break;
+		case IPL_FIREDAM:
+			break;
+		case IPL_LIGHTDAM:
+			break;
+		case IPL_MANA:
+		case IPL_MANA_CURSE:
+			pal16Trn[COL16_BLUE] = pal16Colors[COL16_BLUE] + 1;
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_BLUE] + 1;
+			break;
+		case IPL_CRYSTALLINE:
+			break;
+		default:
+			break;
+		}
+
+		switch (item._iSufPower) {
+		case IPL_SPELL:
+			break;
+		case IPL_STR:
+		case IPL_STR_CURSE:
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_BLUE] - 1;
+			break;
+		case IPL_MAG:
+		case IPL_MAG_CURSE:
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_ORANGE] - 1;
+			break;
+		case IPL_DEX:
+		case IPL_DEX_CURSE:
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_GRAY] + 2;
+			break;
+		case IPL_VIT:
+		case IPL_VIT_CURSE:
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_GRAY] - 1;
+			break;
+		case IPL_ATTRIBS:
+		case IPL_ATTRIBS_CURSE:
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_YELLOW];
+			pal16Trn[COL16_YELLOW] = pal16Colors[COL16_GRAY];
+			break;
+		case IPL_GETHIT_CURSE:
+			break;
+		case IPL_GETHIT:
+			break;
+		case IPL_LIFE:
+			break;
+		case IPL_LIFE_CURSE:
+			break;
+		case IPL_DUR:
+			break;
+		case IPL_DUR_CURSE:
+			break;
+		case IPL_INDESTRUCTIBLE:
+			break;
+		case IPL_LIGHT:
+			break;
+		case IPL_LIGHT_CURSE:
+			break;
+		case IPL_FIRE_ARROWS:
+			break;
+		case IPL_LIGHT_ARROWS:
+			break;
+		case IPL_THORNS:
+			break;
+		case IPL_NOMANA:
+			break;
+		case IPL_ABSHALFTRAP:
+			break;
+		case IPL_KNOCKBACK:
+			break;
+		case IPL_STEALMANA:
+			break;
+		case IPL_STEALLIFE:
+			break;
+		case IPL_TARGAC:
+			break;
+		case IPL_FASTATTACK:
+			pal16Trn[COL16_YELLOW] = pal16Colors[COL16_GRAY] + 1;
+			pal16Trn[COL16_GRAY] = pal16Colors[COL16_GRAY] + 3;
+			break;
+		case IPL_FASTRECOVER:
+			break;
+		case IPL_FASTBLOCK:
+			break;
+		case IPL_DAMMOD:
+			break;
+		case IPL_DEVASTATION:
+			break;
+		case IPL_DECAY:
+			break;
+		case IPL_PERIL:
+			break;
+		case IPL_JESTERS:
+			break;
+		default:
+			break;
+		}
+	}
+
+	switch (item._iUid) {
+	case 68:
+		pal16Trn[COL16_GRAY] = pal16Colors[COL16_GRAY] + 2;
+		pal16Trn[COL16_YELLOW] = pal16Colors[COL16_RED];
+		pal16Trn[COL16_BLUE] = pal16Colors[COL16_GRAY] + 2;
+	}
+
 	if (usable) {
-		ClxDraw(out, position, clx);
+		ClxDrawTRN(out, position, clx, GetCustomTRN(pal8Trn[COL8_BLUE], pal8Trn[COL8_RED], pal8Trn[COL8_YELLOW], pal8Trn[COL8_ORANGE], pal16Trn[COL16_BEIGE], pal16Trn[COL16_BLUE], pal16Trn[COL16_YELLOW], pal16Trn[COL16_ORANGE], pal16Trn[COL16_RED], pal16Trn[COL16_GRAY]));
 	} else {
 		ClxDrawTRN(out, position, clx, GetInfravisionTRN());
 	}
