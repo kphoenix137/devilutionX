@@ -270,160 +270,614 @@ void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite cl
 		switch (item._iSufPower) {
 		case IPL_STR:
 		case IPL_STR_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_MAG:
 		case IPL_MAG_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_DEX:
 		case IPL_DEX_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_VIT:
 		case IPL_VIT_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_ATTRIBS:
 		case IPL_ATTRIBS_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_GETHIT:
 		case IPL_GETHIT_CURSE:
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_LIFE:
 		case IPL_LIFE_CURSE:
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_DUR:
 		case IPL_DUR_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_INDESTRUCTIBLE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_LIGHT:
 		case IPL_LIGHT_CURSE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_FIRE_ARROWS:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_LIGHT_ARROWS:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_THORNS:
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_NOMANA:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_ABSHALFTRAP:
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_KNOCKBACK:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_STEALMANA:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_STEALLIFE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_TARGAC:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_FASTATTACK:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_FASTRECOVER:
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_FASTBLOCK:
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_DAMMOD:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_DEVASTATION:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_DECAY:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_PERIL:
-			break;
-		case IPL_JESTERS:
-			break;
-		default:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		}
 
 		switch (item._iPrePower) {
 		case IPL_TOHIT:
 		case IPL_TOHIT_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_YELLOW;
-			pal16Dimming[COL16_GRAY] = -1;
-			pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
-			pal16Dimming[COL16_YELLOW] = 0;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_YELLOW;
+				pal16Dimming[COL16_GRAY] = -1;
+				pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_YELLOW;
+				pal16Dimming[COL16_GRAY] = -1;
+				pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			}
 			break;
 		case IPL_DAMP:
 		case IPL_DAMP_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_RED;
-			pal16Dimming[COL16_GRAY] = -1;
-			pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
-			pal16Dimming[COL16_YELLOW] = 2;
-			break;
-		case IPL_DOPPELGANGER:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_RED;
+				pal16Dimming[COL16_GRAY] = -1;
+				pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+				pal16Dimming[COL16_YELLOW] = 2;
+				break;
+			}
 			break;
 		case IPL_TOHIT_DAMP:
 		case IPL_TOHIT_DAMP_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_ORANGE;
-			pal16Dimming[COL16_GRAY] = -1;
-			pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
-			pal16Dimming[COL16_YELLOW] = 2;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_ORANGE;
+				pal16Dimming[COL16_GRAY] = -1;
+				pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+				pal16Dimming[COL16_YELLOW] = 2;
+				break;
+			}
 			break;
 		case IPL_ACP:
 		case IPL_ACP_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_GRAY;
-			pal16Dimming[COL16_GRAY] = 2;
-			pal16Trn[COL16_YELLOW] = PAL16_RED;
-			pal16Dimming[COL16_YELLOW] = 1;
+			switch (item._iClass) {
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 2;
+				pal16Trn[COL16_YELLOW] = PAL16_RED;
+				pal16Dimming[COL16_YELLOW] = 1;
+				break;
+			}
 			break;
 		case IPL_FIRERES:
-			pal16Trn[COL16_GRAY] = PAL16_RED;
-			pal16Dimming[COL16_GRAY] = 0;
-			pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
-			pal16Dimming[COL16_YELLOW] = 0;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_RED;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_RED;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_RED;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			}
 			break;
 		case IPL_LIGHTRES:
-			pal16Trn[COL16_GRAY] = PAL16_BLUE;
-			pal16Dimming[COL16_GRAY] = 0;
-			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
-			pal16Dimming[COL16_YELLOW] = 0;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			}
 			break;
 		case IPL_MAGICRES:
-			pal16Trn[COL16_GRAY] = PAL16_GRAY;
-			pal16Dimming[COL16_GRAY] = -2;
-			pal16Trn[COL16_YELLOW] = PAL16_BLUE;
-			pal16Dimming[COL16_YELLOW] = -2;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = -2;
+				pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+				pal16Dimming[COL16_YELLOW] = -2;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = -2;
+				pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+				pal16Dimming[COL16_YELLOW] = -2;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = -2;
+				pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+				pal16Dimming[COL16_YELLOW] = -2;
+				break;
+			}
 			break;
 		case IPL_ALLRES:
-			pal16Trn[COL16_GRAY] = PAL16_GRAY;
-			pal16Dimming[COL16_GRAY] = 1;
-			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
-			pal16Dimming[COL16_YELLOW] = 2;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 1;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 2;
+				break;
+			case ICLASS_ARMOR:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 1;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 2;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 1;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 2;
+				break;
+			}
 			break;
 		case IPL_SPLLVLADD:
-			pal16Trn[COL16_GRAY] = PAL16_BLUE;
-			pal16Dimming[COL16_GRAY] = -2;
-			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
-			pal16Dimming[COL16_YELLOW] = -2;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = -2;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = -2;
+				break;
+			}
 			break;
 		case IPL_CHARGES:
-			pal16Trn[COL16_GRAY] = PAL16_GRAY;
-			pal16Dimming[COL16_GRAY] = -1;
-			pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
-			pal16Dimming[COL16_YELLOW] = 0;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = -1;
+				pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			}
 			break;
 		case IPL_FIREDAM:
-			pal16Trn[COL16_GRAY] = PAL16_RED;
-			pal16Dimming[COL16_GRAY] = 1;
-			pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
-			pal16Dimming[COL16_YELLOW] = 1;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_RED;
+				pal16Dimming[COL16_GRAY] = 1;
+				pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+				pal16Dimming[COL16_YELLOW] = 1;
+				break;
+			}
 			break;
 		case IPL_LIGHTDAM:
-			pal16Trn[COL16_GRAY] = PAL16_BLUE;
-			pal16Dimming[COL16_GRAY] = 1;
-			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
-			pal16Dimming[COL16_YELLOW] = 1;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = 1;
+				pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+				pal16Dimming[COL16_YELLOW] = 1;
+				break;
+			}
 			break;
 		case IPL_MANA:
 		case IPL_MANA_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_BLUE;
-			pal16Dimming[COL16_GRAY] = 2;
-			pal16Trn[COL16_YELLOW] = PAL16_BLUE;
-			pal16Dimming[COL16_YELLOW] = 0;
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = 2;
+				pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			case ICLASS_MISC:
+				pal16Trn[COL16_GRAY] = PAL16_BLUE;
+				pal16Dimming[COL16_GRAY] = 2;
+				pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+				pal16Dimming[COL16_YELLOW] = 0;
+				break;
+			}
+			break;
+		case IPL_DOPPELGANGER:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		case IPL_CRYSTALLINE:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
-		default:
+		case IPL_JESTERS:
+			switch (item._iClass) {
+			case ICLASS_WEAPON:
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				pal16Trn[COL16_GRAY] = PAL16_GRAY;
+				pal16Dimming[COL16_GRAY] = 0;
+				break;
+			}
 			break;
 		}
 	}
