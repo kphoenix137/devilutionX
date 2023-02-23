@@ -10,87 +10,104 @@
 
 namespace devilution {
 
-uint8_t *GetCustomTRN(uint8_t pal8blue, uint8_t pal8red, uint8_t pal8yellow, uint8_t pal8orange, uint8_t pal16beige, uint8_t pal16blue, uint8_t pal16yellow, uint8_t pal16orange, uint8_t pal16red, uint8_t pal16gray)
+uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8red, int8_t pal8redBrightness, uint8_t pal8yellow, int8_t pal8yellowBrightness, uint8_t pal8orange, int8_t pal8orangeBrightness, uint8_t pal16beige, int8_t pal16beigeBrightness, uint8_t pal16blue, int8_t pal16blueBrightness, uint8_t pal16yellow, int8_t pal16yellowBrightness, uint8_t pal16orange, int8_t pal16orangeBrightness, uint8_t pal16red, int8_t pal16redBrightness, uint8_t pal16gray, int8_t pal16grayBrightness )
 {
 	std::unique_ptr<uint8_t[]> customTrn(new uint8_t[256]);
+	// Remaining colors on each line of colors after the first index
+	int pal8colors = 8;
+	int pal16colors = 16;
 
 	// Fill town/dungeon palette as default
-	for (uint8_t i = 0; i < 128; i++) {
+	for (int i = 0; i < 128; i++) {
 		customTrn[i] = i;
 	}
 
-	for (uint8_t i = PAL8_BLUE; i < PAL8_RED; i++) {
-		customTrn[i] = i - PAL8_BLUE + pal8blue;
+	// Fill PAL8_BLUE indices
+	for (int i = PAL8_BLUE; i < PAL8_RED; i++) {
+		int value = i - PAL8_BLUE;
+		value += pal8blue;
+		value += pal8blueBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal8blue), pal8blue + pal8colors - 1);
 	}
 
-	for (uint8_t i = PAL8_RED; i < PAL8_YELLOW; i++) {
-		customTrn[i] = i - PAL8_RED + pal8red;
+	// Fill PAL8_RED indices
+	for (int i = PAL8_RED; i < PAL8_YELLOW; i++) {
+		int value = i - PAL8_RED;
+		value += pal8red;
+		value += pal8redBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal8red), pal8red + pal8colors - 1);
 	}
 
-	for (uint8_t i = PAL8_YELLOW; i < PAL8_ORANGE; i++) {
-		customTrn[i] = i - PAL8_YELLOW + pal8yellow;
+	// Fill PAL8_YELLOW indices
+	for (int i = PAL8_YELLOW; i < PAL8_ORANGE; i++) {
+		int value = i - PAL8_YELLOW;
+		value += pal8yellow;
+		value += pal8yellowBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal8yellow), pal8yellow + pal8colors - 1);
 	}
 
-	for (uint8_t i = PAL8_ORANGE; i < PAL16_BEIGE; i++) {
-		customTrn[i] = i - PAL8_ORANGE + pal8orange;
+	// Fill PAL8_ORANGE indices
+	for (int i = PAL8_ORANGE; i < PAL16_BEIGE; i++) {
+		int value = i - PAL8_ORANGE;
+		value += pal8orange;
+		value += pal8orangeBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal8orange), pal8orange + pal8colors - 1);
 	}
 
-	for (uint8_t i = PAL16_BEIGE; i < PAL16_BLUE; i++) {
-		uint8_t adj = 0;
-		if ((i == PAL16_BEIGE) && (pal16beige % 16 != 0))
-			adj = 1;
-		int value = i - PAL16_BEIGE + pal16beige + adj;
-		value = std::clamp(value, 0, 254);
-		customTrn[i] = static_cast<uint8_t>(value);
+	// Fill PAL16_BEIGE indices
+	for (int i = PAL16_BEIGE; i < PAL16_BLUE; i++) {
+		int value = i - PAL16_BEIGE;
+		value += pal16beige;
+		value += pal16beigeBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal16beige), pal16beige + pal16colors - 1);
 	}
 
-	for (uint8_t i = PAL16_BLUE; i < PAL16_YELLOW; i++) {
-		uint8_t adj = 0;
-		if ((i == PAL16_BLUE) && (pal16blue % 16 != 0))
-			adj = 1;
-		int value = i - PAL16_BLUE + pal16blue + adj;
-		value = std::clamp(value, 0, 254);
-		customTrn[i] = static_cast<uint8_t>(value);
+	// Fill PAL16_BLUE indices
+	for (int i = PAL16_BLUE; i < PAL16_YELLOW; i++) {
+		int value = i - PAL16_BLUE;
+		value += pal16blue;
+		value += pal16blueBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal16blue), pal16blue + pal16colors - 1);
 	}
 
-	for (uint8_t i = PAL16_YELLOW; i < PAL16_ORANGE; i++) {
-		uint8_t adj = 0;
-		if ((i == PAL16_YELLOW) && (pal16yellow % 16 != 0))
-			adj = 1;
-		int value = i - PAL16_YELLOW + pal16yellow + adj;
-		value = std::clamp(value, 0, 254);
-		customTrn[i] = static_cast<uint8_t>(value);
+	// Fill PAL16_YELLOW indices
+	for (int i = PAL16_YELLOW; i < PAL16_ORANGE; i++) {
+		int value = i - PAL16_YELLOW;
+		value += pal16yellow;
+		value += pal16yellowBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal16yellow), pal16yellow + pal16colors - 1);
 	}
 
-	for (uint8_t i = PAL16_ORANGE; i < PAL16_RED; i++) {
-		uint8_t adj = 0;
-		if ((i == PAL16_ORANGE) && (pal16orange % 16 != 0))
-			adj = 1;
-		int value = i - PAL16_ORANGE + pal16orange + adj;
-		value = std::clamp(value, 0, 254);
-		customTrn[i] = static_cast<uint8_t>(value);
+	// Fill PAL16_ORANGE indices
+	for (int i = PAL16_ORANGE; i < PAL16_RED; i++) {
+		int value = i - PAL16_ORANGE;
+		value += pal16orange;
+		value += pal16orangeBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal16orange), pal16orange + pal16colors - 1);
 	}
 
-	for (uint8_t i = PAL16_RED; i < PAL16_GRAY; i++) {
-		uint8_t adj = 0;
-		if ((i == PAL16_RED) && (pal16red % 16 != 0))
-			adj = 1;
-		int value = i - PAL16_RED + pal16red + adj;
-		value = std::clamp(value, 0, 254);
-		customTrn[i] = static_cast<uint8_t>(value);
+	// Fill PAL16_RED indices
+	for (int i = PAL16_RED; i < PAL16_GRAY; i++) {
+		int value = i - PAL16_RED;
+		value += pal16red;
+		value += pal16redBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal16red), pal16red + pal16colors - 1);
 	}
 
-	for (uint8_t i = PAL16_GRAY; i < PAL16_GRAY + 15; i++) {
-		uint8_t adj = 0;
-		if ((i == PAL16_GRAY) && (pal16gray % 16 != 0))
-			adj = 1;
-		int value = i - PAL16_GRAY + pal16gray + adj;
-		value = std::clamp(value, 0, 254);
-		customTrn[i] = static_cast<uint8_t>(value);
+	// Fill PAL16_GRAY indices
+	for (int i = PAL16_GRAY; i < PAL16_GRAY + pal16colors - 1; i++) {
+		int value = i - PAL16_GRAY;
+		value += pal16gray;
+		value += pal16grayBrightness;
+		customTrn[i] = clamp(value, static_cast<int>(pal16gray), pal16gray + pal16colors - 1);
+
 	}
 
-
-	customTrn[255] = 255;
+	for (int i = PAL8_BLUE; i < PAL16_GRAY + pal16colors; i++) {
+		if (customTrn[i] == 255) {
+			customTrn[i] = 0;
+		}
+	}
 
 	return customTrn.release();
 }
