@@ -262,112 +262,39 @@ void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite cl
 	};
 
 	uint8_t pal8Trn[4] = { PAL8_BLUE, PAL8_RED, PAL8_YELLOW, PAL8_ORANGE };
-	int8_t pal8Brightness[4] = { 0, 0, 0, 0 };
+	int8_t pal8Dimming[4] = { 0, 0, 0, 0 };
 	uint8_t pal16Trn[6] = { PAL16_BEIGE, PAL16_BLUE, PAL16_YELLOW, PAL16_ORANGE, PAL16_RED, PAL16_GRAY };
-	int8_t pal16Brightness[6] = { 0, 0, 0, 0, 0, 0 };
+	int8_t pal16Dimming[6] = { 0, 0, 0, 0, 0, 0 };
 
 	if (item._iMagical == ITEM_QUALITY_MAGIC) {
-		switch (item._iPrePower) {
-		case IPL_TOHIT:
-			break;
-		case IPL_TOHIT_CURSE:
-			break;
-		case IPL_DAMP:
-			pal16Trn[COL16_BLUE] = PAL16_RED;
-			pal16Brightness[COL16_BLUE] = -1;
-			break;
-		case IPL_DAMP_CURSE:
-			break;
-		case IPL_DOPPELGANGER:
-			break;
-		case IPL_TOHIT_DAMP:
-			pal16Trn[COL16_BLUE] = PAL16_RED;
-			break;
-		case IPL_TOHIT_DAMP_CURSE:
-			break;
-		case IPL_ACP:
-			break;
-		case IPL_ACP_CURSE:
-			break;
-		case IPL_AC_CURSE:
-			break;
-		case IPL_FIRERES:
-			break;
-		case IPL_LIGHTRES:
-			break;
-		case IPL_MAGICRES:
-			break;
-		case IPL_ALLRES:
-			pal16Brightness[COL16_GRAY] = 2;
-			pal16Trn[COL16_BLUE] = PAL16_GRAY;
-			pal16Brightness[COL16_BLUE] = 2;
-			pal16Trn[COL16_YELLOW] = PAL16_RED;
-			break;
-		case IPL_SPLLVLADD:
-			break;
-		case IPL_CHARGES:
-			break;
-		case IPL_FIREDAM:
-			break;
-		case IPL_LIGHTDAM:
-			break;
-		case IPL_MANA:
-		case IPL_MANA_CURSE:
-			pal16Trn[COL16_BLUE] = PAL16_BLUE;
-			pal16Brightness[COL16_BLUE] = 1;
-			pal16Trn[COL16_GRAY] = PAL16_BLUE;
-			pal16Brightness[COL16_GRAY] = 1;
-			break;
-		case IPL_CRYSTALLINE:
-			break;
-		default:
-			break;
-		}
-
 		switch (item._iSufPower) {
-		case IPL_SPELL:
-			break;
 		case IPL_STR:
 		case IPL_STR_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_BLUE;
-			pal16Brightness[COL16_GRAY] = -1;
 			break;
 		case IPL_MAG:
 		case IPL_MAG_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_ORANGE;
-			pal16Brightness[COL16_GRAY] = -1;
 			break;
 		case IPL_DEX:
 		case IPL_DEX_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_GRAY;
-			pal16Brightness[COL16_GRAY] = 2;
 			break;
 		case IPL_VIT:
 		case IPL_VIT_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_GRAY;
-			pal16Brightness[COL16_GRAY] = -1;
 			break;
 		case IPL_ATTRIBS:
 		case IPL_ATTRIBS_CURSE:
-			pal16Trn[COL16_GRAY] = PAL16_YELLOW;
-			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
-			break;
-		case IPL_GETHIT_CURSE:
 			break;
 		case IPL_GETHIT:
+		case IPL_GETHIT_CURSE:
 			break;
 		case IPL_LIFE:
-			break;
 		case IPL_LIFE_CURSE:
 			break;
 		case IPL_DUR:
-			break;
 		case IPL_DUR_CURSE:
 			break;
 		case IPL_INDESTRUCTIBLE:
 			break;
 		case IPL_LIGHT:
-			break;
 		case IPL_LIGHT_CURSE:
 			break;
 		case IPL_FIRE_ARROWS:
@@ -389,9 +316,6 @@ void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite cl
 		case IPL_TARGAC:
 			break;
 		case IPL_FASTATTACK:
-			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
-			pal16Brightness[COL16_YELLOW] = 1;
-			pal16Brightness[COL16_GRAY] = 3;
 			break;
 		case IPL_FASTRECOVER:
 			break;
@@ -410,21 +334,116 @@ void DrawItem(const Item &item, const Surface &out, Point position, ClxSprite cl
 		default:
 			break;
 		}
+
+		switch (item._iPrePower) {
+		case IPL_TOHIT:
+		case IPL_TOHIT_CURSE:
+			pal16Trn[COL16_GRAY] = PAL16_YELLOW;
+			pal16Dimming[COL16_GRAY] = -1;
+			pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+			pal16Dimming[COL16_YELLOW] = 0;
+			break;
+		case IPL_DAMP:
+		case IPL_DAMP_CURSE:
+			pal16Trn[COL16_GRAY] = PAL16_RED;
+			pal16Dimming[COL16_GRAY] = -1;
+			pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+			pal16Dimming[COL16_YELLOW] = 2;
+			break;
+		case IPL_DOPPELGANGER:
+			break;
+		case IPL_TOHIT_DAMP:
+		case IPL_TOHIT_DAMP_CURSE:
+			pal16Trn[COL16_GRAY] = PAL16_ORANGE;
+			pal16Dimming[COL16_GRAY] = -1;
+			pal16Trn[COL16_YELLOW] = PAL16_BEIGE;
+			pal16Dimming[COL16_YELLOW] = 2;
+			break;
+		case IPL_ACP:
+		case IPL_ACP_CURSE:
+			pal16Trn[COL16_GRAY] = PAL16_GRAY;
+			pal16Dimming[COL16_GRAY] = 2;
+			pal16Trn[COL16_YELLOW] = PAL16_RED;
+			pal16Dimming[COL16_YELLOW] = 1;
+			break;
+		case IPL_FIRERES:
+			pal16Trn[COL16_GRAY] = PAL16_RED;
+			pal16Dimming[COL16_GRAY] = 0;
+			pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+			pal16Dimming[COL16_YELLOW] = 0;
+			break;
+		case IPL_LIGHTRES:
+			pal16Trn[COL16_GRAY] = PAL16_BLUE;
+			pal16Dimming[COL16_GRAY] = 0;
+			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+			pal16Dimming[COL16_YELLOW] = 0;
+			break;
+		case IPL_MAGICRES:
+			pal16Trn[COL16_GRAY] = PAL16_GRAY;
+			pal16Dimming[COL16_GRAY] = -2;
+			pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+			pal16Dimming[COL16_YELLOW] = -2;
+			break;
+		case IPL_ALLRES:
+			pal16Trn[COL16_GRAY] = PAL16_GRAY;
+			pal16Dimming[COL16_GRAY] = 1;
+			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+			pal16Dimming[COL16_YELLOW] = 2;
+			break;
+		case IPL_SPLLVLADD:
+			pal16Trn[COL16_GRAY] = PAL16_BLUE;
+			pal16Dimming[COL16_GRAY] = -2;
+			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+			pal16Dimming[COL16_YELLOW] = -2;
+			break;
+		case IPL_CHARGES:
+			pal16Trn[COL16_GRAY] = PAL16_GRAY;
+			pal16Dimming[COL16_GRAY] = -1;
+			pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+			pal16Dimming[COL16_YELLOW] = 0;
+			break;
+		case IPL_FIREDAM:
+			pal16Trn[COL16_GRAY] = PAL16_RED;
+			pal16Dimming[COL16_GRAY] = 1;
+			pal16Trn[COL16_YELLOW] = PAL16_ORANGE;
+			pal16Dimming[COL16_YELLOW] = 1;
+			break;
+		case IPL_LIGHTDAM:
+			pal16Trn[COL16_GRAY] = PAL16_BLUE;
+			pal16Dimming[COL16_GRAY] = 1;
+			pal16Trn[COL16_YELLOW] = PAL16_GRAY;
+			pal16Dimming[COL16_YELLOW] = 1;
+			break;
+		case IPL_MANA:
+		case IPL_MANA_CURSE:
+			pal16Trn[COL16_GRAY] = PAL16_BLUE;
+			pal16Dimming[COL16_GRAY] = 2;
+			pal16Trn[COL16_YELLOW] = PAL16_BLUE;
+			pal16Dimming[COL16_YELLOW] = 0;
+			break;
+		case IPL_CRYSTALLINE:
+			break;
+		default:
+			break;
+		}
 	}
 
-	switch (item._iUid) {
-	case 68:
-		pal16Brightness[COL16_GRAY] = 2;
-		pal16Trn[COL16_YELLOW] = PAL16_RED;
-		pal16Trn[COL16_BLUE] = PAL16_GRAY;
-		pal16Brightness[COL16_GRAY] = 2;
-	}
+	//if (item._iSpell != SpellID::Invalid)
+	//	pal16Trn[COL16_RED] = PAL16_ORANGE;
 
-	if (usable) {
-		ClxDrawTRN(out, position, clx, GetCustomTRN(pal8Trn[COL8_BLUE], pal8Brightness[COL8_BLUE], pal8Trn[COL8_RED], pal8Brightness[COL8_RED], pal8Trn[COL8_YELLOW], pal8Brightness[COL8_YELLOW], pal8Trn[COL8_ORANGE], pal8Brightness[COL8_ORANGE], pal16Trn[COL16_BEIGE], pal16Brightness[COL16_BEIGE], pal16Trn[COL16_BLUE], pal16Brightness[COL16_BLUE], pal16Trn[COL16_YELLOW], pal16Brightness[COL16_YELLOW], pal16Trn[COL16_ORANGE], pal16Brightness[COL16_ORANGE], pal16Trn[COL16_RED], pal16Brightness[COL16_RED], pal16Trn[COL16_GRAY], pal16Brightness[COL16_GRAY]));
-	} else {
-		ClxDrawTRN(out, position, clx, GetInfravisionTRN());
-	}
+	//switch (item._iUid) {
+	//case 68:
+	//	pal16Dimming[COL16_GRAY] = 2;
+	//	pal16Trn[COL16_YELLOW] = PAL16_RED;
+	//	pal16Trn[COL16_BLUE] = PAL16_GRAY;
+	//	pal16Dimming[COL16_GRAY] = 2;
+	//}
+
+	//if (usable) {
+		ClxDrawTRN(out, position, clx, GetCustomTRN(pal8Trn[COL8_BLUE], pal8Dimming[COL8_BLUE], pal8Trn[COL8_RED], pal8Dimming[COL8_RED], pal8Trn[COL8_YELLOW], pal8Dimming[COL8_YELLOW], pal8Trn[COL8_ORANGE], pal8Dimming[COL8_ORANGE], pal16Trn[COL16_BEIGE], pal16Dimming[COL16_BEIGE], pal16Trn[COL16_BLUE], pal16Dimming[COL16_BLUE], pal16Trn[COL16_YELLOW], pal16Dimming[COL16_YELLOW], pal16Trn[COL16_ORANGE], pal16Dimming[COL16_ORANGE], pal16Trn[COL16_RED], pal16Dimming[COL16_RED], pal16Trn[COL16_GRAY], pal16Dimming[COL16_GRAY]));
+	//} else {
+	//	ClxDrawTRN(out, position, clx, GetInfravisionTRN());
+	//}
 }
 
 void ResetCursor()

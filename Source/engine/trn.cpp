@@ -10,7 +10,7 @@
 
 namespace devilution {
 
-uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8red, int8_t pal8redBrightness, uint8_t pal8yellow, int8_t pal8yellowBrightness, uint8_t pal8orange, int8_t pal8orangeBrightness, uint8_t pal16beige, int8_t pal16beigeBrightness, uint8_t pal16blue, int8_t pal16blueBrightness, uint8_t pal16yellow, int8_t pal16yellowBrightness, uint8_t pal16orange, int8_t pal16orangeBrightness, uint8_t pal16red, int8_t pal16redBrightness, uint8_t pal16gray, int8_t pal16grayBrightness )
+uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueDimming, uint8_t pal8red, int8_t pal8redDimming, uint8_t pal8yellow, int8_t pal8yellowDimming, uint8_t pal8orange, int8_t pal8orangeDimming, uint8_t pal16beige, int8_t pal16beigeDimming, uint8_t pal16blue, int8_t pal16blueDimming, uint8_t pal16yellow, int8_t pal16yellowDimming, uint8_t pal16orange, int8_t pal16orangeDimming, uint8_t pal16red, int8_t pal16redDimming, uint8_t pal16gray, int8_t pal16grayDimming )
 {
 	std::unique_ptr<uint8_t[]> customTrn(new uint8_t[256]);
 	// Remaining colors on each line of colors after the first index
@@ -26,7 +26,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL8_BLUE; i < PAL8_RED; i++) {
 		int value = i - PAL8_BLUE;
 		value += pal8blue;
-		value += pal8blueBrightness;
+		value += pal8blueDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal8blue), pal8blue + pal8colors - 1);
 	}
 
@@ -34,7 +34,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL8_RED; i < PAL8_YELLOW; i++) {
 		int value = i - PAL8_RED;
 		value += pal8red;
-		value += pal8redBrightness;
+		value += pal8redDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal8red), pal8red + pal8colors - 1);
 	}
 
@@ -42,7 +42,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL8_YELLOW; i < PAL8_ORANGE; i++) {
 		int value = i - PAL8_YELLOW;
 		value += pal8yellow;
-		value += pal8yellowBrightness;
+		value += pal8yellowDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal8yellow), pal8yellow + pal8colors - 1);
 	}
 
@@ -50,7 +50,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL8_ORANGE; i < PAL16_BEIGE; i++) {
 		int value = i - PAL8_ORANGE;
 		value += pal8orange;
-		value += pal8orangeBrightness;
+		value += pal8orangeDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal8orange), pal8orange + pal8colors - 1);
 	}
 
@@ -58,7 +58,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL16_BEIGE; i < PAL16_BLUE; i++) {
 		int value = i - PAL16_BEIGE;
 		value += pal16beige;
-		value += pal16beigeBrightness;
+		value += pal16beigeDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal16beige), pal16beige + pal16colors - 1);
 	}
 
@@ -66,7 +66,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL16_BLUE; i < PAL16_YELLOW; i++) {
 		int value = i - PAL16_BLUE;
 		value += pal16blue;
-		value += pal16blueBrightness;
+		value += pal16blueDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal16blue), pal16blue + pal16colors - 1);
 	}
 
@@ -74,7 +74,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL16_YELLOW; i < PAL16_ORANGE; i++) {
 		int value = i - PAL16_YELLOW;
 		value += pal16yellow;
-		value += pal16yellowBrightness;
+		value += pal16yellowDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal16yellow), pal16yellow + pal16colors - 1);
 	}
 
@@ -82,7 +82,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL16_ORANGE; i < PAL16_RED; i++) {
 		int value = i - PAL16_ORANGE;
 		value += pal16orange;
-		value += pal16orangeBrightness;
+		value += pal16orangeDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal16orange), pal16orange + pal16colors - 1);
 	}
 
@@ -90,7 +90,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL16_RED; i < PAL16_GRAY; i++) {
 		int value = i - PAL16_RED;
 		value += pal16red;
-		value += pal16redBrightness;
+		value += pal16redDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal16red), pal16red + pal16colors - 1);
 	}
 
@@ -98,7 +98,7 @@ uint8_t *GetCustomTRN(uint8_t pal8blue, int8_t pal8blueBrightness, uint8_t pal8r
 	for (int i = PAL16_GRAY; i < PAL16_GRAY + pal16colors - 1; i++) {
 		int value = i - PAL16_GRAY;
 		value += pal16gray;
-		value += pal16grayBrightness;
+		value += pal16grayDimming;
 		customTrn[i] = clamp(value, static_cast<int>(pal16gray), pal16gray + pal16colors - 1);
 
 	}
