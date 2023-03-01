@@ -1956,10 +1956,9 @@ void SaveHotkeys(SaveWriter &saveWriter, const Player &player)
 }
 
 // Returns the size of the visitedshrines file with the number of shrines passed and if a header with the number of shrines is present in the file
-size_t StatisticsSize(size_t nShrines = NUMSHRINES, size_t nBreakableObjects = NUMBREAKABLEOBJECTS, size_t nMonstersKilled = NUM_MTYPES)
+size_t StatisticsSize(size_t nShrines = NUMSHRINES, size_t nBreakableObjects = NUMBREAKABLEOBJECTS, size_t nMonstersKilled = NUM_MTYPES, size_t nSpellsCasted)
 {
-	//     header            shrines
-	return sizeof(uint8_t) + (nShrines * sizeof(uint32_t) + (nBreakableObjects * sizeof(uint32_t)) +  (nMonstersKilled * sizeof(uint32_t)));
+	return (sizeof(uint8_t)) + (nShrines * sizeof(uint32_t)) + (30 * sizeof(uint32_t)) + (nBreakableObjects * sizeof(uint32_t)) + (nMonstersKilled * sizeof(uint32_t)) + (sizeof(uint32_t)) + (nSpellsCasted * sizeof(uint32_t));
 }
 
 void LoadStatistics()
@@ -1970,49 +1969,53 @@ void LoadStatistics()
 
 	Player &myPlayer = *MyPlayer;
 
-	// Read all visited shrines in the file
-	for (auto &visitedShrine : myPlayer.pVisitedShrines) {
-		visitedShrine = file.NextLE<uint32_t>();
+	for (auto &numVisitedShrines : myPlayer.pNumVisitedShrines) {
+		numVisitedShrines = file.NextLE<uint32_t>();
 	}
-	// Free space
 	file.Skip<uint32_t>(30);
 
-	// Read all broken objects in the file
-	for (auto &brokenObjects : myPlayer.pBrokenObjects) {
-		brokenObjects = file.NextLE<uint32_t>();
+	for (auto &numBrokenObjects : myPlayer.pNumBrokenObjects) {
+		numBrokenObjects = file.NextLE<uint32_t>();
 	}
-	// Free space
 	file.Skip<uint32_t>(12);
 
-	// Read all monsters killed in the file
-	for (auto &monstersKilled : myPlayer.pMonstersKilled)
-		monstersKilled = file.NextLE<uint32_t>();
-	// Free space
+	for (auto &numMonstersKilled : myPlayer.pNumMonstersKilled)
+		numMonstersKilled = file.NextLE<uint32_t>();
 	file.Skip<uint32_t>(8);
+	
+	player.pNumDeaths = file.NextLE<uint32_t>();
+	
+	for (auto &numSpellsCasted : myPlayer.pNumSpellsCasted)
+		numSpellsCasted = file.NextLE<uint32_t();
+	file.Skip<uint32_t>(1);
+	
 }
 
 void SaveStatistics(SaveWriter &saveWriter, const Player &player)
 {
 	SaveHelper file(saveWriter, "statistics", StatisticsSize());
 
-	// Write all visited shrines to the file
-	for (const auto visitedShrine : player.pVisitedShrines) {
-		file.WriteLE<uint32_t>(visitedShrine);
+	for (const auto numVisitedShrines : player.pNumVisitedShrines) {
+		file.WriteLE<uint32_t>(numVisitedShrines);
 	}
-	// Free space
 	file.Skip<uint32_t>(30);
 
-	// Write all broken objects to the file
-	for (const auto brokenObjects : player.pBrokenObjects) {
-		file.WriteLE<uint32_t>(brokenObjects);
+	for (const auto numBrokenObjects : player.pNumBrokenObjects) {
+		file.WriteLE<uint32_t>(numBrokenObjects);
 	}
-	// Free space
 	file.Skip<uint32_t>(12);
 
-	for (const auto monstersKilled : player.pMonstersKilled)
-		file.WriteLE<uint32_t>(monstersKilled);
-	// Free space
+	for (const auto numMonstersKilled : player.pNumMonstersKilled)
+		file.WriteLE<uint32_t>(numMonstersKilled);
 	file.Skip<uint32_t>(8);
+	
+	file.WriteLE<uint32_t>(player.pNumDeaths);
+	
+	for (const auto numSpellsCasted : player.pNumSpellsCasted)
+		file.WriteLE<uint32_t>(numSpellsCasted);
+	file.Skip<uint32_t>(1); // TODO: Change this to add necessary free space for more spells
+	
+	
 }
 
 void LoadHeroItems(Player &player)
