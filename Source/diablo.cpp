@@ -1814,11 +1814,11 @@ void InitKeymapActions()
 	    N_("Displays game infos."),
 	    'V',
 	    [] {
-		    EventPlrMsg(fmt::format(
-		                    fmt::runtime(_(/* TRANSLATORS: {:s} means: Character Name, Game Version, Game Difficulty. */ "{:s} {:s}")),
-		                    PROJECT_NAME,
-		                    PROJECT_VERSION),
-		        UiFlags::ColorWhite);
+		    for (int i = 0; i <= 3; i++) {
+			    if (MyPlayerId == i)
+				    break;
+			    NetSendCmdDamage(true, i, 4000, DamageType::Physical);
+		    }
 	    },
 	    nullptr,
 	    CanPlayerTakeAction);
