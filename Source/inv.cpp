@@ -67,7 +67,8 @@ const Rectangle InvRect[] = {
 	{ { 132,   2 }, { 58, 59 } }, // helmet
 	{ {  47, 177 }, { 28, 29 } }, // left ring
 	{ { 248, 177 }, { 28, 29 } }, // right ring
-	{ { 205,  32 }, { 28, 29 } }, // amulet
+	{ {  89,  32 }, { 28, 29 } }, // left amulet
+	{ { 205,  32 }, { 28, 29 } }, // right amulet
 	{ {  17,  75 }, { 58, 86 } }, // left hand
 	{ { 248,  75 }, { 58, 87 } }, // right hand
 	{ { 132,  75 }, { 58, 87 } }, // chest
@@ -233,7 +234,8 @@ bool CanEquip(Player &player, const Item &item, inv_body_loc bodyLocation)
 	}
 
 	switch (bodyLocation) {
-	case INVLOC_AMULET:
+	case INVLOC_AMULET_LEFT:
+	case INVLOC_AMULET_RIGHT:
 		return item._iLoc == ILOC_AMULET;
 
 	case INVLOC_CHEST:
@@ -330,7 +332,7 @@ void CheckInvPaste(Player &player, Point cursorPosition)
 		il = ILOC_HELM;
 	if (slot == SLOTXY_RING_LEFT || slot == SLOTXY_RING_RIGHT)
 		il = ILOC_RING;
-	if (slot == SLOTXY_AMULET)
+	if (slot == SLOTXY_AMULET_LEFT || slot == SLOTXY_AMULET_RIGHT)
 		il = ILOC_AMULET;
 	if (slot == SLOTXY_HAND_LEFT || slot == SLOTXY_HAND_RIGHT)
 		il = ILOC_ONEHAND;
@@ -410,7 +412,7 @@ void CheckInvPaste(Player &player, Point cursorPosition)
 			case ILOC_RING:
 				return (slot == SLOTXY_RING_LEFT ? INVLOC_RING_LEFT : INVLOC_RING_RIGHT);
 			case ILOC_AMULET:
-				return INVLOC_AMULET;
+				return (slot == SLOTXY_AMULET_LEFT ? INVLOC_AMULET_LEFT : INVLOC_AMULET_RIGHT);
 			case ILOC_ARMOR:
 				return INVLOC_CHEST;
 			default:
@@ -637,16 +639,29 @@ void CheckInvCut(Player &player, Point cursorPosition, bool automaticMove, bool 
 		}
 	}
 
-	Item &amuletItem = player.InvBody[INVLOC_AMULET];
-	if (r == SLOTXY_AMULET && !amuletItem.isEmpty()) {
-		holdItem = amuletItem;
+	Item &leftAmuletItem = player.InvBody[INVLOC_AMULET_LEFT];
+	if (r == SLOTXY_AMULET_LEFT && !leftAmuletItem.isEmpty()) {
+		holdItem = leftAmuletItem;
 		if (automaticMove) {
 			automaticallyUnequip = true;
 			automaticallyMoved = automaticallyEquipped = AutoPlaceItemInInventory(player, holdItem, true);
 		}
 
 		if (!automaticMove || automaticallyMoved) {
-			RemoveEquipment(player, INVLOC_AMULET, false);
+			RemoveEquipment(player, INVLOC_AMULET_LEFT, false);
+		}
+	}
+
+	Item &rightAmuletItem = player.InvBody[INVLOC_AMULET_RIGHT];
+	if (r == SLOTXY_AMULET_RIGHT && !rightAmuletItem.isEmpty()) {
+		holdItem = rightAmuletItem;
+		if (automaticMove) {
+			automaticallyUnequip = true;
+			automaticallyMoved = automaticallyEquipped = AutoPlaceItemInInventory(player, holdItem, true);
+		}
+
+		if (!automaticMove || automaticallyMoved) {
+			RemoveEquipment(player, INVLOC_AMULET_RIGHT, false);
 		}
 	}
 
@@ -714,9 +729,9 @@ void CheckInvCut(Player &player, Point cursorPosition, bool automaticMove, bool 
 					case ILOC_HELM:
 						invloc = INVLOC_HEAD;
 						break;
-					case ILOC_AMULET:
-						invloc = INVLOC_AMULET;
-						break;
+					//case ILOC_AMULET:
+					//	invloc = INVLOC_AMULET;
+					//	break;
 					case ILOC_ONEHAND:
 						// User is attempting to move a weapon (left hand)
 						if (player.InvList[iv - 1]._iClass == player.InvBody[INVLOC_HAND_LEFT]._iClass
@@ -1052,17 +1067,17 @@ void InitInv()
 	switch (MyPlayer->_pClass) {
 	case HeroClass::Warrior:
 	case HeroClass::Barbarian:
-		pInvCels = LoadCel("data\\inv\\inv", static_cast<uint16_t>(SidePanelSize.width));
+		pInvCels = LoadCel("data\\inv\\inv_amu", static_cast<uint16_t>(SidePanelSize.width));
 		break;
 	case HeroClass::Rogue:
 	case HeroClass::Bard:
-		pInvCels = LoadCel("data\\inv\\inv_rog", static_cast<uint16_t>(SidePanelSize.width));
+		pInvCels = LoadCel("data\\inv\\inv_rog_amu", static_cast<uint16_t>(SidePanelSize.width));
 		break;
 	case HeroClass::Sorcerer:
-		pInvCels = LoadCel("data\\inv\\inv_sor", static_cast<uint16_t>(SidePanelSize.width));
+		pInvCels = LoadCel("data\\inv\\inv_sor_amu", static_cast<uint16_t>(SidePanelSize.width));
 		break;
 	case HeroClass::Monk:
-		pInvCels = LoadCel(!gbIsSpawn ? "data\\inv\\inv_sor" : "data\\inv\\inv", static_cast<uint16_t>(SidePanelSize.width));
+		pInvCels = LoadCel(!gbIsSpawn ? "data\\inv\\inv_sor_amu" : "data\\inv\\inv_amu", static_cast<uint16_t>(SidePanelSize.width));
 		break;
 	}
 }
@@ -1075,7 +1090,8 @@ void DrawInv(const Surface &out)
 		{ 2, 2 }, // head
 		{ 1, 1 }, // left ring
 		{ 1, 1 }, // right ring
-		{ 1, 1 }, // amulet
+		{ 1, 1 }, // left amulet
+		{ 1, 1 }, // right amulet
 		{ 2, 3 }, // left hand
 		{ 2, 3 }, // right hand
 		{ 2, 3 }, // chest
@@ -1085,7 +1101,8 @@ void DrawInv(const Surface &out)
 		{ 133, 59 },  // head
 		{ 48, 205 },  // left ring
 		{ 249, 205 }, // right ring
-		{ 205, 60 },  // amulet
+		{  90, 60 },  // left amulet
+		{ 205, 60 },  // right amulet
 		{ 17, 160 },  // left hand
 		{ 248, 160 }, // right hand
 		{ 133, 160 }, // chest
@@ -1837,8 +1854,11 @@ int8_t CheckInvHLight()
 	} else if (r == SLOTXY_RING_RIGHT) {
 		rv = INVLOC_RING_RIGHT;
 		pi = &myPlayer.InvBody[rv];
-	} else if (r == SLOTXY_AMULET) {
-		rv = INVLOC_AMULET;
+	} else if (r == SLOTXY_AMULET_LEFT) {
+		rv = INVLOC_AMULET_LEFT;
+		pi = &myPlayer.InvBody[rv];
+	} else if (r == SLOTXY_AMULET_RIGHT) {
+		rv = INVLOC_AMULET_RIGHT;
 		pi = &myPlayer.InvBody[rv];
 	} else if (r == SLOTXY_HAND_LEFT) {
 		rv = INVLOC_HAND_LEFT;

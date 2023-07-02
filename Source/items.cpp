@@ -2863,7 +2863,7 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 	}
 
 	if (&player == MyPlayer) {
-		if (player.InvBody[INVLOC_AMULET].isEmpty() || player.InvBody[INVLOC_AMULET].IDidx != IDI_AURIC) {
+		if (!(player.InvBody[INVLOC_AMULET_LEFT].IDidx == IDI_AURIC || player.InvBody[INVLOC_AMULET_RIGHT].IDidx == IDI_AURIC)) {
 			int half = MaxGold;
 			MaxGold = GOLD_MAX_LIMIT;
 

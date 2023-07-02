@@ -598,9 +598,13 @@ Point InvGetEquipSlotCoord(const inv_body_loc invSlot)
 		result.x += InvRect[SLOTXY_RING_RIGHT].Center().x;
 		result.y += InvRect[SLOTXY_RING_RIGHT].Center().y;
 		break;
-	case INVLOC_AMULET:
-		result.x += InvRect[SLOTXY_AMULET].Center().x;
-		result.y += InvRect[SLOTXY_AMULET].Center().y;
+	case INVLOC_AMULET_LEFT:
+		result.x += InvRect[SLOTXY_AMULET_LEFT].Center().x;
+		result.y += InvRect[SLOTXY_AMULET_LEFT].Center().y;
+		break;
+	case INVLOC_AMULET_RIGHT:
+		result.x += InvRect[SLOTXY_AMULET_RIGHT].Center().x;
+		result.y += InvRect[SLOTXY_AMULET_RIGHT].Center().y;
 		break;
 	case INVLOC_HAND_LEFT:
 		result.x += InvRect[SLOTXY_HAND_LEFT].Center().x;
@@ -632,8 +636,11 @@ Point InvGetEquipSlotCoordFromInvSlot(const inv_xy_slot slot)
 	if (slot == SLOTXY_RING_RIGHT) {
 		return InvGetEquipSlotCoord(INVLOC_RING_RIGHT);
 	}
-	if (slot == SLOTXY_AMULET) {
-		return InvGetEquipSlotCoord(INVLOC_AMULET);
+	if (slot == SLOTXY_AMULET_LEFT) {
+		return InvGetEquipSlotCoord(INVLOC_AMULET_LEFT);
+	}
+	if (slot == SLOTXY_AMULET_RIGHT) {
+		return InvGetEquipSlotCoord(INVLOC_AMULET_RIGHT);
 	}
 	if (slot == SLOTXY_HAND_LEFT) {
 		return InvGetEquipSlotCoord(INVLOC_HAND_LEFT);
@@ -838,8 +845,10 @@ void InventoryMove(AxisDirection dir)
 				Slot = SLOTXY_CHEST;
 			} else if (Slot == SLOTXY_CHEST) {
 				Slot = SLOTXY_HAND_LEFT;
-			} else if (Slot == SLOTXY_AMULET) {
+			} else if (Slot == SLOTXY_AMULET_RIGHT) {
 				Slot = SLOTXY_HEAD;
+			} else if (Slot == SLOTXY_HEAD) {
+				Slot = SLOTXY_AMULET_LEFT;
 			} else if (Slot == SLOTXY_RING_RIGHT) {
 				Slot = SLOTXY_RING_LEFT;
 			} else if (Slot >= SLOTXY_INV_FIRST && Slot <= SLOTXY_BELT_LAST) {
@@ -874,8 +883,10 @@ void InventoryMove(AxisDirection dir)
 				Slot = SLOTXY_CHEST;
 			} else if (Slot == SLOTXY_CHEST) {
 				Slot = SLOTXY_HAND_RIGHT;
+			} else if (Slot == SLOTXY_AMULET_LEFT) {
+				Slot = SLOTXY_HEAD;
 			} else if (Slot == SLOTXY_HEAD) {
-				Slot = SLOTXY_AMULET;
+				Slot = SLOTXY_AMULET_RIGHT;
 			} else if (Slot >= SLOTXY_INV_FIRST && Slot <= SLOTXY_BELT_LAST) {
 				int8_t itemId = GetItemIdOnSlot(Slot);
 				if (itemId != 0) {
@@ -911,7 +922,11 @@ void InventoryMove(AxisDirection dir)
 				} else if (heldItem.isArmor()) {
 					Slot = SLOTXY_CHEST;
 				} else if (heldItem._itype == ItemType::Amulet) {
-					Slot = SLOTXY_AMULET;
+					if (Slot >= SLOTXY_INV_ROW1_FIRST && Slot <= SLOTXY_INV_ROW1_FIRST + (INV_ROW_SLOT_SIZE / 2) - 1) {
+						Slot = SLOTXY_AMULET_LEFT;
+					} else {
+						Slot = SLOTXY_AMULET_RIGHT;
+					}
 				}
 			}
 		} else {
@@ -923,8 +938,10 @@ void InventoryMove(AxisDirection dir)
 				Slot = SLOTXY_HAND_LEFT;
 			} else if (Slot == SLOTXY_RING_RIGHT) {
 				Slot = SLOTXY_HAND_RIGHT;
+			} else if (Slot == SLOTXY_HAND_LEFT) {
+				Slot = SLOTXY_AMULET_LEFT;
 			} else if (Slot == SLOTXY_HAND_RIGHT) {
-				Slot = SLOTXY_AMULET;
+				Slot = SLOTXY_AMULET_RIGHT;
 			} else if (Slot >= SLOTXY_INV_ROW2_FIRST) {
 				int8_t itemId = GetItemIdOnSlot(Slot);
 				if (itemId != 0) {
@@ -947,9 +964,9 @@ void InventoryMove(AxisDirection dir)
 		if (isHoldingItem) {
 			if (Slot == SLOTXY_HEAD || Slot == SLOTXY_CHEST) {
 				Slot = SLOTXY_INV_ROW1_FIRST + 4;
-			} else if (Slot == SLOTXY_RING_LEFT || Slot == SLOTXY_HAND_LEFT) {
+			} else if (Slot == SLOTXY_RING_LEFT || Slot == SLOTXY_HAND_LEFT || Slot == SLOTXY_AMULET_LEFT) {
 				Slot = SLOTXY_INV_ROW1_FIRST + 1;
-			} else if (Slot == SLOTXY_RING_RIGHT || Slot == SLOTXY_HAND_RIGHT || Slot == SLOTXY_AMULET) {
+			} else if (Slot == SLOTXY_RING_RIGHT || Slot == SLOTXY_HAND_RIGHT || Slot == SLOTXY_AMULET_RIGHT) {
 				Slot = SLOTXY_INV_ROW1_LAST - 1;
 			} else if (Slot <= (SLOTXY_INV_ROW4_LAST - (itemSize.height * INV_ROW_SLOT_SIZE))) {
 				Slot += INV_ROW_SLOT_SIZE;
@@ -977,7 +994,9 @@ void InventoryMove(AxisDirection dir)
 					Slot = SLOTXY_INV_ROW1_FIRST + PreviousInventoryColumn;
 				else
 					Slot = SLOTXY_INV_ROW1_LAST - 1;
-			} else if (Slot == SLOTXY_AMULET) {
+			} else if (Slot == SLOTXY_AMULET_LEFT) {
+				Slot = SLOTXY_HAND_LEFT;
+			} else if (Slot == SLOTXY_AMULET_RIGHT) {
 				Slot = SLOTXY_HAND_RIGHT;
 			} else if (Slot == SLOTXY_HAND_RIGHT) {
 				Slot = SLOTXY_RING_RIGHT;

@@ -1200,10 +1200,16 @@ void StartStorytellerIdentify()
 		AddStoreHoldId(rightRing, -6);
 	}
 
-	auto &amulet = myPlayer.InvBody[INVLOC_AMULET];
-	if (IdItemOk(&amulet)) {
+	auto &leftAmulet = myPlayer.InvBody[INVLOC_AMULET_LEFT];
+	if (IdItemOk(&leftAmulet)) {
 		idok = true;
-		AddStoreHoldId(amulet, -7);
+		AddStoreHoldId(leftAmulet, -7);
+	}
+
+	auto &rightAmulet = myPlayer.InvBody[INVLOC_AMULET_RIGHT];
+	if (IdItemOk(&rightAmulet)) {
+		idok = true;
+		AddStoreHoldId(rightAmulet, -8);
 	}
 
 	for (int i = 0; i < myPlayer._pNumInv; i++) {
@@ -1857,7 +1863,9 @@ void StorytellerIdentifyItem(Item &item)
 		if (idx == -6)
 			myPlayer.InvBody[INVLOC_RING_RIGHT]._iIdentified = true;
 		if (idx == -7)
-			myPlayer.InvBody[INVLOC_AMULET]._iIdentified = true;
+			myPlayer.InvBody[INVLOC_AMULET_LEFT]._iIdentified = true;
+		if (idx == -8)
+			myPlayer.InvBody[INVLOC_AMULET_RIGHT]._iIdentified = true;
 	} else {
 		myPlayer.InvList[idx]._iIdentified = true;
 	}
