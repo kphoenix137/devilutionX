@@ -3322,11 +3322,20 @@ void ProcessSpectralArrow(Missile &missile)
 	Direction dir = Direction::South;
 	mienemy_type micaster = TARGET_PLAYERS;
 	if (!missile.IsTrap()) {
-		const Player &player = Players[id];
+		Player &player = Players[id];
 		dir = player._pdir;
 		micaster = TARGET_MONSTERS;
 
-		switch (missile._midam) {
+		int16_t minSpectralDam = 0;
+
+		for (Item &item : EquippedPlayerItemsRange { player }) {
+			if (item._iLMinDam != 0) {
+				minSpectralDam = item._iLMinDam;
+				break;
+			}
+		}
+
+		switch (minSpectralDam) {
 		case 0:
 			mitype = MissileID::FireballBow;
 			break;

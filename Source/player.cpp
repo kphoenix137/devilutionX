@@ -601,11 +601,19 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 			return false;
 	}
 
-	// FIXMEKP
+	int16_t minSpectralDam = 0;
+	int16_t maxSpectralDam = 0;
+
+	for (Item &item : EquippedPlayerItemsRange { player }) {
+			minSpectralDam += item._iFMinDam;
+			maxSpectralDam += item._iFMaxDam;
+	}
+
 	if (gbIsHellfire && HasAllOf(player._pIFlags, ItemSpecialEffect::FireDamage | ItemSpecialEffect::LightningDamage)) {
-		int midam = player._pIFMinDam + GenerateRnd(player._pIFMaxDam - player._pIFMinDam);
+		int midam = minSpectralDam + GenerateRnd(maxSpectralDam - minSpectralDam);
 		AddMissile(player.position.tile, player.position.temp, player._pdir, MissileID::SpectralArrow, TARGET_MONSTERS, player.getId(), midam, 0);
 	}
+
 	int mind = player._pIMinDam;
 	int maxd = player._pIMaxDam;
 	int dam = GenerateRnd(maxd - mind + 1) + mind;
