@@ -21,6 +21,7 @@
 #include "engine/random.hpp"
 #include "init.h"
 #include "inv.h"
+//#include "inv_iterators.hpp"
 #include "levels/trigs.h"
 #include "lighting.h"
 #include "monster.h"
@@ -2034,15 +2035,30 @@ void AddWeaponExplosion(Missile &missile, AddMissileParameter &parameter)
 {
 	missile.var2 = parameter.dst.x;
 
-	const Player &player = *missile.sourcePlayer();
+	Player &player = *missile.sourcePlayer();
+
+	int16_t minFireDam = 0;
+	int16_t maxFireDam = 0;
+	int16_t minLightningDam = 0;
+	int16_t maxLightningDam = 0;
+
+	for (Item &item : EquippedPlayerItemsRange { player }) {
+		if (missile.var2 == 1) {
+			minFireDam += item._iFMinDam;
+			maxFireDam += item._iFMaxDam;
+		} else {
+			minLightningDam += item._iLMinDam;
+			maxLightningDam += item._iMaxDam;
+		}
+	}
 
 	if (missile.var2 == 1) {
-		missile._midam = player._pIFMinDam; // min fire damage
-		missile.var3 = player._pIFMaxDam;   // max fire damage
+		missile._midam = minFireDam; // min fire damage
+		missile.var3 = maxFireDam;   // max fire damage
 		SetMissAnim(missile, MissileGraphicID::MagmaBallExplosion);
 	} else {
-		missile._midam = player._pILMinDam; // min lightning damage
-		missile.var3 = player._pILMaxDam;   // max lightning damage
+		missile._midam = minLightningDam; // min lightning damage
+		missile.var3 = maxLightningDam;   // max lightning damage
 		SetMissAnim(missile, MissileGraphicID::ChargedBolt);
 	}
 
