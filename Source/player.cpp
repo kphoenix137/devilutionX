@@ -601,6 +601,7 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 			return false;
 	}
 
+	// FIXMEKP
 	if (gbIsHellfire && HasAllOf(player._pIFlags, ItemSpecialEffect::FireDamage | ItemSpecialEffect::LightningDamage)) {
 		int midam = player._pIFMinDam + GenerateRnd(player._pIFMaxDam - player._pIFMinDam);
 		AddMissile(player.position.tile, player.position.temp, player._pdir, MissileID::SpectralArrow, TARGET_MONSTERS, player.getId(), midam, 0);
@@ -932,8 +933,17 @@ bool DoRangeAttack(Player &player)
 		if (HasAnyOf(player._pIFlags, ItemSpecialEffect::LightningArrows)) {
 			mistype = MissileID::LightningArrow;
 		}
+
+		int16_t minSpectralDam = 0;
+		int16_t maxSpectralDam = 0;
+
+		for (Item &item : EquippedPlayerItemsRange { player }) {
+			minSpectralDam += item._iFMinDam;
+			maxSpectralDam += item._iFMaxDam;
+		}
+
 		if (HasAllOf(player._pIFlags, ItemSpecialEffect::FireArrows | ItemSpecialEffect::LightningArrows)) {
-			dmg = player._pIFMinDam + GenerateRnd(player._pIFMaxDam - player._pIFMinDam);
+			dmg = minSpectralDam + GenerateRnd(maxSpectralDam - minSpectralDam);
 			mistype = MissileID::SpectralArrow;
 		}
 
