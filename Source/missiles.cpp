@@ -1660,7 +1660,7 @@ void AddElementalArrow(Missile &missile, AddMissileParameter &parameter)
 	int av = 32;
 
 	if (missile.sourceType() == MissileSource::Player) {
-		const auto &player = *missile.sourcePlayer();
+		auto &player = *missile.sourcePlayer();
 
 		if (player._pClass == HeroClass::Rogue)
 			av += (player._pLevel) / 4;
@@ -1681,17 +1681,38 @@ void AddElementalArrow(Missile &missile, AddMissileParameter &parameter)
 				av -= 1;
 		}
 
+		int16_t minFireDam = 0;
+		int16_t maxFireDam = 0;
+		int16_t minLightningDam = 0;
+		int16_t maxLightningDam = 0;
+
+		for (Item &item : EquippedPlayerItemsRange { player }) {
+			switch (missile._mitype) {
+			case MissileID::LightningArrow:
+				minLightningDam += item._iLMinDam;
+				maxLightningDam += item._iLMaxDam;
+				break;
+			case MissileID::FireArrow:
+				minFireDam += item._iFMinDam;
+				maxFireDam += item._iFMaxDam;
+				break;
+			default:
+				app_fatal(StrCat("wrong missile ID ", static_cast<int>(missile._mitype)));
+				break;
+			}
+		}
+
 		missile._midam = player._pIMinDam; // min physical damage
 		missile.var3 = player._pIMaxDam;   // max physical damage
 
 		switch (missile._mitype) {
 		case MissileID::LightningArrow:
-			missile.var4 = player._pILMinDam; // min lightning damage
-			missile.var5 = player._pILMaxDam; // max lightning damage
+			missile.var4 = minLightningDam; // min lightning damage
+			missile.var5 = maxLightningDam; // max lightning damage
 			break;
 		case MissileID::FireArrow:
-			missile.var4 = player._pIFMinDam; // min fire damage
-			missile.var5 = player._pIFMaxDam; // max fire damage
+			missile.var4 = minFireDam; // min fire damage
+			missile.var5 = maxFireDam; // max fire damage
 			break;
 		default:
 			app_fatal(StrCat("wrong missile ID ", static_cast<int>(missile._mitype)));
@@ -2042,13 +2063,15 @@ void AddWeaponExplosion(Missile &missile, AddMissileParameter &parameter)
 	int16_t minLightningDam = 0;
 	int16_t maxLightningDam = 0;
 
-	for (Item &item : EquippedPlayerItemsRange { player }) {
-		if (missile.var2 == 1) {
-			minFireDam += item._iFMinDam;
-			maxFireDam += item._iFMaxDam;
-		} else {
-			minLightningDam += item._iLMinDam;
-			maxLightningDam += item._iMaxDam;
+	if (missile.sourceType() == MissileSource::Player) {
+		for (Item &item : EquippedPlayerItemsRange { player }) {
+			if (missile.var2 == 1) {
+				minFireDam += item._iFMinDam;
+				maxFireDam += item._iFMaxDam;
+			} else {
+				minLightningDam += item._iLMinDam;
+				maxLightningDam += item._iLMaxDam;
+			}
 		}
 	}
 
