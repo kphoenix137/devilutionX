@@ -3326,16 +3326,7 @@ void ProcessSpectralArrow(Missile &missile)
 		dir = player._pdir;
 		micaster = TARGET_MONSTERS;
 
-		int16_t minSpectralDam = 0;
-
-		for (Item &item : EquippedPlayerItemsRange { player }) {
-			if (item._iLMinDam != 0) {
-				minSpectralDam = item._iLMinDam;
-				break;
-			}
-		}
-
-		switch (minSpectralDam) {
+		switch (missile._midam) {
 		case 0:
 			mitype = MissileID::FireballBow;
 			break;
