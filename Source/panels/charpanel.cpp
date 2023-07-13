@@ -11,6 +11,7 @@
 #include "engine/render/clx_render.hpp"
 #include "engine/render/text_render.hpp"
 #include "inv_iterators.hpp"
+#include "missiles.h"
 #include "panels/ui_panels.hpp"
 #include "player.h"
 #include "playerdat.hpp"
@@ -93,54 +94,60 @@ std::pair<int, int> GetDamage()
 	return { mindam, maxdam };
 }
 
-std::pair<int, int> GetFireDamage()
+std::pair<int, int> GetSpellDamage()
 {
-	int minDam = InspectPlayer->_pIFMinDam;
-	int maxDam = InspectPlayer->_pIFMaxDam;
+	int min;
+	int max;
 
-	// These 3 Hellfire uniques set Fire Damage for their Missile Damage
-	// Therefore they should not be displayed
-	if (gbIsHellfire) {
-		for (Item &item : EquippedPlayerItemsRange { *InspectPlayer }) {
-			switch (item._iUid) {
-			case 99: // Flambeau
-				minDam -= UniqueItems[item._iUid].powers[0].param1;
-				maxDam -= UniqueItems[item._iUid].powers[0].param2;
-				break;
-			case 101: // Blitzen
-				minDam -= UniqueItems[item._iUid].powers[0].param1;
-				maxDam -= UniqueItems[item._iUid].powers[0].param2;
-				break;
-			case 102: // Thunderclap
-				minDam -= UniqueItems[item._iUid].powers[0].param1;
-				maxDam -= UniqueItems[item._iUid].powers[0].param2;
-				break;
-			}
-		}
-	}
-	return { minDam, maxDam };
+	GetDamageAmt(InspectPlayer->_pRSpell, &min, &max);
+
+	return { min, max };
 }
 
-std::pair<int, int> GetLightningDamage()
+UiFlags GetSpellTextColor()
 {
-	int minDam = InspectPlayer->_pILMinDam;
-	int maxDam = InspectPlayer->_pILMaxDam;
+	UiFlags color;
 
-	// These 2 Hellfire uniques set Lightning damage to get MissileID
-	// Therefore they should not be displayed
-	if (gbIsHellfire) {
-		for (Item &item : EquippedPlayerItemsRange { *InspectPlayer }) {
-			switch (item._iUid) {
-			case 101: // Blitzen
-				minDam -= 1;
-				break;
-			case 102: // Thunderclap
-				minDam -= 2;
-				break;
-			}
-		}
+	switch (InspectPlayer->_pRSpell) {
+	case SpellID::Firebolt:
+	case SpellID::FireWall:
+	case SpellID::Fireball:
+	case SpellID::Guardian:
+	case SpellID::FlameWave:
+	case SpellID::Inferno:
+	case SpellID::Elemental:
+	case SpellID::Immolation:
+	case SpellID::RingOfFire:
+	case SpellID::RuneOfFire:
+	case SpellID::RuneOfImmolation:
+		color = UiFlags::ColorOrange;
+		break;
+	case SpellID::Lightning:
+	case SpellID::ChainLightning:
+	case SpellID::Nova:
+	case SpellID::ChargedBolt:
+	case SpellID::LightningWall:
+	case SpellID::RuneOfLight:
+	case SpellID::RuneOfNova:
+		color = UiFlags::ColorYellow;
+		break;
+	case SpellID::Healing:
+	case SpellID::Flash:
+	case SpellID::HealOther:
+	case SpellID::BloodStar:
+	case SpellID::BoneSpirit:
+		color = UiFlags::ColorBlue;
+		break;
+	case SpellID::DoomSerpents:
+	case SpellID::Apocalypse:
+		color = UiFlags::ColorRed;
+		break;
+	default:
+		color = UiFlags::ColorWhite;
+		break;
 	}
-	return { minDam, maxDam };
+
+	return color;
 }
 
 StyledText GetResistInfo(int8_t resist)
@@ -179,16 +186,16 @@ PanelEntry panelEntries[] = {
 	{ N_("Experience"), { TopCenterLabelX, /* set dynamically */ 0 }, 0, 99, {} },
 	{ "", { TopCenterLabelX, 62 }, 99, 0,
 	    []() {
-			int spacing = ((InspectPlayer->_pExperience >= 1000000000) ? 0 : 1);
-			return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pExperience), spacing }; } },
+		int spacing = ((InspectPlayer->_pExperience >= 1000000000) ? 0 : 1);
+		return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pExperience), spacing }; } },
 	{ N_("Next level"), { TopRightLabelX, /* set dynamically */ 0 }, 0, 99, {} },
 	{ "", { TopRightLabelX, 62 }, 99, 0,
 	    []() {
-			if (InspectPlayer->_pLevel == MaxCharacterLevel) {
-		        return StyledText { UiFlags::ColorWhitegold, std::string(_("None")) };
-	        }
-	        int spacing = ((InspectPlayer->_pNextExper >= 1000000000) ? 0 : 1);
-	        return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pNextExper), spacing }; } },
+		if (InspectPlayer->_pLevel == MaxCharacterLevel) {
+			return StyledText { UiFlags::ColorWhitegold, std::string(_("None")) };
+		}
+		int spacing = ((InspectPlayer->_pNextExper >= 1000000000) ? 0 : 1);
+		return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pNextExper), spacing }; } },
 
 	{ N_("Base"), { LeftColumnLabelX, /* set dynamically */ 0 }, 0, 44, {} },
 	{ N_("Now"), { 135, /* set dynamically */ 0 }, 0, 44, {} },
@@ -247,21 +254,12 @@ PanelEntry pointsToDistributeEntry[] = {
 	    } }
 };
 
-PanelEntry fireDamageEntry[] = {
-	{ N_("Fire damage"), { RightColumnLabelX, 191 }, 57, RightColumnLabelWidth,
+PanelEntry spellDamageEntry[] = {
+	{ N_("Spell Damage"), { RightColumnLabelX, 191 }, 57, RightColumnLabelWidth,
 	    []() {
-	        std::pair<int, int> dmg = GetFireDamage();
+	        std::pair<int, int> dmg = GetSpellDamage();
 	        int spacing = ((dmg.first >= 100) ? -1 : 1);
-	        return StyledText { UiFlags::ColorOrange, StrCat(dmg.first, "-", dmg.second), spacing };
-	    } },
-};
-
-PanelEntry lightningDamageEntry[] = {
-	{ N_("Lightning damage"), { RightColumnLabelX, 219 }, 57, RightColumnLabelWidth,
-	    []() {
-	        std::pair<int, int> dmg = GetLightningDamage();
-	        int spacing = ((dmg.first >= 100) ? -1 : 1);
-	        return StyledText { UiFlags::ColorYellow, StrCat(dmg.first, "-", dmg.second), spacing };
+	        return StyledText { GetSpellTextColor(), StrCat(dmg.first, "-", dmg.second), spacing };
 	    } },
 };
 
@@ -325,6 +323,7 @@ void DrawStatButtons(const Surface &out)
 			StyledText tmp = (*entry.statDisplayFunc)();
 
 			DrawPanelField(out, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
+
 			DrawString(
 			    out,
 			    tmp.text,
@@ -405,39 +404,26 @@ void DrawChr(const Surface &out)
 	OwnedClxSpriteList boxMiddle = LoadClx("data\\boxmiddle.clx");
 	OwnedClxSpriteList boxRight = LoadClx("data\\boxrightend.clx");
 
-	if (GetFireDamage().first > 0 || GetFireDamage().second > 0) {
-		auto &entry = fireDamageEntry[0];
+	if (IsNoneOf(InspectPlayer->_pRSpell, SpellID::Invalid, SpellID::Null)) {
+		auto &entry = spellDamageEntry[0];
 
 		if (entry.statDisplayFunc) {
 
 			StyledText tmp = (*entry.statDisplayFunc)();
 
 			DrawPanelField(out, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
-			DrawString(
-			    out,
-			    tmp.text,
-			    { entry.position + Displacement { pos.x, pos.y + PanelFieldPaddingTop }, { entry.length, PanelFieldInnerHeight } },
-			    UiFlags::AlignCenter | UiFlags::VerticalCenter | tmp.style, tmp.spacing);
+
+			std::pair<int, int> damage = GetSpellDamage();
+			if (damage.first != -1 && damage.second != -1 && InspectPlayer->_pRSpell != SpellID::Jester) {
+				DrawString(
+				    out,
+				    tmp.text,
+				    { entry.position + Displacement { pos.x, pos.y + PanelFieldPaddingTop }, { entry.length, PanelFieldInnerHeight } },
+				    UiFlags::AlignCenter | UiFlags::VerticalCenter | tmp.style, tmp.spacing);
+			}
 		}
 
-		DrawShadowString(out, entry);
-	}
-
-	if (GetLightningDamage().first > 0 || GetLightningDamage().second > 0) {
-		auto &entry = lightningDamageEntry[0];
-
-		if (entry.statDisplayFunc) {
-
-			StyledText tmp = (*entry.statDisplayFunc)();
-
-			DrawPanelField(out, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
-			DrawString(
-			    out,
-			    tmp.text,
-			    { entry.position + Displacement { pos.x, pos.y + PanelFieldPaddingTop }, { entry.length, PanelFieldInnerHeight } },
-			    UiFlags::AlignCenter | UiFlags::VerticalCenter | tmp.style, tmp.spacing);
-		}
-
+		entry.label = GetSpellData(InspectPlayer->_pRSpell).sNameText;
 		DrawShadowString(out, entry);
 	}
 
