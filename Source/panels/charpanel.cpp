@@ -163,7 +163,8 @@ StyledText GetResistInfo(int8_t resist)
 	return { style, StrCat(resist, "%") };
 }
 
-constexpr int LeftColumnLabelX = 88;
+constexpr int LeftColumnLabelX = 63;
+constexpr int CenterColumnLabelX = LeftColumnLabelX + 47;
 constexpr int TopLeftLabelX = 9;
 constexpr int TopCenterLabelX = 110;
 constexpr int TopRightLabelX = 211;
@@ -198,20 +199,20 @@ PanelEntry panelEntries[] = {
 		return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pNextExper), spacing }; } },
 
 	{ N_("Base"), { LeftColumnLabelX, /* set dynamically */ 0 }, 0, 44, {} },
-	{ N_("Now"), { 135, /* set dynamically */ 0 }, 0, 44, {} },
-	{ N_("Strength"), { LeftColumnLabelX, 107 }, 45, LeftColumnLabelWidth,
+	{ N_("Now"), { CenterColumnLabelX, /* set dynamically */ 0 }, 0, 44, {} },
+	{ N_("Str"), { LeftColumnLabelX, 107 }, 45, LeftColumnLabelWidth,
 	    []() { return StyledText { GetBaseStatColor(CharacterAttribute::Strength), StrCat(InspectPlayer->_pBaseStr) }; } },
-	{ "", { 135, 107 }, 45, 0,
+	{ "", { CenterColumnLabelX, 107 }, 45, 0,
 	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Strength), StrCat(InspectPlayer->_pStrength) }; } },
-	{ N_("Magic"), { LeftColumnLabelX, 135 }, 45, LeftColumnLabelWidth,
+	{ N_("Mag"), { LeftColumnLabelX, 135 }, 45, LeftColumnLabelWidth,
 	    []() { return StyledText { GetBaseStatColor(CharacterAttribute::Magic), StrCat(InspectPlayer->_pBaseMag) }; } },
-	{ "", { 135, 135 }, 45, 0,
+	{ "", { CenterColumnLabelX, 135 }, 45, 0,
 	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Magic), StrCat(InspectPlayer->_pMagic) }; } },
-	{ N_("Dexterity"), { LeftColumnLabelX, 163 }, 45, LeftColumnLabelWidth, []() { return StyledText { GetBaseStatColor(CharacterAttribute::Dexterity), StrCat(InspectPlayer->_pBaseDex) }; } },
-	{ "", { 135, 163 }, 45, 0,
+	{ N_("Dex"), { LeftColumnLabelX, 163 }, 45, LeftColumnLabelWidth, []() { return StyledText { GetBaseStatColor(CharacterAttribute::Dexterity), StrCat(InspectPlayer->_pBaseDex) }; } },
+	{ "", { CenterColumnLabelX, 163 }, 45, 0,
 	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Dexterity), StrCat(InspectPlayer->_pDexterity) }; } },
-	{ N_("Vitality"), { LeftColumnLabelX, 191 }, 45, LeftColumnLabelWidth, []() { return StyledText { GetBaseStatColor(CharacterAttribute::Vitality), StrCat(InspectPlayer->_pBaseVit) }; } },
-	{ "", { 135, 191 }, 45, 0,
+	{ N_("Vit"), { LeftColumnLabelX, 191 }, 45, LeftColumnLabelWidth, []() { return StyledText { GetBaseStatColor(CharacterAttribute::Vitality), StrCat(InspectPlayer->_pBaseVit) }; } },
+	{ "", { CenterColumnLabelX, 191 }, 45, 0,
 	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Vitality), StrCat(InspectPlayer->_pVitality) }; } },
 
 	{ N_("Gold"), { TopLeftLabelX, /* set dynamically */ 0 }, 0, 98, {} },
@@ -231,11 +232,11 @@ PanelEntry panelEntries[] = {
 
 	{ N_("Life"), { LeftColumnLabelX, 256 }, 45, LeftColumnLabelWidth,
 	    []() { return StyledText { GetMaxHealthColor(), StrCat(InspectPlayer->_pMaxHP >> 6) }; } },
-	{ "", { 135, 256 }, 45, 0,
+	{ "", { CenterColumnLabelX, 256 }, 45, 0,
 	    []() { return StyledText { (InspectPlayer->_pHitPoints != InspectPlayer->_pMaxHP ? UiFlags::ColorRed : GetMaxHealthColor()), StrCat(InspectPlayer->_pHitPoints >> 6) }; } },
 	{ N_("Mana"), { LeftColumnLabelX, 284 }, 45, LeftColumnLabelWidth,
 	    []() { return StyledText { GetMaxManaColor(), StrCat(InspectPlayer->_pMaxMana >> 6) }; } },
-	{ "", { 135, 284 }, 45, 0,
+	{ "", { CenterColumnLabelX, 284 }, 45, 0,
 	    []() { return StyledText { (InspectPlayer->_pMana != InspectPlayer->_pMaxMana ? UiFlags::ColorRed : GetMaxManaColor()), StrCat(InspectPlayer->_pMana >> 6) }; } },
 
 	{ N_("Resist magic"), { RightColumnLabelX, 256 }, 57, RightColumnLabelWidth,
@@ -247,7 +248,7 @@ PanelEntry panelEntries[] = {
 };
 
 PanelEntry pointsToDistributeEntry[] = {
-	{ N_("Points to distribute"), { LeftColumnLabelX, 220 }, 45, LeftColumnLabelWidth,
+	{ N_("Stat points remaining"), { LeftColumnLabelX + 47, 220 }, 45, LeftColumnLabelWidth + 47,
 	    []() {
 	        InspectPlayer->_pStatPts = std::min(CalcStatDiff(*InspectPlayer), InspectPlayer->_pStatPts);
 	        return StyledText { UiFlags::ColorRed, (InspectPlayer->_pStatPts > 0 ? StrCat(InspectPlayer->_pStatPts) : "") };
@@ -333,13 +334,13 @@ void DrawStatButtons(const Surface &out)
 		DrawShadowString(out, entry);
 
 		if (InspectPlayer->_pBaseStr < InspectPlayer->GetMaximumAttributeValue(CharacterAttribute::Strength))
-			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 137, 129 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Strength)] ? 2 : 1]);
+			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 113, 129 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Strength)] ? 2 : 1]);
 		if (InspectPlayer->_pBaseMag < InspectPlayer->GetMaximumAttributeValue(CharacterAttribute::Magic))
-			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 137, 157 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Magic)] ? 4 : 3]);
+			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 113, 157 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Magic)] ? 4 : 3]);
 		if (InspectPlayer->_pBaseDex < InspectPlayer->GetMaximumAttributeValue(CharacterAttribute::Dexterity))
-			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 137, 185 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Dexterity)] ? 6 : 5]);
+			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 113, 185 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Dexterity)] ? 6 : 5]);
 		if (InspectPlayer->_pBaseVit < InspectPlayer->GetMaximumAttributeValue(CharacterAttribute::Vitality))
-			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 137, 214 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Vitality)] ? 8 : 7]);
+			ClxDraw(out, GetPanelPosition(UiPanels::Character, { 113, 214 }), (*pChrButtons)[chrbtn[static_cast<size_t>(CharacterAttribute::Vitality)] ? 8 : 7]);
 	}
 }
 
@@ -414,7 +415,7 @@ void DrawChr(const Surface &out)
 			DrawPanelField(out, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
 
 			std::pair<int, int> damage = GetSpellDamage();
-			if (damage.first != -1 && damage.second != -1 && InspectPlayer->_pRSpell != SpellID::Jester) {
+			if (damage.first != -1 && damage.second != -1 && IsNoneOf(InspectPlayer->_pRSpell, SpellID::Jester, SpellID::Mana, SpellID::Magi)) {
 				DrawString(
 				    out,
 				    tmp.text,
