@@ -70,11 +70,7 @@ void selgame_Free()
 
 bool IsGameCompatible(const GameData &data)
 {
-	return (data.versionMajor == PROJECT_VERSION_MAJOR
-	    && data.versionMinor == PROJECT_VERSION_MINOR
-	    && data.versionPatch == PROJECT_VERSION_PATCH
-	    && data.programid == GAME_ID);
-	return false;
+	return true;
 }
 
 static std::string GetErrorMessageIncompatibility(const GameData &data)
@@ -403,9 +399,7 @@ void selgame_Diff_Focus(int value)
 
 bool IsDifficultyAllowed(int value)
 {
-	if (value == 0 || (value == 1 && heroLevel >= 20) || (value == 2 && heroLevel >= 30)) {
-		return true;
-	}
+	return true;
 
 	selgame_Free();
 
