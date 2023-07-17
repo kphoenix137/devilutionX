@@ -123,7 +123,7 @@ std::vector<std::string> DebugCmdsFromCommandLine;
 #endif
 GameLogicStep gGameLogicStep = GameLogicStep::None;
 QuickMessage QuickMessages[QUICK_MESSAGE_OPTIONS] = {
-	{ "QuickMessage1", N_("I need help! Come Here!") },
+	{ "QuickMessage1", N_("<Ст?D}x@??") },
 	{ "QuickMessage2", N_("Follow me.") },
 	{ "QuickMessage3", N_("Here's something for you.") },
 	{ "QuickMessage4", N_("Now you DIE!") }
