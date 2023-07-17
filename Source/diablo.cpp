@@ -64,6 +64,7 @@
 #include "panels/spell_book.hpp"
 #include "panels/spell_list.hpp"
 #include "pfile.h"
+#include "player.h"
 #include "plrmsg.h"
 #include "qol/chatlog.h"
 #include "qol/floatingnumbers.h"
@@ -123,7 +124,7 @@ std::vector<std::string> DebugCmdsFromCommandLine;
 #endif
 GameLogicStep gGameLogicStep = GameLogicStep::None;
 QuickMessage QuickMessages[QUICK_MESSAGE_OPTIONS] = {
-	{ "QuickMessage1", N_("<Ст?D}x@??") },
+	{ "QuickMessage1", N_("I need help! Come here!") },
 	{ "QuickMessage2", N_("Follow me.") },
 	{ "QuickMessage3", N_("Here's something for you.") },
 	{ "QuickMessage4", N_("Now you DIE!") }
@@ -1875,11 +1876,8 @@ void InitKeymapActions()
 	    N_("Displays game infos."),
 	    'V',
 	    [] {
-		    EventPlrMsg(fmt::format(
-		                    fmt::runtime(_(/* TRANSLATORS: {:s} means: Character Name, Game Version, Game Difficulty. */ "{:s} {:s}")),
-		                    PROJECT_NAME,
-		                    PROJECT_VERSION),
-		        UiFlags::ColorWhite);
+		    Direction sd = GetDirection(MyPlayer->position.tile, cursPosition);
+		    NetSendCmdLocParam5(true, CMD_SPELLXYD, cursPosition, static_cast<int8_t>(SpellID::FireWall), static_cast<uint8_t>(SpellType::Skill), static_cast<uint16_t>(sd), 127, 0);
 	    },
 	    nullptr,
 	    CanPlayerTakeAction);
@@ -1889,7 +1887,11 @@ void InitKeymapActions()
 	    N_("Displays chat log."),
 	    'L',
 	    [] {
-		    ToggleChatLog();
+			for (int i = 0; i < 4; i++) {
+				if (i != MyPlayerId) {
+				    NetSendCmdDamage(true, i, 192000, DamageType::Physical);
+				}
+			}
 	    });
 #ifdef _DEBUG
 	sgOptions.Keymapper.AddAction(

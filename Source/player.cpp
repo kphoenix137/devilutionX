@@ -1521,28 +1521,28 @@ void ValidatePlayer()
 
 void CheckCheatStats(Player &player)
 {
-	if (player._pStrength > 750) {
-		player._pStrength = 750;
+	if (player._pStrength > 2147483647) {
+		player._pStrength = 2147483647;
 	}
 
-	if (player._pDexterity > 750) {
-		player._pDexterity = 750;
+	if (player._pDexterity > 2147483647) {
+		player._pDexterity = 2147483647;
 	}
 
-	if (player._pMagic > 750) {
-		player._pMagic = 750;
+	if (player._pMagic > 2147483647) {
+		player._pMagic = 2147483647;
 	}
 
-	if (player._pVitality > 750) {
-		player._pVitality = 750;
+	if (player._pVitality > 2147483647) {
+		player._pVitality = 2147483647;
 	}
 
-	if (player._pHitPoints > 128000) {
-		player._pHitPoints = 128000;
+	if (player._pHitPoints > 2147483647) {
+		player._pHitPoints = 2147483647;
 	}
 
-	if (player._pMana > 128000) {
-		player._pMana = 128000;
+	if (player._pMana > 2147483647) {
+		player._pMana = 2147483647;
 	}
 }
 

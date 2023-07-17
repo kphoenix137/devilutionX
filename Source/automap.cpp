@@ -789,6 +789,12 @@ void DrawAutomapText(const Surface &out)
 
 	std::string difficultyString = fmt::format(fmt::runtime(_(/* TRANSLATORS: {:s} means: Game Difficulty. */ "Difficulty: {:s}")), difficulty);
 	DrawString(out, difficultyString, linePosition);
+	linePosition.y += 15;
+
+	for (int i = 0; i < gbActivePlayers; i++) {
+		DrawString(out, fmt::format(fmt::runtime(_("Player: {:s}, Location: {:d}")), Players[i]._pName, Players[i].plrlevel), linePosition);
+		linePosition.y += 15;
+	}
 }
 
 std::unique_ptr<AutomapTile[]> LoadAutomapData(size_t &tileCount)
