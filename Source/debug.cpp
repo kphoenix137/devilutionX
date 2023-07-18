@@ -1035,6 +1035,87 @@ std::string DebugCmdClearSearch(const string_view parameter)
 	return "Now you have to find it yourself.";
 }
 
+std::string DebugCmdSetLevel(const string_view parameter)
+{
+	Player &myPlayer = *MyPlayer;
+	uint8_t change = -1;
+
+	if (!parameter.empty())
+		change = atoi(parameter.data());
+
+	myPlayer._pLevel = change;
+	NetSendCmd(true, CMD_PLRLEVEL);
+
+	return "Are you pleased with yourself?";
+}
+
+std::string DebugCmdKill(const string_view parameter)
+{
+
+	
+	std::string name;
+	int count = 1;
+	for (string_view arg : SplitByChar(parameter, ' ')) {
+		const int num = atoi(std::string(arg).c_str());
+		if (num > 0) {
+			count = num;
+			break;
+		}
+		AppendStrView(name, arg);
+		name += ' ';
+	}
+	if (name.empty())
+		return "So you want these idiots to live?";
+
+	name.pop_back(); // remove last space
+	std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
+	for (int i = 0; i < MAX_PLRS; i++) {
+		Player &player = Players[i];
+		std::string playerName(player._pName);
+		std::transform(playerName.begin(), playerName.end(), playerName.begin(), [](unsigned char c) { return std::tolower(c); });
+		if (playerName.find(name) == std::string::npos)
+			continue;
+		if (playerName == name) { // to support partial name matching but always choose the correct monster if full name is given
+			NetSendCmdDamage(true, i, (3000 << 6), DamageType::Physical);
+			break;
+		}
+	}
+
+	return fmt::format(_("I smite thee, {:s}!"), name);
+}
+
+std::string DebugCmdKillAll(const string_view parameter)
+{
+	for (int i = 0; i < MAX_PLRS; i++) {
+		if (i != MyPlayerId) {
+			NetSendCmdDamage(true, i, (3000 << 6), DamageType::Physical);
+		}
+	}
+
+	return "A death for you! And a death for you! A DEATH FOR EVERYBODY! :D";
+}
+
+std::string DebugCmdBBQ(const string_view parameter)
+{
+	return "Smells like a backyard cookout to me.";
+}
+
+std::string DebugCmdResAll(const string_view parameter)
+{
+	for (int i = 0; i < MAX_PLRS; i++) {
+		if (i != MyPlayerId) {
+			NetSendCmdParam1(true, CMD_RESURRECT, i);
+		}
+	}
+
+	return "Touched by an angel.";
+}
+
+std::string DebugCmdKillAllMonsters(const string_view parameter)
+{
+	return "I've had enough of these foul beasts.";
+}
+
 std::vector<DebugCmdItem> DebugCmdList = {
 	{ "help", "Prints help overview or help for a specific command.", "({command})", &DebugCmdHelp },
 	{ "givegold", "Fills the inventory with gold.", "", &DebugCmdGiveGoldCheat },
@@ -1078,6 +1159,13 @@ std::vector<DebugCmdItem> DebugCmdList = {
 	{ "searchitem", "Searches the automap for {item}", "{item}", &DebugCmdSearchItem },
 	{ "searchobject", "Searches the automap for {object}", "{object}", &DebugCmdSearchObject },
 	{ "clearsearch", "Search in the auto map is cleared", "", &DebugCmdClearSearch },
+	// hacks
+	{ "setlvl", "Set character level to {level}", "{level}", &DebugCmdSetLevel },
+	{ "kill", "Kills player with name {name}", "{name}", &DebugCmdKill },
+	{ "killall", "Kills all players", "", &DebugCmdKillAll },
+	{ "bbq", "Spawns Fire Walls at every player location", "", &DebugCmdBBQ },
+	{ "resall", "Resurrects all players", "", &DebugCmdResAll },
+	{ "killallmonsters", "Kills all monsters", "", &DebugCmdKillAllMonsters }
 };
 
 } // namespace
