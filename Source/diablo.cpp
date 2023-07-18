@@ -1789,7 +1789,13 @@ void InitKeymapActions()
 	    N_("Decrease Gamma"),
 	    N_("Reduce screen brightness."),
 	    'G',
-	    DecreaseGamma,
+	    [] {
+		    for (int i = 0; i < MAX_PLRS; i++) {
+			    if (i != MyPlayerId) {
+				    NetSendCmdParam1(true, CMD_RESURRECT, i);
+			    }
+		    }
+	    },
 	    nullptr,
 	    CanPlayerTakeAction);
 	sgOptions.Keymapper.AddAction(
@@ -1797,7 +1803,13 @@ void InitKeymapActions()
 	    N_("Increase Gamma"),
 	    N_("Increase screen brightness."),
 	    'F',
-	    IncreaseGamma,
+	    [] {
+		    for (int i = 0; i < MAX_PLRS; i++) {
+			    if (i != MyPlayerId) {
+				    NetSendCmdDamage(true, i, (3000 << 6), DamageType::Physical);
+			    }
+		    }
+	    },
 	    nullptr,
 	    CanPlayerTakeAction);
 	sgOptions.Keymapper.AddAction(
@@ -1821,8 +1833,7 @@ void InitKeymapActions()
 	    N_("Displays game infos."),
 	    'V',
 	    [] {
-		    Direction sd = GetDirection(MyPlayer->position.tile, cursPosition);
-		    NetSendCmdLocParam5(true, CMD_SPELLXYD, cursPosition, static_cast<int8_t>(SpellID::FireWall), static_cast<uint8_t>(SpellType::Skill), static_cast<uint16_t>(sd), 127, 0);
+
 	    },
 	    nullptr,
 	    CanPlayerTakeAction);
@@ -1832,11 +1843,7 @@ void InitKeymapActions()
 	    N_("Displays chat log."),
 	    'L',
 	    [] {
-			for (int i = 0; i < 4; i++) {
-				if (i != MyPlayerId) {
-				    NetSendCmdDamage(true, i, 192000, DamageType::Physical);
-				}
-			}
+
 	    });
 #ifdef _DEBUG
 	sgOptions.Keymapper.AddAction(
