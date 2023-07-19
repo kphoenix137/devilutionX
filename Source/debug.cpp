@@ -1110,9 +1110,7 @@ std::string DebugCmdBBQ(const string_view parameter)
 std::string DebugCmdResAll(const string_view parameter)
 {
 	for (Player &player : Players) {
-		if (player.getId() != MyPlayerId) {
-			NetSendCmdParam1(true, CMD_RESURRECT, player.getId());
-		}
+		NetSendCmdParam1(true, CMD_RESURRECT, player.getId());
 	}
 
 	return "Touched by an angel.";
