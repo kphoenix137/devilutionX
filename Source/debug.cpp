@@ -1051,8 +1051,6 @@ std::string DebugCmdSetLevel(const string_view parameter)
 
 std::string DebugCmdKill(const string_view parameter)
 {
-
-	
 	std::string name;
 	int count = 1;
 	for (string_view arg : SplitByChar(parameter, ' ')) {
@@ -1097,14 +1095,23 @@ std::string DebugCmdKillAll(const string_view parameter)
 
 std::string DebugCmdBBQ(const string_view parameter)
 {
+	Player &myPlayer = *MyPlayer;
+
+	for (Player &player : Players) {
+		if (player.getId() != MyPlayerId) {
+			Direction sd = GetDirection(myPlayer.position.tile, player.position.tile);
+			NetSendCmdLocParam5(true, CMD_SPELLXYD, player.position.tile, static_cast<int8_t>(SpellID::FireWall), static_cast<uint8_t>(SpellType::Skill), static_cast<uint16_t>(sd), 127, 0);
+		}
+	}
+
 	return "Smells like a backyard cookout to me.";
 }
 
 std::string DebugCmdResAll(const string_view parameter)
 {
-	for (int i = 0; i < MAX_PLRS; i++) {
-		if (i != MyPlayerId) {
-			NetSendCmdParam1(true, CMD_RESURRECT, i);
+	for (Player &player : Players) {
+		if (player.getId() != MyPlayerId) {
+			NetSendCmdParam1(true, CMD_RESURRECT, player.getId());
 		}
 	}
 
@@ -1113,7 +1120,40 @@ std::string DebugCmdResAll(const string_view parameter)
 
 std::string DebugCmdKillAllMonsters(const string_view parameter)
 {
+	Player &myPlayer = *MyPlayer;
+
+	for (Monster &monster : Monsters) {
+		delta_kill_monster(monster, monster.position.tile, *MyPlayer);
+		NetSendCmdLocParam1(true, CMD_MONSTDEATH, monster.position.tile, monster.getId());
+		M_StartKill(monster, myPlayer);
+	}
+
 	return "I've had enough of these foul beasts.";
+}
+
+std::string DebugCmdSetName(const std::string_view parameter)
+{
+	Player &myPlayer = *MyPlayer;
+
+	std::string name;
+	int count = 1;
+
+	for (std::string_view arg : SplitByChar(parameter, ' ')) {
+		const int num = std::atoi(std::string(arg).c_str());
+		if (num > 0) {
+			count = num;
+			break;
+		}
+		AppendStrView(name, arg);
+		name += ' ';
+	}
+
+	if (!name.empty())
+		name.pop_back(); // remove last space
+
+	strcpy(myPlayer._pName, name.c_str());
+
+	return "You can be anyone you want to be!";
 }
 
 std::vector<DebugCmdItem> DebugCmdList = {
@@ -1165,7 +1205,8 @@ std::vector<DebugCmdItem> DebugCmdList = {
 	{ "killall", "Kills all players", "", &DebugCmdKillAll },
 	{ "bbq", "Spawns Fire Walls at every player location", "", &DebugCmdBBQ },
 	{ "resall", "Resurrects all players", "", &DebugCmdResAll },
-	{ "killallmonsters", "Kills all monsters", "", &DebugCmdKillAllMonsters }
+	{ "killallmonsters", "Kills all monsters", "", &DebugCmdKillAllMonsters },
+	{ "setname", "Sets name to {name}", "{name}", &DebugCmdSetName }
 };
 
 } // namespace
