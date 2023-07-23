@@ -98,6 +98,10 @@ const MissileData MissilesData[] = {
 /*RedPortal*/            { &AddRedPortal,           &ProcessRedPortal,            LS_SENTINEL, LS_ELEMENTL, MissileGraphicID::RedPortal,            Physical,              MissileMovementDistribution::Disabled    },
 /*DiabloApocalypseBoom*/ { &AddApocalypseBoom,      &ProcessApocalypseBoom,       SFX_NONE,    SFX_NONE,    MissileGraphicID::DiabloApocalypseBoom, Physical,              MissileMovementDistribution::Disabled    },
 /*DiabloApocalypse*/     { &AddDiabloApocalypse,    nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
+/*BlazeControl*/         { &AddBlazeControl,        &ProcessBlazeControl,         SFX_NONE,    SFX_NONE,    MissileGraphicID::FireWall,             Fire | Invisible,      MissileMovementDistribution::Disabled    },
+/*Blaze*/                { &AddBlaze,               &ProcessBlaze,                LS_WALLLOOP, LS_FIRIMP2,  MissileGraphicID::FireWall,             Fire,                  MissileMovementDistribution::Disabled    },
+/*Meteor*/               { &AddMeteor,              &ProcessMeteor,               LS_FBOLT1,   LS_FIRIMP2,  MissileGraphicID::Fireball,             Fire,                  MissileMovementDistribution::Disabled    },
+
 /*Mana*/                 { &AddMana,                nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
 /*Magi*/                 { &AddMagi,                nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
 /*LightningWall*/        { &AddLightningWall,       &ProcessLightningWall,        LS_LMAG,     LS_ELECIMP1, MissileGraphicID::Lightning,            Lightning,             MissileMovementDistribution::Disabled    },

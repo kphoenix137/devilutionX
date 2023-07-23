@@ -439,6 +439,13 @@ void ProcessMissiles();
 void missiles_process_charge();
 void RedoMissileFlags();
 
+void AddBlaze(Missile &missile, AddMissileParameter &parameter);
+void ProcessBlaze(Missile &missile);
+void AddBlazeControl(Missile &missile, AddMissileParameter &parameter);
+void ProcessBlazeControl(Missile &missile);
+void AddMeteor(Missile &missile, AddMissileParameter &parameter);
+void ProcessMeteor(Missile &missile);
+
 #ifdef BUILD_TESTING
 void TestRotateBlockedMissile(Missile &missile);
 #endif

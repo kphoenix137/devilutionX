@@ -1053,7 +1053,7 @@ void DamageArmor(Player &player)
 
 bool DoSpell(Player &player)
 {
-	if (player.AnimInfo.currentFrame == player._pSFNum) {
+	if (player.AnimInfo.currentFrame == player._pSFNum || (player.AnimInfo.currentFrame == (player._pSFNum / 2) && player.executedSpell.spellId == SpellID::Inferno)) {
 		CastSpell(
 		    player.getId(),
 		    player.executedSpell.spellId,

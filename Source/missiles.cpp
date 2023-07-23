@@ -134,9 +134,9 @@ void PutMissile(Missile &missile)
 
 	DungeonFlag &flags = dFlags[position.x][position.y];
 	flags |= DungeonFlag::Missile;
-	if (missile._mitype == MissileID::FireWall)
+	if (IsAnyOf(missile._mitype, MissileID::FireWall, MissileID::Blaze))
 		flags |= DungeonFlag::MissileFireWall;
-	if (missile._mitype == MissileID::LightningWall)
+	if (IsAnyOf(missile._mitype, MissileID::LightningWall))
 		flags |= DungeonFlag::MissileLightningWall;
 
 	if (missile._miPreFlag)
@@ -828,6 +828,7 @@ void GetDamageAmt(SpellID i, int *mind, int *maxd)
 	case SpellID::FireWall:
 	case SpellID::LightningWall:
 	case SpellID::RingOfFire:
+	case SpellID::Blaze:
 		*mind = 2 * myPlayer._pLevel + 4;
 		*maxd = *mind + 36;
 		break;
@@ -3032,6 +3033,172 @@ void ProcessFireball(Missile &missile)
 				if (!CheckBlock(missile.position.start, missilePosition + offset))
 					CheckMissileCol(missile, damageType, minDam, maxDam, false, missilePosition + offset, true);
 			}
+
+			if (!TransList[dTransVal[missilePosition.x][missilePosition.y]]
+			    || (missile.position.velocity.deltaX < 0 && ((TransList[dTransVal[missilePosition.x][missilePosition.y + 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y + 1], TileProperties::Solid)) || (TransList[dTransVal[missilePosition.x][missilePosition.y - 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y - 1], TileProperties::Solid))))) {
+				missile.position.tile += Displacement { 1, 1 };
+				missile.position.offset.deltaY -= 32;
+			}
+			if (missile.position.velocity.deltaY > 0
+			    && ((TransList[dTransVal[missilePosition.x + 1][missilePosition.y]] && TileHasAny(dPiece[missilePosition.x + 1][missilePosition.y], TileProperties::Solid))
+			        || (TransList[dTransVal[missilePosition.x - 1][missilePosition.y]] && TileHasAny(dPiece[missilePosition.x - 1][missilePosition.y], TileProperties::Solid)))) {
+				missile.position.offset.deltaY -= 32;
+			}
+			if (missile.position.velocity.deltaX > 0
+			    && ((TransList[dTransVal[missilePosition.x][missilePosition.y + 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y + 1], TileProperties::Solid))
+			        || (TransList[dTransVal[missilePosition.x][missilePosition.y - 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y - 1], TileProperties::Solid)))) {
+				missile.position.offset.deltaX -= 32;
+			}
+			missile._mimfnum = 0;
+			SetMissAnim(missile, MissileGraphicID::BigExplosion);
+			missile._mirange = missile._miAnimLen - 1;
+			missile.position.velocity = {};
+		} else if (missile.position.tile != Point { missile.var1, missile.var2 }) {
+			missile.var1 = missile.position.tile.x;
+			missile.var2 = missile.position.tile.y;
+			ChangeLight(missile._mlid, missile.position.tile, 8);
+		}
+	}
+
+	PutMissile(missile);
+}
+
+void AddBlaze(Missile &missile, AddMissileParameter &parameter)
+{
+	missile._midam = GenerateRndSum(10, 2) + 2;
+	missile._midam += missile._misource >= 0 ? Players[missile._misource]._pLevel : currlevel;
+	missile._midam <<= 3;
+	UpdateMissileVelocity(missile, parameter.dst, 16);
+	int i = missile._mispllvl;
+	missile._mirange = 10;
+	if (i > 0)
+		missile._mirange *= i + 1;
+	if (missile._micaster == TARGET_PLAYERS || missile._misource < 0)
+		missile._mirange += currlevel;
+	missile._mirange *= 16;
+	missile.var1 = missile._mirange - missile._miAnimLen;
+}
+
+void ProcessBlaze(Missile &missile)
+{
+	constexpr int ExpLight[14] = { 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12 };
+
+	missile._mirange--;
+	if (missile._mirange == missile.var1) {
+		SetMissDir(missile, 1);
+		missile._miAnimFrame = GenerateRnd(11) + 1;
+	}
+	if (missile._mirange == missile._miAnimLen - 1) {
+		SetMissDir(missile, 0);
+		missile._miAnimFrame = 13;
+		missile._miAnimAdd = -1;
+	}
+	CheckMissileCol(missile, GetMissileData(missile._mitype).damageType(), missile._midam, missile._midam, true, missile.position.tile, true);
+	if (missile._mirange == 0) {
+		missile._miDelFlag = true;
+		AddUnLight(missile._mlid);
+	}
+	if (missile._mimfnum != 0 && missile._mirange != 0 && missile._miAnimAdd != -1 && missile.var2 < 12) {
+		if (missile.var2 == 0)
+			missile._mlid = AddLight(missile.position.tile, ExpLight[0]);
+		ChangeLight(missile._mlid, missile.position.tile, ExpLight[missile.var2]);
+		missile.var2++;
+	}
+	PutMissile(missile);
+}
+
+void AddBlazeControl(Missile &missile, AddMissileParameter &parameter)
+{
+	std::optional<Point> spreadPosition = FindClosestValidPosition(
+	    [start = missile.position.start](Point target) {
+		    return start != target && IsTileNotSolid(target) && !IsObjectAtPosition(target) && LineClearMissile(start, target);
+	    },
+	    parameter.dst, 0, 5);
+
+	if (!spreadPosition) {
+		missile._miDelFlag = true;
+		parameter.spellFizzled = true;
+		return;
+	}
+
+	auto &player = Players[missile._misource];
+
+	missile._miDelFlag = false;
+	missile.var1 = player.position.tile.x;
+	missile.var2 = player.position.tile.y;
+	missile._mirange = 20 + missile._mispllvl * 10;
+}
+
+void ProcessBlazeControl(Missile &missile)
+{
+	missile._mirange--;
+	if (missile._mirange == 0) {
+		missile._miDelFlag = true;
+		return;
+	}
+
+	int id = missile._misource;
+	auto &player = Players[id];
+	Point position { missile.var1, missile.var2 };
+	Point newPosition = player.position.tile;
+
+	if (position == newPosition)
+		return;
+
+	if (HasAnyOf(dFlags[position.x][position.y], DungeonFlag::MissileFireWall))
+		return;
+
+	GrowWall(id, position, position, MissileID::Blaze, missile._mispllvl, 0);
+
+	missile.var1 = newPosition.x;
+	missile.var2 = newPosition.y;
+}
+
+void AddMeteor(Missile &missile, AddMissileParameter &parameter)
+{
+	Point dst = parameter.dst;
+	Point start = dst + Displacement { 1, -1 };
+	missile.position.start = start;
+	int sp = 4;
+
+	if (missile._micaster == TARGET_MONSTERS) {
+		Player &player = Players[missile._misource];
+	}
+
+	UpdateMissileVelocity(missile, dst, sp);
+	SetMissDir(missile, GetDirection16(start, dst));
+	missile._mirange = 40;
+	missile._midam = 0;
+	missile.var1 = start.x;
+	missile.var2 = start.y;
+	missile._mlid = AddLight(start, 8);
+}
+
+void ProcessMeteor(Missile &missile)
+{
+	missile._mirange--;
+
+	if (missile._miAnimType == MissileGraphicID::BigExplosion) {
+		if (missile._mirange == 0) {
+			missile._miDelFlag = true;
+			AddUnLight(missile._mlid);
+		}
+	} else {
+		int minDam = missile._midam;
+		int maxDam = missile._midam;
+
+		if (missile._micaster != TARGET_MONSTERS) {
+			auto &monster = Monsters[missile._misource];
+			minDam = monster.minDamage;
+			maxDam = monster.maxDamage;
+		}
+
+		const DamageType damageType = GetMissileData(missile._mitype).damageType();
+		MoveMissile(missile, [](Point p) { return false; });
+
+		if (missile._mirange == 0) {
+			const Point missilePosition = missile.position.tile;
+			ChangeLight(missile._mlid, missile.position.tile, missile._miAnimFrame);
 
 			if (!TransList[dTransVal[missilePosition.x][missilePosition.y]]
 			    || (missile.position.velocity.deltaX < 0 && ((TransList[dTransVal[missilePosition.x][missilePosition.y + 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y + 1], TileProperties::Solid)) || (TransList[dTransVal[missilePosition.x][missilePosition.y - 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y - 1], TileProperties::Solid))))) {
