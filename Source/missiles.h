@@ -445,6 +445,13 @@ void AddBlazeControl(Missile &missile, AddMissileParameter &parameter);
 void ProcessBlazeControl(Missile &missile);
 void AddMeteor(Missile &missile, AddMissileParameter &parameter);
 void ProcessMeteor(Missile &missile);
+void AddJumpLightningControl(Missile &missile, AddMissileParameter &parameter);
+void ProcessJumpLightningControl(Missile &missile);
+void AddJumpLightning(Missile &missile, AddMissileParameter &parameter);
+void ProcessJumpLightning(Missile &missile);
+void AddChainLightningControl(Missile &missile, AddMissileParameter &parameter);
+void ProcessChainLightningControl(Missile &missile);
+
 
 #ifdef BUILD_TESTING
 void TestRotateBlockedMissile(Missile &missile);
