@@ -3157,32 +3157,88 @@ void ProcessBlazeControl(Missile &missile)
 void AddMeteor(Missile &missile, AddMissileParameter &parameter)
 {
 	Point dst = parameter.dst;
-	Point start = dst + Displacement { 1, -1 };
+	Point start = dst + Direction::NorthEast + Direction::NorthEast + Direction::NorthEast + Direction::NorthEast + Direction::North + Direction::North + Direction::North + Direction::North;
 	missile.position.start = start;
-	int sp = 4;
+	missile.position.tile = start;
+	//missile._mimfnum = 1;
+	int sp = 32;
 
 	if (missile._micaster == TARGET_MONSTERS) {
 		Player &player = Players[missile._misource];
 	}
 
 	UpdateMissileVelocity(missile, dst, sp);
-	SetMissDir(missile, GetDirection16(start, dst));
-	missile._mirange = 40;
+	SetMissDir(missile, Direction16::South_SouthWest);
+	missile._mirange = 14;
 	missile._midam = 0;
-	missile.var1 = start.x;
-	missile.var2 = start.y;
-	missile._mlid = AddLight(start, 8);
+	missile.var1 = missile.position.start.x;
+	missile.var2 = missile.position.start.y;
 }
 
 void ProcessMeteor(Missile &missile)
 {
 	missile._mirange--;
 
-	if (missile._miAnimType == MissileGraphicID::BigExplosion) {
-		if (missile._mirange == 0) {
-			missile._miDelFlag = true;
-			AddUnLight(missile._mlid);
+	if (missile._mirange == 0) {
+		missile._miDelFlag = true;
+		if (GetMissileData(missile._mitype).miSFX != -1)
+			PlaySfxLoc(GetMissileData(missile._mitype).miSFX, missile.position.tile);
+		int8_t src = missile._misource;
+		uint8_t lvl = missile._micaster == TARGET_MONSTERS ? Players[src]._pLevel : currlevel;
+		int dmg = 16 * (GenerateRndSum(10, 2) + lvl + 2) / 2;
+
+		Point target = Point { missile.var1, missile.var2 };
+		if (!InDungeonBounds(target))
+			return;
+		int dp = dPiece[target.x][target.y];
+		if (TileHasAny(dp, TileProperties::Solid))
+			return;
+		if (IsObjectAtPosition(target))
+			return;
+		if (!LineClearMissile(missile.position.tile, target))
+			return;
+		if (TileHasAny(dp, TileProperties::BlockMissile)) {
+			return;
 		}
+
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::North;
+		target += Direction::NorthWest;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::SouthEast;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::East;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::South;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::SouthEast;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target = Point { missile.var1, missile.var2 };
+		target += Direction::West;
+		target += Direction::West;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::East;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::South;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::NorthEast;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::SouthEast;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		target += Direction::South;
+		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
 	} else {
 		int minDam = missile._midam;
 		int maxDam = missile._midam;
@@ -3215,14 +3271,10 @@ void ProcessMeteor(Missile &missile)
 			        || (TransList[dTransVal[missilePosition.x][missilePosition.y - 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y - 1], TileProperties::Solid)))) {
 				missile.position.offset.deltaX -= 32;
 			}
-			missile._mimfnum = 0;
-			SetMissAnim(missile, MissileGraphicID::BigExplosion);
-			missile._mirange = missile._miAnimLen - 1;
 			missile.position.velocity = {};
 		} else if (missile.position.tile != Point { missile.var1, missile.var2 }) {
 			missile.var1 = missile.position.tile.x;
 			missile.var2 = missile.position.tile.y;
-			ChangeLight(missile._mlid, missile.position.tile, 8);
 		}
 	}
 
