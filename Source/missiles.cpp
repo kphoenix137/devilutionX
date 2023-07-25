@@ -3761,10 +3761,15 @@ void SpawnChainLightning(Missile &missile, int dam)
 			Point target = position + displacement;
 			auto &monster = dMonster[target.x][target.y];
 
-			if (InDungeonBounds(target) && !CheckBlock(position, target) && monster > 0) {
-				if (missile.var3 == abs(monster) || missile.var4 == abs(monster))
+			if (InDungeonBounds(target) && monster > 0) {
+				if (!LineClearMissile(position, target))
+					return false;
+				if (missile.var3 == abs(monster) || missile.var4 == abs(monster) || missile.var5 == abs(monster) || missile.var6 == abs(monster) || missile.var7 == abs(monster))
 					return false; // this monster is the same monster we hit up to 5 times ago, disregard
 
+				missile.var7 = missile.var6;
+				missile.var6 = missile.var5;
+				missile.var5 = missile.var4;
 				missile.var4 = missile.var3;
 				missile.var3 = abs(monster);
 
@@ -3912,6 +3917,8 @@ void ProcessChainLightning(Missile &missile)
 
 	Crawl(1, rad, [&](Displacement displacement) {
 		Point target = position + displacement;
+		if (!LineClearMissile(position, target))
+			return false;
 		if (InDungeonBounds(target) && dMonster[target.x][target.y] > 0) {
 			dir = GetDirection(position, target);
 			AddMissile(position, target, dir, MissileID::ChainLightningControl, TARGET_MONSTERS, id, 1, missile._mispllvl);
