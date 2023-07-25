@@ -45,6 +45,8 @@ const MissileData MissilesData[] = {
 /*FlashTop*/             { &AddFlashTop,            &ProcessFlashTop,             SFX_NONE,    SFX_NONE,    MissileGraphicID::FlashTop,             Magic,                 MissileMovementDistribution::Disabled    },
 /*ManaShield*/           { &AddManaShield,          nullptr,                      LS_MSHIELD,  SFX_NONE,    MissileGraphicID::ManaShield,           Magic | Invisible,     MissileMovementDistribution::Disabled    },
 /*FlameWave*/            { &AddFlameWave,           &ProcessFlameWave,            SFX_NONE,    SFX_NONE,    MissileGraphicID::FireWall,             Fire,                  MissileMovementDistribution::Unblockable },
+/*TinyLightningControl*/ { &AddTinyLightningControl,&ProcessTinyLightningControl, SFX_NONE,    SFX_NONE,    MissileGraphicID::ChargedBolt,          Lightning | Invisible, MissileMovementDistribution::Disabled    },
+/*TinyLightning*/        { &AddTinyLightning,       &ProcessTinyLightning,        LS_LNING1,   LS_ELECIMP1, MissileGraphicID::ChargedBolt,          Lightning,             MissileMovementDistribution::Disabled    },
 /*ChainLightningControl*/{ &AddChainLightningControl,&ProcessChainLightningControl,SFX_NONE,   SFX_NONE,    MissileGraphicID::Lightning,            Lightning | Invisible, MissileMovementDistribution::Disabled    },
 /*ChainLightning*/       { &AddChainLightning,      &ProcessChainLightning,       LS_LNING1,   LS_ELECIMP1, MissileGraphicID::Lightning,            Lightning,             MissileMovementDistribution::Disabled    },
 /*ChainBall*/            { nullptr,                 nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::Lightning,            Lightning,             MissileMovementDistribution::Disabled    },

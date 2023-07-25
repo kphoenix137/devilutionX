@@ -3740,34 +3740,54 @@ void SpawnChainLightning(Missile &missile, int dam)
 
 	auto position = missile.position.tile;
 
-	if (dMonster[position.x][position.y] > 0) {
-
-		int rad = std::min<int>(missile._mispllvl + 3, MaxCrawlRadius);
+	if (dMonster[position.x][position.y] > 0) { // Our missile is occupying to the same tile as a monster, search for a new target
+		int rad = std::min<int>(missile._mispllvl + 3, MaxCrawlRadius); // search radius
 		bool foundTarget = false;
 
-		Crawl(1, rad, [&](Displacement displacement) {
-			Point target = position + displacement;
-			if (InDungeonBounds(target) && dMonster[target.x][target.y] > 0) {
-				if (!LineClearMissile(position, target))
-					return false;
-				SetMissDir(missile, GetDirection(position, target));
-				UpdateMissileVelocity(missile, target, 32);
-				missile._mirange--;
+		/* auto *monster = FindClosest(position, rad);
+		if (monster != nullptr) {
+			if (IsNoneOf(monster->getId(), missile.var3, missile.var4)) {
+				Point target = monster->position.tile;
+				missile.var4 = missile.var3;
+				missile.var3 = monster->getId();
+				SetMissDir(missile, GetDirection(position, target)); // change missile facing direction towards new target
+				UpdateMissileVelocity(missile, target, 32);          // change missile direction towards the new target
+				missile._mirange--;                                  // reduce bounces remaining by 1
 				foundTarget = true;
-				return true;
 			}
-			return false;
+		}*/
+
+		Crawl(1, rad, [&](Displacement displacement) { // search for new target
+			Point target = position + displacement;
+			auto &monster = dMonster[target.x][target.y];
+
+			if (InDungeonBounds(target) && !CheckBlock(position, target) && monster > 0) {
+				if (missile.var3 == abs(monster) || missile.var4 == abs(monster))
+					return false; // this monster is the same monster we hit up to 5 times ago, disregard
+
+				missile.var4 = missile.var3;
+				missile.var3 = abs(monster);
+
+				SetMissDir(missile, GetDirection(position, target)); // change missile facing direction towards new target
+				UpdateMissileVelocity(missile, target, 32);          // change missile direction towards the new target
+
+				missile._mirange--; // reduce bounces remaining by 1
+				foundTarget = true;
+
+				return true; // successfully found a valid target; stop searching for targets
+			}
+			return false; // no valid target found, keep trying
 		});
 
 		if (!foundTarget)
-			missile._mirange = 0;
+			missile._mirange = 0; // no target was found, so no more lightning
 	}
 
 	int pn = dPiece[position.x][position.y];
 
-	if (!TileHasAny(pn, TileProperties::BlockMissile)) {
+	if (!TileHasAny(pn, TileProperties::BlockMissile)) { // place lightning missile if valid position
 		if (position != Point { missile.var1, missile.var2 } && InDungeonBounds(position)) {
-			MissileID type = MissileID::Lightning;
+			MissileID type = MissileID::TinyLightning;
 
 			AddMissile(
 			    position,
@@ -3776,17 +3796,82 @@ void SpawnChainLightning(Missile &missile, int dam)
 			    type,
 			    missile._micaster,
 			    missile._misource,
-			    dam,
+			    0,
 			    missile._mispllvl,
 			    &missile);
 			missile.var1 = position.x;
 			missile.var2 = position.y;
+
+			if (dMonster[position.x][position.y] > 0) {
+				AddMissile(
+				    position,
+				    missile.position.start,
+				    Direction::South,
+				    MissileID::Lightning,
+				    missile._micaster,
+				    missile._misource,
+				    dam,
+				    missile._mispllvl,
+				    &missile);
+				missile.var1 = position.x;
+				missile.var2 = position.y;
+			}
 		}
 	}
 
 	if (missile._mirange == 0) {
 		missile._miDelFlag = true;
 	}
+}
+
+void AddTinyLightningControl(Missile &missile, AddMissileParameter &parameter)
+{
+	missile.var1 = missile.position.start.x;
+	missile.var2 = missile.position.start.y;
+	UpdateMissileVelocity(missile, parameter.dst, 32);
+	missile._miAnimFrame = GenerateRnd(8) + 1;
+	missile._mirange = 256;
+}
+
+void ProcessTinyLightningControl(Missile &missile)
+{
+	missile._mirange--;
+
+	SpawnLightning(missile, 0);
+}
+
+void AddTinyLightning(Missile &missile, AddMissileParameter &parameter)
+{
+	missile.position.start = parameter.dst;
+
+	SyncPositionWithParent(missile, parameter);
+
+	missile._miAnimFrame = GenerateRnd(8) + 1;
+
+	if (missile._micaster == TARGET_PLAYERS || missile.IsTrap()) {
+		if (missile.IsTrap() || Monsters[missile._misource].type().type == MT_FAMILIAR)
+			missile._mirange = 8;
+		else
+			missile._mirange = 10;
+	} else {
+		missile._mirange = (missile._mispllvl / 2) + 6;
+	}
+	missile._mlid = AddLight(missile.position.tile, 4);
+}
+
+void ProcessTinyLightning(Missile &missile)
+{
+	missile._mirange--;
+	int j = missile._mirange;
+	if (missile.position.tile != missile.position.start)
+		CheckMissileCol(missile, GetMissileData(missile._mitype).damageType(), missile._midam, missile._midam, true, missile.position.tile, false);
+	if (missile._miHitFlag)
+		missile._mirange = j;
+	if (missile._mirange == 0) {
+		missile._miDelFlag = true;
+		AddUnLight(missile._mlid);
+	}
+	PutMissile(missile);
 }
 
 void AddChainLightningControl(Missile &missile, AddMissileParameter &parameter)
@@ -3800,8 +3885,6 @@ void AddChainLightningControl(Missile &missile, AddMissileParameter &parameter)
 
 void ProcessChainLightningControl(Missile &missile)
 {
-	missile._mirange--;
-
 	int dam;
 	if (missile._micaster == TARGET_MONSTERS) {
 		// BUGFIX: damage of missile should be encoded in missile struct; player can be dead/have left the game before missile arrives.
