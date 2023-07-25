@@ -111,8 +111,6 @@ enum class MissileID : int8_t {
 	FlashTop,
 	ManaShield,
 	FlameWave,
-	JumpLightningControl,
-	JumpLightning,
 	ChainLightningControl,
 	ChainLightning,
 	ChainBall, // unused

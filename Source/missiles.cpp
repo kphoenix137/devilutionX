@@ -3736,36 +3736,38 @@ void ProcessGuardian(Missile &missile)
 
 void SpawnChainLightning(Missile &missile, int dam)
 {
-	missile._mirange--;
-
 	MoveMissileAndCheckMissileCol(missile, GetMissileData(missile._mitype).damageType(), missile._midam, missile._midam, false, false);
 
 	auto position = missile.position.tile;
 
-	if (missile._miHitFlag) {
-		Point dst { missile.var1, missile.var2 };
-		Direction dir = GetDirection(position, dst);
+	if (dMonster[position.x][position.y] > 0) {
 
 		int rad = std::min<int>(missile._mispllvl + 3, MaxCrawlRadius);
+		bool foundTarget = false;
 
 		Crawl(1, rad, [&](Displacement displacement) {
 			Point target = position + displacement;
 			if (InDungeonBounds(target) && dMonster[target.x][target.y] > 0) {
-				dir = GetDirection(position, target);
-				position = target;
+				if (!LineClearMissile(position, target))
+					return false;
+				SetMissDir(missile, GetDirection(position, target));
+				UpdateMissileVelocity(missile, target, 32);
+				missile._mirange--;
+				foundTarget = true;
 				return true;
 			}
 			return false;
 		});
 
-		missile._miHitFlag = false;
+		if (!foundTarget)
+			missile._mirange = 0;
 	}
 
 	int pn = dPiece[position.x][position.y];
 
 	if (!TileHasAny(pn, TileProperties::BlockMissile)) {
 		if (position != Point { missile.var1, missile.var2 } && InDungeonBounds(position)) {
-			MissileID type = MissileID::JumpLightning;
+			MissileID type = MissileID::Lightning;
 
 			AddMissile(
 			    position,
@@ -3787,73 +3789,13 @@ void SpawnChainLightning(Missile &missile, int dam)
 	}
 }
 
-void AddJumpLightningControl(Missile &missile, AddMissileParameter &parameter)
-{
-	missile.var1 = missile.position.start.x;
-	missile.var2 = missile.position.start.y;
-	UpdateMissileVelocity(missile, parameter.dst, 32);
-	missile._miAnimFrame = GenerateRnd(8) + 1;
-	missile._mirange = 256;
-}
-
-void ProcessJumpLightningControl(Missile &missile)
-{
-	missile._mirange--;
-
-	int dam;
-	if (missile.IsTrap()) {
-		// BUGFIX: damage of missile should be encoded in missile struct; monster can be dead before missile arrives.
-		dam = GenerateRnd(currlevel) + 2 * currlevel;
-	} else if (missile._micaster == TARGET_MONSTERS) {
-		// BUGFIX: damage of missile should be encoded in missile struct; player can be dead/have left the game before missile arrives.
-		dam = (GenerateRnd(2) + GenerateRnd(Players[missile._misource]._pLevel) + 2) << 6;
-	} else {
-		auto &monster = Monsters[missile._misource];
-		dam = 2 * (monster.minDamage + GenerateRnd(monster.maxDamage - monster.minDamage + 1));
-	}
-
-	SpawnChainLightning(missile, dam);
-}
-
-void AddJumpLightning(Missile &missile, AddMissileParameter &parameter)
-{
-	missile.position.start = parameter.dst;
-
-	SyncPositionWithParent(missile, parameter);
-
-	missile._miAnimFrame = GenerateRnd(8) + 1;
-
-	if (missile._micaster == TARGET_PLAYERS || missile.IsTrap()) {
-		if (missile.IsTrap() || Monsters[missile._misource].type().type == MT_FAMILIAR)
-			missile._mirange = 8;
-		else
-			missile._mirange = 10;
-	} else {
-		missile._mirange = (missile._mispllvl / 2) + 6;
-	}
-	missile._mlid = AddLight(missile.position.tile, 4);
-}
-
-void ProcessJumpLightning(Missile &missile)
-{
-	missile._mirange--;
-	int j = missile._mirange;
-	if (missile.position.tile != missile.position.start)
-		CheckMissileCol(missile, GetMissileData(missile._mitype).damageType(), missile._midam, missile._midam, true, missile.position.tile, false);
-	if (missile._mirange == 0 || missile._miHitFlag) {
-		missile._miDelFlag = true;
-		AddUnLight(missile._mlid);
-	}
-	PutMissile(missile);
-}
-
 void AddChainLightningControl(Missile &missile, AddMissileParameter &parameter)
 {
 	missile.var1 = missile.position.start.x;
 	missile.var2 = missile.position.start.y;
 	UpdateMissileVelocity(missile, parameter.dst, 32);
 	missile._miAnimFrame = GenerateRnd(8) + 1;
-	missile._mirange = 256;
+	missile._mirange = 1 + (missile._mispllvl / 2);
 }
 
 void ProcessChainLightningControl(Missile &missile)
@@ -3861,15 +3803,9 @@ void ProcessChainLightningControl(Missile &missile)
 	missile._mirange--;
 
 	int dam;
-	if (missile.IsTrap()) {
-		// BUGFIX: damage of missile should be encoded in missile struct; monster can be dead before missile arrives.
-		dam = GenerateRnd(currlevel) + 2 * currlevel;
-	} else if (missile._micaster == TARGET_MONSTERS) {
+	if (missile._micaster == TARGET_MONSTERS) {
 		// BUGFIX: damage of missile should be encoded in missile struct; player can be dead/have left the game before missile arrives.
 		dam = (GenerateRnd(2) + GenerateRnd(Players[missile._misource]._pLevel) + 2) << 6;
-	} else {
-		auto &monster = Monsters[missile._misource];
-		dam = 2 * (monster.minDamage + GenerateRnd(monster.maxDamage - monster.minDamage + 1));
 	}
 
 	SpawnChainLightning(missile, dam);
