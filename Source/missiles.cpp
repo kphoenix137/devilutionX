@@ -3150,6 +3150,12 @@ void ProcessBlazeControl(Missile &missile)
 void AddMeteor(Missile &missile, AddMissileParameter &parameter)
 {
 	Point dst = parameter.dst;
+	auto &player = Players[missile._misource];
+	if (!LineClearMissile(player.position.tile, dst)) {
+		missile._miDelFlag = true;
+		parameter.spellFizzled = true;
+		return;
+	}
 	Point start = dst + Direction::NorthEast + Direction::NorthEast + Direction::NorthEast + Direction::NorthEast + Direction::North + Direction::North + Direction::North + Direction::North;
 	missile.position.start = start;
 	missile.position.tile = start;
@@ -3181,57 +3187,86 @@ void ProcessMeteor(Missile &missile)
 		int dmg = 16 * (GenerateRndSum(10, 2) + lvl + 2) / 2;
 
 		Point target = Point { missile.var1, missile.var2 };
-		if (!InDungeonBounds(target))
-			return;
-		int dp = dPiece[target.x][target.y];
-		if (TileHasAny(dp, TileProperties::Solid))
-			return;
-		if (IsObjectAtPosition(target))
-			return;
-		if (!LineClearMissile(missile.position.tile, target))
-			return;
-		if (TileHasAny(dp, TileProperties::BlockMissile)) {
-			return;
-		}
 
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		int dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::North;
 		target += Direction::NorthWest;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::SouthEast;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::East;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::South;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::SouthEast;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target = Point { missile.var1, missile.var2 };
 		target += Direction::West;
 		target += Direction::West;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::East;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::South;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::NorthEast;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::SouthEast;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 		target += Direction::South;
-		AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
-		AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		dp = dPiece[target.x][target.y];
+		if (InDungeonBounds(target) && !TileHasAny(dp, TileProperties::Solid) && !IsObjectAtPosition(target) && LineClearMissile(missile.position.tile, target) && !TileHasAny(dp, TileProperties::BlockMissile)) {
+			AddMissile(target, target, Direction::South, MissileID::ApocalypseBoom, TARGET_BOTH, src, dmg, missile._mispllvl);
+			AddMissile(target, target, Direction::South, MissileID::FireWall, TARGET_BOTH, src, dmg, missile._mispllvl);
+		}
 	} else {
 		int minDam = missile._midam;
 		int maxDam = missile._midam;
@@ -3740,7 +3775,7 @@ void SpawnChainLightning(Missile &missile, int dam)
 
 	auto position = missile.position.tile;
 
-	if (dMonster[position.x][position.y] > 0) { // Our missile is occupying to the same tile as a monster, search for a new target
+	if (dMonster[position.x][position.y] > 0) {                         // Our missile is occupying to the same tile as a monster, search for a new target
 		int rad = std::min<int>(missile._mispllvl + 3, MaxCrawlRadius); // search radius
 		bool foundTarget = false;
 
