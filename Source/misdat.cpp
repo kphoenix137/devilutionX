@@ -7,6 +7,7 @@
 
 #include <cstdint>
 
+#include "engine/load_cel.hpp"
 #include "engine/load_cl2.hpp"
 #include "engine/load_clx.hpp"
 #include "missiles.h"
@@ -105,7 +106,7 @@ const MissileData MissilesData[] = {
 /*Blaze*/                { &AddBlaze,               &ProcessBlaze,                LS_WALLLOOP, LS_FIRIMP2,  MissileGraphicID::FireWall,             Fire,                  MissileMovementDistribution::Disabled    },
 /*Meteor*/               { &AddMeteor,              &ProcessMeteor,               LS_FBOLT1,   LS_FIRIMP2,  MissileGraphicID::MagmaBall,            Fire,                  MissileMovementDistribution::Disabled    },
 /*Explosion*/            { &AddExplosion,           &ProcessExplosion,            LS_FBALL,    SFX_NONE,    MissileGraphicID::BigExplosion,         Fire,                  MissileMovementDistribution::Disabled    },
-/*Sentinel*/             { &AddSentinel,            &ProcessSentinel,             LS_SENTINEL, LS_GUARDLAN, MissileGraphicID::Sentinel,             Fire,                  MissileMovementDistribution::Disabled    },
+/*Sentinel*/             { &AddSentinel,            &ProcessSentinel,             LS_SENTINEL, LS_GUARDLAN, MissileGraphicID::SentinelUp,           Fire,                  MissileMovementDistribution::Disabled    },
 
 
 /*Mana*/                 { &AddMana,                nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
@@ -268,9 +269,9 @@ MissileFileData MissileSpriteData[] = {
 /*BloodStarRed*/             { {},               96,          16, "scubmisd",         1, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_16      },
 /*BloodStarRedExplosion*/    { {},              128,          32, "scbsexpd",         1, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_6       },
 /*Sentinel*/                 { {},               96,          16, "sent",             3, MissileGraphicsFlags::None,                     1, AnimLen_15_14_3 },
-// /*SentinelUp*/               { {},               96,          16, "sentup",           1, MissileGraphicsFlags::None,                     1, AnimLen_15      },
-// /*SentinelOut*/              { {},               96,          16, "sentout",          1, MissileGraphicsFlags::None,                     1, AnimLen_14      },
-// /*SentinelFire*/             { {},               96,          16, "sentfr",           1, MissileGraphicsFlags::None,                     1, AnimLen_3       },
+/*SentinelUp*/               { {},               96,          16, "sentup",           1, MissileGraphicsFlags::Cel,                      1, AnimLen_15      },
+/*SentinelOut*/              { {},               96,          16, "sentout",          1, MissileGraphicsFlags::Cel,                      1, AnimLen_14      },
+/*SentinelFire*/             { {},               96,          16, "sentfr",           1, MissileGraphicsFlags::Cel,                      1, AnimLen_3       },
 
 
 
@@ -318,7 +319,10 @@ void MissileFileData::LoadGFX()
 	if (animFAmt == 1) {
 		char path[MaxMpqPathSize];
 		*BufCopy(path, "missiles\\", name) = '\0';
-		sprites.emplace(OwnedClxSpriteListOrSheet { LoadCl2(path, animWidth) });
+		if (HasAnyOf(flags, MissileGraphicsFlags::Cel))
+			sprites.emplace(OwnedClxSpriteListOrSheet { LoadCel(path, animWidth) });
+		else
+			sprites.emplace(OwnedClxSpriteListOrSheet { LoadCl2(path, animWidth) });
 	} else {
 		FileNameGenerator pathGenerator({ "missiles\\", name }, DEVILUTIONX_CL2_EXT);
 		sprites.emplace(OwnedClxSpriteListOrSheet { LoadMultipleCl2Sheet<16>(pathGenerator, animFAmt, animWidth) });

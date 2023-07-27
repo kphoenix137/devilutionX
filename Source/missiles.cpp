@@ -694,7 +694,8 @@ bool SentinelTryFireAt(Missile &missile, Point target)
 
 	Direction dir = GetDirection(position, target);
 	AddMissile(position, target, dir, MissileID::Fireball, TARGET_MONSTERS, missile._misource, missile._midam, missile.sourcePlayer()->GetSpellLevel(SpellID::Sentinel), &missile);
-	SetMissDir(missile, 2);
+	//SetMissDir(missile, 2);
+	SetMissAnim(missile, MissileGraphicID::SentinelFire);
 	missile.var2 = 3;
 
 	return true;
@@ -3460,7 +3461,8 @@ void ProcessSentinel(Missile &missile)
 		missile.var2--;
 	}
 	if (missile._mirange == missile.var1 || (missile._mimfnum == 2 && missile.var2 == 0)) {
-		SetMissDir(missile, 1);
+		//SetMissDir(missile, 1);
+		SetMissAnim(missile, MissileGraphicID::SentinelOut);
 	}
 
 	Point position = missile.position.tile;
@@ -3502,7 +3504,8 @@ void ProcessSentinel(Missile &missile)
 	}
 
 	if (missile._mirange == 14) {
-		SetMissDir(missile, 0);
+		//SetMissDir(missile, 0);
+		SetMissAnim(missile, MissileGraphicID::SentinelUp);
 		missile._miAnimFrame = 15;
 		missile._miAnimAdd = -1;
 	}

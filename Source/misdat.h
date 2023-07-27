@@ -82,9 +82,9 @@ enum class MissileGraphicID : uint8_t {
 	BloodStarRed,
 	BloodStarRedExplosion,
 	Sentinel,
-	//SentinelUp,
-	//SentinelOut,
-	//SentinelFire,
+	SentinelUp,
+	SentinelOut,
+	SentinelFire,
 
 	HorkSpawn,
 	Reflect,
@@ -165,8 +165,10 @@ enum class MissileGraphicsFlags : uint8_t {
 	None         = 0,
 	MonsterOwned = 1 << 0,
 	NotAnimated  = 1 << 1,
+	Cel          = 1 << 2
 	// clang-format on
 };
+use_enum_as_flags(MissileGraphicsFlags);
 
 struct MissileFileData {
 	OptionalOwnedClxSpriteListOrSheet sprites;
