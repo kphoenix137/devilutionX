@@ -59,6 +59,7 @@ const SpellData SpellsData[] = {
 /*SpellID::BoneSpirit*/       { P_("spell", "Bone Spirit"),        IS_CAST2,        1150,           80,         24, Magic,                         9,          7,      34, { MissileID::BoneSpirit,           MissileID::Null,    },         1,        12,         20,         60 },
 /*SpellID::Blaze*/            { P_("spell", "Blaze"),              IS_CAST2,         100,            5,          1, Fire,                          1,          1,       1, { MissileID::BlazeControl,         MissileID::Null,    },         1,         1,         40,         80 },
 /*SpellID::Meteor*/           { P_("spell", "Meteor"),             IS_CAST2,         100,            5,          1, Fire,                          1,          1,       1, { MissileID::Meteor,               MissileID::Null,    },         1,         1,         40,         80 },
+/*SpellID::Sentinel*/         { P_("spell", "Sentinel"),           IS_CAST2,         100,            5,          1, Fire,                          1,          1,       1, { MissileID::Sentinel,             MissileID::Null,    },         1,         1,         40,         80 },
 
 
 /*SpellID::Mana*/             { P_("spell", "Mana"),               IS_CAST8,         100,            5,        255, Magic | AllowedInTown,        -1,          5,      17, { MissileID::Mana,                 MissileID::Null,    },         3,         1,         12,         24 },

@@ -551,13 +551,13 @@ bool MoveMissile(Missile &missile, tl::function_ref<bool(Point)> checkTile, bool
 	return true;
 }
 
-void MoveMissileAndCheckMissileCol(Missile &missile, DamageType damageType, int mindam, int maxdam, bool ignoreStart, bool ifCollidesDontMoveToHitTile, bool dontDeleteOnCollision = false)
+void MoveMissileAndCheckMissileCol(Missile &missile, DamageType damageType, int mindam, int maxdam, bool ignoreStart, bool ifCollidesDontMoveToHitTile)
 {
 	auto checkTile = [&](Point tile) {
 		if (ignoreStart && missile.position.start == tile)
 			return true;
 
-		CheckMissileCol(missile, damageType, mindam, maxdam, false, tile, dontDeleteOnCollision);
+		CheckMissileCol(missile, damageType, mindam, maxdam, false, tile, false);
 
 		// Did missile hit anything?
 		if (missile._mirange != 0)
@@ -575,7 +575,7 @@ void MoveMissileAndCheckMissileCol(Missile &missile, DamageType damageType, int 
 
 	// missile didn't change the tile... check that we perform CheckMissileCol only once for any monster/player to avoid multiple hits for slow missiles
 	if (!tileChanged && missile.lastCollisionTargetHash != tileTargetHash) {
-		CheckMissileCol(missile, damageType, mindam, maxdam, false, missile.position.tile, dontDeleteOnCollision);
+		CheckMissileCol(missile, damageType, mindam, maxdam, false, missile.position.tile, false);
 	}
 
 	// remember what target CheckMissileCol was checked against
@@ -667,6 +667,33 @@ bool GuardianTryFireAt(Missile &missile, Point target)
 
 	Direction dir = GetDirection(position, target);
 	AddMissile(position, target, dir, MissileID::Firebolt, TARGET_MONSTERS, missile._misource, missile._midam, missile.sourcePlayer()->GetSpellLevel(SpellID::Guardian), &missile);
+	SetMissDir(missile, 2);
+	missile.var2 = 3;
+
+	return true;
+}
+
+bool SentinelTryFireAt(Missile &missile, Point target)
+{
+	Point position = missile.position.tile;
+
+	if (!LineClearMissile(position, target))
+		return false;
+	int mid = dMonster[target.x][target.y] - 1;
+	if (mid < 0)
+		return false;
+	const Monster &monster = Monsters[mid];
+	if (monster.isPlayerMinion())
+		return false;
+	if (monster.hitPoints >> 6 <= 0)
+		return false;
+
+	Player &player = Players[missile._misource];
+	int dmg = GenerateRnd(10) + (player._pLevel / 2) + 1;
+	dmg = ScaleSpellEffect(dmg, missile._mispllvl);
+
+	Direction dir = GetDirection(position, target);
+	AddMissile(position, target, dir, MissileID::Fireball, TARGET_MONSTERS, missile._misource, missile._midam, missile.sourcePlayer()->GetSpellLevel(SpellID::Sentinel), &missile);
 	SetMissDir(missile, 2);
 	missile.var2 = 3;
 
@@ -3263,31 +3290,33 @@ void ProcessExplosion(Missile &missile)
 
 bool DoomSearchRadius(Missile &missile, Point position, int radius)
 {
-	auto damageType = GetMissileData(missile._mitype).damageType();
+	auto damageType = GetMissileData(missile._mitype).damageType(); // Magic element
 	bool foundMonster = false;
 
 	Crawl(1, radius, [&](Displacement displacement) {
-		Point target = position + displacement;
-		auto monsterId = dMonster[target.x][target.y];
-		auto &monster = Monsters[monsterId];
+		Point target = position + displacement; // The tile a monster is found in
+		auto monsterId = abs(dMonster[target.x][target.y]) - 1; // Get the Monsters index of the monster found at target tile
+		Monster &monster = Monsters[monsterId]; // Moving monsters have a negative index, so get absolute value and use an entry into Monsters
 
-		if (!LineClearMissile(position, target))
+		if (!LineClearMissile(position, target)) // There's a solid object in between the missile and the target, keep searching
 			return false;
 
-		if (InDungeonBounds(target) && monsterId > 0) {
-			//if (((monster.flags & MFLAG_HIDDEN) != 0) || monster.isImmune(missile._mitype, damageType)) {
-			//	SDL_Log("monster is immune");
-			//	return false;
-			//}
-			foundMonster = true;
-			Direction dir = GetDirection(position, target);
-			SetMissDir(missile, dir);
-			UpdateMissileVelocity(missile, target, 16);
+		if (InDungeonBounds(target) && monsterId > 0) { // Is the target tile in dungoen bounds, and is monster not moving?
+			if (((monster.flags & MFLAG_HIDDEN) != 0) || monster.isImmune(missile._mitype, damageType)) { // Is monster hidden or monster is immune to this spell?
+				SDL_Log("monster %s is immune: %i", monster.data().name, monsterId);
 
-			return true;
+				return false; // monster is hidden or immune to spell, keep searching
+			}
+			SDL_Log("monster %s is not immune: %i", monster.data().name, monsterId);
+			foundMonster = true;
+			Direction dir = GetDirection(position, target); // Get direction which faces the monster
+			SetMissDir(missile, dir); // Change missile graphic orientation towards monster
+			UpdateMissileVelocity(missile, target, 16); // Change direction the missile is moving towards the monster
+
+			return true; // Monsters was found, so we can stop looking for monsters
 		}
 
-		return false;
+		return false; // There are either solid objects in the way, or monster is not in bounds, monster doesn't exist, or monster is moving, keep searching
 	});
 
 	return foundMonster;
@@ -3334,28 +3363,35 @@ void ProcessDoom(Missile &missile)
 	auto damageType = GetMissileData(missile._mitype).damageType();
 	auto position = missile.position.tile;
 	auto monsterId = dMonster[position.x][position.y];
+	auto &monster = Monsters[abs(monsterId) - 1];
 
 	if (missile._miAnimType == MissileGraphicID::DoomHit) {
-		if (missile._miAnimFrame == 14)
+		if (missile._miAnimFrame == 14) {
 			PlaySfxLoc(LS_DSERPATT, missile.position.tile);
+			CheckMissileCol(missile, damageType, missile._midam, missile._midam, false, position, true);
+		}
 		if (monsterId <= 0)
 			SetMissAnim(missile, MissileGraphicID::DoomSerpents);
 	} else {
-		MoveMissileAndCheckMissileCol(missile, damageType, missile._midam, missile._midam, false, true, true);
+		int j = missile._mirange;
+		MoveMissileAndCheckMissileCol(missile, damageType, missile._midam, missile._midam, false, false);
+		if (missile._miHitFlag)
+			missile._mirange = j;
 
-		if (monsterId <= 0) {
-			Point position = missile.position.tile;
+		if (monsterId > 0) {
+			missile.position.StopMissile();
+			SetMissAnim(missile, MissileGraphicID::DoomHit);
+		} else {
 			int rad = std::min<int>(5, MaxCrawlRadius);
 			bool foundMonster = DoomSearchRadius(missile, position, rad);
 
 			if (!foundMonster)
 				missile._mirange = 0;
 
-		} else if (missile.position.tile != Point { missile.var1, missile.var2 }) {
-			missile.var1 = missile.position.tile.x;
-			missile.var2 = missile.position.tile.y;
-			missile.position.velocity = {};
-			SetMissAnim(missile, MissileGraphicID::DoomHit);
+			if (missile.position.tile != Point { missile.var1, missile.var2 }) {
+				missile.var1 = missile.position.tile.x;
+				missile.var2 = missile.position.tile.y;
+			}
 		}
 	}
 
@@ -3364,6 +3400,130 @@ void ProcessDoom(Missile &missile)
 
 	PutMissile(missile);
 }
+
+void AddSentinel(Missile &missile, AddMissileParameter &parameter)
+{
+	Player &player = Players[missile._misource];
+
+	std::optional<Point> spawnPosition = FindClosestValidPosition(
+	    [start = missile.position.start](Point target) {
+		    if (!InDungeonBounds(target)) {
+			    return false;
+		    }
+		    if (dMonster[target.x][target.y] != 0) {
+			    return false;
+		    }
+		    if (IsObjectAtPosition(target)) {
+			    return false;
+		    }
+		    if (TileContainsMissile(target)) {
+			    return false;
+		    }
+
+		    int dp = dPiece[target.x][target.y];
+		    if (TileHasAny(dp, TileProperties::Solid | TileProperties::BlockMissile)) {
+			    return false;
+		    }
+
+		    return LineClearMissile(start, target);
+	    },
+	    parameter.dst, 0, 5);
+
+	if (!spawnPosition) {
+		missile._miDelFlag = true;
+		parameter.spellFizzled = true;
+		return;
+	}
+
+	missile._miDelFlag = false;
+	missile.position.tile = *spawnPosition;
+	missile.position.start = *spawnPosition;
+
+	missile._mlid = AddLight(missile.position.tile, 1);
+	missile._mirange = missile._mispllvl + (player._pLevel / 2);
+
+	if (missile._mirange > 30)
+		missile._mirange = 30;
+	missile._mirange <<= 4;
+	if (missile._mirange < 30)
+		missile._mirange = 30;
+
+	missile.var1 = missile._mirange - missile._miAnimLen;
+	missile.var3 = 1;
+}
+
+void ProcessSentinel(Missile &missile)
+{
+	missile._mirange--;
+
+	if (missile.var2 > 0) {
+		missile.var2--;
+	}
+	if (missile._mirange == missile.var1 || (missile._mimfnum == 2 && missile.var2 == 0)) {
+		SetMissDir(missile, 1);
+	}
+
+	Point position = missile.position.tile;
+
+	if ((missile._mirange % 16) == 0) {
+		// Guardians pick a target by working backwards along lines originally based on VisionCrawlTable.
+		// Because of their rather unique behaviour the points checked have been unrolled here
+		constexpr std::array<WorldTileDisplacement, 48> guardianArc {
+			{
+			    // clang-format off
+			    { 6, 0 }, { 5, 0 }, { 4, 0 }, { 3, 0 }, { 2, 0 }, { 1, 0 },
+			    { 6, 1 }, { 5, 1 }, { 4, 1 }, { 3, 1 },
+			    { 6, 2 }, { 2, 1 },
+			    { 5, 2 },
+			    { 6, 3 }, { 4, 2 },
+			    { 5, 3 }, { 3, 2 }, { 1, 1 },
+			    { 6, 4 },
+			    { 6, 5 }, { 5, 4 }, { 4, 3 }, { 2, 2 },
+			    { 5, 5 }, { 4, 4 }, { 3, 3 },
+			    { 6, 6 }, { 5, 6 }, { 4, 5 }, { 3, 4 }, { 2, 3 },
+			    { 4, 6 }, { 3, 5 }, { 2, 4 }, { 1, 2 },
+			    { 3, 6 }, { 2, 5 }, { 1, 3 }, { 0, 1 },
+			    { 2, 6 }, { 1, 4 },
+			    { 1, 5 },
+			    { 1, 6 },
+			    { 0, 2 },
+			    { 0, 3 },
+			    { 0, 6 }, { 0, 5 }, { 0, 4 },
+			    // clang-format on
+			}
+		};
+		for (WorldTileDisplacement offset : guardianArc) {
+			if (SentinelTryFireAt(missile, position + offset)
+			    || SentinelTryFireAt(missile, position + offset.flipXY())
+			    || SentinelTryFireAt(missile, position + offset.flipY())
+			    || SentinelTryFireAt(missile, position + offset.flipX()))
+				break;
+		}
+	}
+
+	if (missile._mirange == 14) {
+		SetMissDir(missile, 0);
+		missile._miAnimFrame = 15;
+		missile._miAnimAdd = -1;
+	}
+
+	missile.var3 += missile._miAnimAdd;
+
+	if (missile.var3 > 15) {
+		missile.var3 = 15;
+	} else if (missile.var3 > 0) {
+		ChangeLight(missile._mlid, position, missile.var3);
+	}
+
+	if (missile._mirange == 0) {
+		missile._miDelFlag = true;
+		AddUnLight(missile._mlid);
+	}
+
+	PutMissile(missile);
+}
+
+
 
 void ProcessHorkSpawn(Missile &missile)
 {
@@ -3834,19 +3994,6 @@ void SpawnChainLightning(Missile &missile, int dam)
 	if (dMonster[position.x][position.y] > 0) {                         // Our missile is occupying to the same tile as a monster, search for a new target
 		int rad = std::min<int>(missile._mispllvl + 3, MaxCrawlRadius); // search radius
 		bool foundTarget = false;
-
-		/* auto *monster = FindClosest(position, rad);
-		if (monster != nullptr) {
-			if (IsNoneOf(monster->getId(), missile.var3, missile.var4)) {
-				Point target = monster->position.tile;
-				missile.var4 = missile.var3;
-				missile.var3 = monster->getId();
-				SetMissDir(missile, GetDirection(position, target)); // change missile facing direction towards new target
-				UpdateMissileVelocity(missile, target, 32);          // change missile direction towards the new target
-				missile._mirange--;                                  // reduce bounces remaining by 1
-				foundTarget = true;
-			}
-		}*/
 
 		Crawl(1, rad, [&](Displacement displacement) { // search for new target
 			Point target = position + displacement;

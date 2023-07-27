@@ -81,6 +81,11 @@ enum class MissileGraphicID : uint8_t {
 	BloodStarYellowExplosion,
 	BloodStarRed,
 	BloodStarRedExplosion,
+	Sentinel,
+	//SentinelUp,
+	//SentinelOut,
+	//SentinelFire,
+
 	HorkSpawn,
 	Reflect,
 	OrangeFlare,

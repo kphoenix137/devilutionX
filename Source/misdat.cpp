@@ -105,6 +105,8 @@ const MissileData MissilesData[] = {
 /*Blaze*/                { &AddBlaze,               &ProcessBlaze,                LS_WALLLOOP, LS_FIRIMP2,  MissileGraphicID::FireWall,             Fire,                  MissileMovementDistribution::Disabled    },
 /*Meteor*/               { &AddMeteor,              &ProcessMeteor,               LS_FBOLT1,   LS_FIRIMP2,  MissileGraphicID::MagmaBall,            Fire,                  MissileMovementDistribution::Disabled    },
 /*Explosion*/            { &AddExplosion,           &ProcessExplosion,            LS_FBALL,    SFX_NONE,    MissileGraphicID::BigExplosion,         Fire,                  MissileMovementDistribution::Disabled    },
+/*Sentinel*/             { &AddSentinel,            &ProcessSentinel,             LS_SENTINEL, LS_GUARDLAN, MissileGraphicID::Sentinel,             Fire,                  MissileMovementDistribution::Disabled    },
+
 
 /*Mana*/                 { &AddMana,                nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
 /*Magi*/                 { &AddMagi,                nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
@@ -185,7 +187,8 @@ const std::array<uint8_t, 16> MissileAnimLengths[] {
 	{ 9, 4 },
 	{ 15, 14, 3 },
 	{ 13, 11 },
-	{ 16, 16, 16, 16, 16, 16, 16, 16, 8 }
+	{ 16, 16, 16, 16, 16, 16, 16, 16, 8 },
+	{ 3 }
 };
 
 constexpr uint8_t AnimLen_0 = 0;        // NOLINT(readability-identifier-naming)
@@ -209,6 +212,7 @@ constexpr uint8_t AnimLen_9_4 = 17;     // NOLINT(readability-identifier-naming)
 constexpr uint8_t AnimLen_15_14_3 = 18; // NOLINT(readability-identifier-naming)
 constexpr uint8_t AnimLen_13_11 = 19;   // NOLINT(readability-identifier-naming)
 constexpr uint8_t AnimLen_16x8_8 = 20;  // NOLINT(readability-identifier-naming)
+constexpr uint8_t AnimLen_3 = 21;       // NOLINT(readability-identifier-naming)
 
 } // namespace
 
@@ -263,6 +267,14 @@ MissileFileData MissileSpriteData[] = {
 /*BloodStarYellowExplosion*/ { {},              128,          32, "scbsexpc",         1, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_6       },
 /*BloodStarRed*/             { {},               96,          16, "scubmisd",         1, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_16      },
 /*BloodStarRedExplosion*/    { {},              128,          32, "scbsexpd",         1, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_6       },
+/*Sentinel*/                 { {},               96,          16, "sent",             3, MissileGraphicsFlags::None,                     1, AnimLen_15_14_3 },
+// /*SentinelUp*/               { {},               96,          16, "sentup",           1, MissileGraphicsFlags::None,                     1, AnimLen_15      },
+// /*SentinelOut*/              { {},               96,          16, "sentout",          1, MissileGraphicsFlags::None,                     1, AnimLen_14      },
+// /*SentinelFire*/             { {},               96,          16, "sentfr",           1, MissileGraphicsFlags::None,                     1, AnimLen_3       },
+
+
+
+
 /*HorkSpawn*/                { {},               96,          16, "spawns",           8, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_9       },
 /*Reflect*/                  { {},              160,          64, "reflect",          1, MissileGraphicsFlags::NotAnimated,              0, AnimLen_1       },
 /*OrangeFlare*/              { {},               96,           8, "ms_ora",          16, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_15      },
@@ -320,7 +332,7 @@ void InitMissileGFX(bool loadHellfireGraphics)
 		return;
 
 	for (size_t mi = 0; MissileSpriteData[mi].animFAmt != 0; mi++) {
-		if (!loadHellfireGraphics && mi > static_cast<uint8_t>(MissileGraphicID::BloodStarRedExplosion))
+		if (!loadHellfireGraphics && mi >= static_cast<uint8_t>(MissileGraphicID::HorkSpawn))
 			break;
 		if (MissileSpriteData[mi].flags == MissileGraphicsFlags::MonsterOwned)
 			continue;
