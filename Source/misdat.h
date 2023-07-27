@@ -49,6 +49,7 @@ enum class MissileGraphicID : uint8_t {
 	MetalHit,
 	FireArrow,
 	DoomSerpents,
+	DoomHit,
 	Golem,
 	Spurt,
 	ApocalypseBoom,

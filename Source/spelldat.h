@@ -127,7 +127,7 @@ enum class MissileID : int8_t {
 	BloodStarExplosion,
 	Teleport,
 	FireArrow,
-	DoomSerpents, // unused
+	DoomSerpents,
 	FireOnly, // unused
 	StoneCurse,
 	BloodRitual, // unused
@@ -170,6 +170,7 @@ enum class MissileID : int8_t {
 	BlazeControl,
 	Blaze,
 	Meteor,
+	Explosion,
 
 	Mana,
 	Magi,

@@ -451,7 +451,10 @@ void AddTinyLightningControl(Missile &missile, AddMissileParameter &parameter);
 void ProcessTinyLightningControl(Missile &missile);
 void AddChainLightningControl(Missile &missile, AddMissileParameter &parameter);
 void ProcessChainLightningControl(Missile &missile);
-
+void AddExplosion(Missile &missile, AddMissileParameter &parameter);
+void ProcessExplosion(Missile &missile);
+void AddDoom(Missile &missile, AddMissileParameter &parameter);
+void ProcessDoom(Missile &missile);
 
 #ifdef BUILD_TESTING
 void TestRotateBlockedMissile(Missile &missile);
