@@ -3526,6 +3526,55 @@ void ProcessSentinel(Missile &missile)
 	PutMissile(missile);
 }
 
+void AddMindMace(Missile &missile, AddMissileParameter &parameter)
+{
+	Point dst = parameter.dst;
+	if (missile.position.start == dst) {
+		dst += parameter.midir;
+	}
+	int sp = 26;
+	if (missile._micaster == TARGET_MONSTERS) {
+		sp = 8;
+		if (!missile.IsTrap()) {
+			sp += std::min(missile._mispllvl, 47);
+		}
+	}
+	UpdateMissileVelocity(missile, dst, sp);
+	SetMissDir(missile, GetDirection16(missile.position.start, dst));
+	missile._mirange = 256;
+	missile.var1 = missile.position.start.x;
+	missile.var2 = missile.position.start.y;
+	if (missile._midam == 0) {
+		switch (missile.sourceType()) {
+		case MissileSource::Player: {
+			const Player &player = *missile.sourcePlayer();
+			missile._midam = GenerateRnd(10) + (player._pMagic / 8) + missile._mispllvl + 1;
+		} break;
+
+		case MissileSource::Monster:
+			missile._midam = ProjectileMonsterDamage(missile);
+			break;
+		case MissileSource::Trap:
+			missile._midam = ProjectileTrapDamage(missile);
+			break;
+		}
+	}
+}
+
+void ProcessMindMace(Missile &missile)
+{
+	missile._mirange--;
+
+	int j = missile._mirange;
+	MoveMissileAndCheckMissileCol(missile, GetMissileData(missile._mitype).damageType(), missile._midam, missile._midam, false, false);
+	if (missile._miHitFlag)
+		missile._mirange = j;
+
+	if (missile._mirange == 0)
+		missile._miDelFlag = true;
+
+	PutMissile(missile);
+}
 
 
 void ProcessHorkSpawn(Missile &missile)

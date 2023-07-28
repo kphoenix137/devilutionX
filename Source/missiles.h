@@ -457,6 +457,8 @@ void AddDoom(Missile &missile, AddMissileParameter &parameter);
 void ProcessDoom(Missile &missile);
 void AddSentinel(Missile &missile, AddMissileParameter &parameter);
 void ProcessSentinel(Missile &missile);
+void AddMindMace(Missile &missile, AddMissileParameter &parameter);
+void ProcessMindMace(Missile &missile);
 
 #ifdef BUILD_TESTING
 void TestRotateBlockedMissile(Missile &missile);

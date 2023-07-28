@@ -85,6 +85,7 @@ enum class MissileGraphicID : uint8_t {
 	SentinelUp,
 	SentinelOut,
 	SentinelFire,
+	MindMace,
 
 	HorkSpawn,
 	Reflect,

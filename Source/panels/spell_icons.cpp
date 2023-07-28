@@ -66,6 +66,8 @@ const uint8_t SpellITbl[] = {
 	32,
 	18,
 	16,
+	26,
+
 	50,
 	50,
 	49,

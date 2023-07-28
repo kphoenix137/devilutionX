@@ -107,6 +107,7 @@ const MissileData MissilesData[] = {
 /*Meteor*/               { &AddMeteor,              &ProcessMeteor,               LS_FBOLT1,   LS_FIRIMP2,  MissileGraphicID::MagmaBall,            Fire,                  MissileMovementDistribution::Disabled    },
 /*Explosion*/            { &AddExplosion,           &ProcessExplosion,            LS_FBALL,    SFX_NONE,    MissileGraphicID::BigExplosion,         Fire,                  MissileMovementDistribution::Disabled    },
 /*Sentinel*/             { &AddSentinel,            &ProcessSentinel,             LS_SENTINEL, LS_GUARDLAN, MissileGraphicID::SentinelUp,           Fire,                  MissileMovementDistribution::Disabled    },
+/*MindMace*/             { &AddMindMace,            &ProcessMindMace,             LS_FLASH,    LS_ARROWALL, MissileGraphicID::MindMace,             Physical,              MissileMovementDistribution::Blockable   },
 
 
 /*Mana*/                 { &AddMana,                nullptr,                      SFX_NONE,    SFX_NONE,    MissileGraphicID::None,                 Physical | Invisible,  MissileMovementDistribution::Disabled    },
@@ -272,9 +273,7 @@ MissileFileData MissileSpriteData[] = {
 /*SentinelUp*/               { {},               96,          16, "sentup",           1, MissileGraphicsFlags::Cel,                      1, AnimLen_15      },
 /*SentinelOut*/              { {},               96,          16, "sentout",          1, MissileGraphicsFlags::Cel,                      1, AnimLen_14      },
 /*SentinelFire*/             { {},               96,          16, "sentfr",           1, MissileGraphicsFlags::Cel,                      1, AnimLen_3       },
-
-
-
+/*MindMace*/                 { {},               96,          16, "mindmace",         1, MissileGraphicsFlags::Cel,                      1, AnimLen_8       },
 
 /*HorkSpawn*/                { {},               96,          16, "spawns",           8, MissileGraphicsFlags::MonsterOwned,             0, AnimLen_9       },
 /*Reflect*/                  { {},              160,          64, "reflect",          1, MissileGraphicsFlags::NotAnimated,              0, AnimLen_1       },
