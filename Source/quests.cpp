@@ -410,6 +410,8 @@ void CheckQuests()
 				if (quest._qlvltype != DTYPE_NONE) {
 					setlvltype = quest._qlvltype;
 				}
+				if (quest.position == Quests[Q_BUTCHER].position && Quests[Q_BUTCHER]._qvar1 < QS_BUTCHER_PORTAL_UP)
+					return;
 				StartNewLvl(*MyPlayer, WM_DIABSETLVL, quest._qslvl);
 			}
 		}
