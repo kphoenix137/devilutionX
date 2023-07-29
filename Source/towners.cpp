@@ -303,8 +303,8 @@ void TalkToBarOwner(Player &player, Towner &barOwner)
 	}
 
 	auto &butcherQuest = Quests[Q_BUTCHER];
-	if (butcherQuest._qactive != QUEST_NOTAVAIL) {
-		if (butcherQuest._qvar1 == QS_BUTCHER_VISITED_WIRT) {
+	if (IsNoneOf(butcherQuest._qactive, QUEST_NOTAVAIL, QUEST_DONE)) {
+		if (butcherQuest._qvar1 >= QS_BUTCHER_VISITED_WIRT) {
 			InitQTextMsg(TEXT_OGDEN_BUTCHER1);
 			return;
 		}
