@@ -96,7 +96,7 @@ Cutscenes PickCutscene(interface_mode uMsg)
 	case WM_DIABRTNLVL:
 		if (setlvlnum == SL_BONECHAMB)
 			return CutLevel2;
-		if (setlvlnum == SL_VILEBETRAYER)
+		if (IsAnyOf(setlvlnum, SL_VILEBETRAYER, SL_BUTCHER))
 			return CutPortalRed;
 		if (IsArenaLevel(setlvlnum)) {
 			if (uMsg == WM_DIABSETLVL)

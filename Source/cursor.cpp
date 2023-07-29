@@ -340,7 +340,7 @@ void CheckRportal()
 				InfoString = _("Portal to");
 				string_view dest;
 				string_view back;
-				if (currlevel = Quests[Q_BUTCHER]._qlevel) {
+				if (currlevel == Quests[Q_BUTCHER]._qlevel) {
 					dest = _("The Butcher's Chamber");
 					back = _("level 2");
 				} else {
