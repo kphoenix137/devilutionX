@@ -51,7 +51,7 @@ QuestData QuestsData[] = {
 	{       8,          -1, DTYPE_NONE,          9,      100,    SL_NONE,         true,               TEXT_ZHAR1,    N_("Zhar the Mad")             },
 	{      14,          -1, DTYPE_NONE,         21,      100,    SL_NONE,         true,               TEXT_VEIL9,    N_("Lachdanan")                },
 	{      15,          -1, DTYPE_NONE,         23,      100,    SL_NONE,         false,              TEXT_VILE3,    N_("Diablo")                   },
-	{       2,           2, DTYPE_NONE,          0,      100,    SL_NONE,         false,              TEXT_BUTCH9,   N_("The Butcher")              },
+	{       2,           2, DTYPE_CATHEDRAL,     0,      100,    SL_BUTCHER,      false,              TEXT_BUTCH9,   N_("The Butcher")              },
 	{       4,          -1, DTYPE_NONE,          4,      100,    SL_NONE,         true,               TEXT_BANNER2,  N_("Ogden's Sign")             },
 	{       7,          -1, DTYPE_NONE,          8,      100,    SL_NONE,         true,               TEXT_BLINDING, N_("Halls of the Blind")       },
 	{       5,          -1, DTYPE_NONE,          6,      100,    SL_NONE,         true,               TEXT_BLOODY,   N_("Valor")                    },
@@ -93,7 +93,8 @@ int LineSpacing;
 /** The number of pixels to move finished quest, to seperate them from the active ones */
 int FinishedQuestOffset;
 
-const char *const QuestTriggerNames[5] = {
+const char *const QuestTriggerNames[6] = {
+	N_(/* TRANSLATORS: Quest Map*/ "The Butcher's Chamber"),
 	N_(/* TRANSLATORS: Quest Map*/ "King Leoric's Tomb"),
 	N_(/* TRANSLATORS: Quest Map*/ "The Chamber of Bone"),
 	N_(/* TRANSLATORS: Quest Map*/ "Maze"),
@@ -128,10 +129,11 @@ int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 /**
  * @brief There is no reason to run this, the room has already had a proper sector assigned
  */
-void DrawButcher()
+void DrawButcher(quest_id q, Point position)
 {
-	Point position = SetPiece.position.megaToWorld() + Displacement { 3, 3 };
-	DRLG_RectTrans({ position, { 7, 7 } });
+	Point pos = SetPiece.position.megaToWorld() + Displacement { 3, 3 };
+	DRLG_RectTrans({ pos, { 7, 7 } });
+	Quests[q].position = pos;
 }
 
 void DrawSkelKing(quest_id q, Point position)
@@ -280,6 +282,8 @@ void InitQuests()
 		}
 	}
 
+	if (Quests[Q_BUTCHER]._qactive == QUEST_NOTAVAIL)
+		Quests[Q_BUTCHER]._qvar2 = QS2_BUTCHER_NO_PORTAL;
 	if (Quests[Q_SKELKING]._qactive == QUEST_NOTAVAIL)
 		Quests[Q_SKELKING]._qvar2 = 2;
 	if (Quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
@@ -323,37 +327,65 @@ void CheckQuests()
 	if (gbIsSpawn)
 		return;
 
-	auto &quest = Quests[Q_BETRAYER];
-	if (quest.IsAvailable() && UseMultiplayerQuests() && quest._qvar1 == 2) {
+	auto &butcherQuest = Quests[Q_BUTCHER];
+	if (butcherQuest.IsAvailable()) {
+		NetSendCmdQuest(true, butcherQuest);
+	}
+
+	auto &vileQuest = Quests[Q_BETRAYER];
+	if (vileQuest.IsAvailable() && UseMultiplayerQuests() && vileQuest._qvar1 == 2) {
 		AddObject(OBJ_ALTBOY, SetPiece.position.megaToWorld() + Displacement { 4, 6 });
-		quest._qvar1 = 3;
-		NetSendCmdQuest(true, quest);
+		vileQuest._qvar1 = 3;
+		NetSendCmdQuest(true, vileQuest);
 	}
 
 	if (UseMultiplayerQuests()) {
 		return;
 	}
 
-	if (currlevel == quest._qlevel
+	// Check if level 2 red portal should be spawned
+	if (currlevel == butcherQuest._qlevel
 	    && !setlevel
-	    && quest._qvar1 >= 2
-	    && (quest._qactive == QUEST_ACTIVE || quest._qactive == QUEST_DONE)
-	    && (quest._qvar2 == 0 || quest._qvar2 == 2)) {
+	    && butcherQuest._qvar1 >= QS_BUTCHER_PORTAL_UP
+	    && (butcherQuest._qactive == QUEST_ACTIVE || butcherQuest._qactive == QUEST_DONE)
+	    && butcherQuest._qvar2 == QS2_BUTCHER_DO_PORTAL) {
 		// Spawn a portal at the quest trigger location
-		AddMissile(quest.position, quest.position, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
-		quest._qvar2 = 1;
-		if (quest._qactive == QUEST_ACTIVE && quest._qvar1 == 2) {
-			quest._qvar1 = 3;
+		Point portal = butcherQuest.position + Displacement { 1, 1 };
+		AddMissile(butcherQuest.position, butcherQuest.position, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
+		butcherQuest._qvar2 = QS2_BUTCHER_NO_PORTAL;
+	}
+
+	// Check if Butcher Chamber portal should be spawned
+	if (setlvlnum == SL_BUTCHER
+	    && setlevel
+	    && butcherQuest._qvar1 >= QS_BUTCHER_PORTAL_UP
+	    && (butcherQuest._qactive == QUEST_ACTIVE || butcherQuest._qactive == QUEST_DONE)
+	    && butcherQuest._qvar2 == QS2_BUTCHER_DO_PORTAL) {
+		Point portalLocation { 54, 38 };
+		AddMissile(portalLocation, portalLocation, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
+		butcherQuest._qvar2 = QS2_BUTCHER_NO_PORTAL;
+	}
+
+	if (currlevel == vileQuest._qlevel
+	    && !setlevel
+	    && vileQuest._qvar1 >= 2
+	    && (vileQuest._qactive == QUEST_ACTIVE || vileQuest._qactive == QUEST_DONE)
+	    && (vileQuest._qvar2 == 0 || vileQuest._qvar2 == 2)) {
+		// Spawn a portal at the quest trigger location
+		AddMissile(vileQuest.position, vileQuest.position, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
+		vileQuest._qvar2 = 1;
+		if (vileQuest._qactive == QUEST_ACTIVE && vileQuest._qvar1 == 2) {
+			vileQuest._qvar1 = 3;
 		}
 	}
 
-	if (quest._qactive == QUEST_DONE
+	if (vileQuest._qactive == QUEST_DONE
 	    && setlevel
 	    && setlvlnum == SL_VILEBETRAYER
-	    && quest._qvar2 == 4) {
+	    && vileQuest._qvar2 == 4) {
 		Point portalLocation { 35, 32 };
 		AddMissile(portalLocation, portalLocation, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
-		quest._qvar2 = 3;
+		vileQuest._qvar2 = 3;
 	}
 
 	if (setlevel) {
@@ -394,7 +426,7 @@ bool ForceQuests()
 	}
 
 	for (auto &quest : Quests) {
-		if (quest._qidx != Q_BETRAYER && currlevel == quest._qlevel && quest._qslvl != 0) {
+		if (quest._qidx != Q_BETRAYER && quest._qidx != Q_BUTCHER && currlevel == quest._qlevel && quest._qslvl != 0) {
 			int ql = quest._qslvl - 1;
 
 			if (EntranceBoundaryContains(quest.position, cursPosition)) {
@@ -415,28 +447,41 @@ void CheckQuestKill(const Monster &monster, bool sendmsg)
 
 	Player &myPlayer = *MyPlayer;
 
-	if (monster.type().type == MT_SKING) {
+	switch (monster.uniqueType) {
+	case UniqueMonsterType::Butcher: {
+		auto &quest = Quests[Q_BUTCHER];
+		quest._qactive = QUEST_DONE;
+		myPlayer.Say(HeroSpeech::TheSpiritsOfTheDeadAreNowAvenged, 30);
+		InitButcherTriggers();
+		quest._qvar2 = 4;
+		AddMissile({ 54, 38 }, { 54, 38 }, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
+		if (sendmsg)
+			NetSendCmdQuest(true, quest);
+	} break;
+	case UniqueMonsterType::SkeletonKing: {
 		auto &quest = Quests[Q_SKELKING];
 		quest._qactive = QUEST_DONE;
 		myPlayer.Say(HeroSpeech::RestWellLeoricIllFindYourSon, 30);
 		if (sendmsg)
 			NetSendCmdQuest(true, quest);
-
-	} else if (monster.type().type == MT_CLEAVER) {
-		auto &quest = Quests[Q_BUTCHER];
-		quest._qactive = QUEST_DONE;
-		myPlayer.Say(HeroSpeech::TheSpiritsOfTheDeadAreNowAvenged, 30);
-		if (sendmsg)
-			NetSendCmdQuest(true, quest);
-	} else if (monster.uniqueType == UniqueMonsterType::Garbud) { //"Gharbad the Weak"
+	} break;
+	case UniqueMonsterType::Garbud: {
 		Quests[Q_GARBUD]._qactive = QUEST_DONE;
 		NetSendCmdQuest(true, Quests[Q_GARBUD]);
 		myPlayer.Say(HeroSpeech::ImNotImpressed, 30);
-	} else if (monster.uniqueType == UniqueMonsterType::Zhar) { //"Zhar the Mad"
+	} break;
+	case UniqueMonsterType::Zhar: {
 		Quests[Q_ZHAR]._qactive = QUEST_DONE;
 		NetSendCmdQuest(true, Quests[Q_ZHAR]);
 		myPlayer.Say(HeroSpeech::ImSorryDidIBreakYourConcentration, 30);
-	} else if (monster.uniqueType == UniqueMonsterType::Lazarus) { //"Arch-Bishop Lazarus"
+	} break;
+
+	case UniqueMonsterType::WarlordOfBlood: {
+		Quests[Q_WARLORD]._qactive = QUEST_DONE;
+		NetSendCmdQuest(true, Quests[Q_WARLORD]);
+		myPlayer.Say(HeroSpeech::YourReignOfPainHasEnded, 30);
+	} break;
+	case UniqueMonsterType::Lazarus: {
 		auto &betrayerQuest = Quests[Q_BETRAYER];
 		betrayerQuest._qactive = QUEST_DONE;
 		myPlayer.Say(HeroSpeech::YourMadnessEndsHereBetrayer, 30);
@@ -463,10 +508,9 @@ void CheckQuestKill(const Monster &monster, bool sendmsg)
 			NetSendCmdQuest(true, betrayerQuest);
 			NetSendCmdQuest(true, diabloQuest);
 		}
-	} else if (monster.uniqueType == UniqueMonsterType::WarlordOfBlood) {
-		Quests[Q_WARLORD]._qactive = QUEST_DONE;
-		NetSendCmdQuest(true, Quests[Q_WARLORD]);
-		myPlayer.Say(HeroSpeech::YourReignOfPainHasEnded, 30);
+	} break;
+	default:
+		break;
 	}
 }
 
@@ -476,7 +520,7 @@ void DRLG_CheckQuests(Point position)
 		if (quest.IsAvailable()) {
 			switch (quest._qidx) {
 			case Q_BUTCHER:
-				DrawButcher();
+				DrawButcher(quest._qidx, position);
 				break;
 			case Q_LTBANNER:
 				DrawLTBanner(position);
@@ -506,6 +550,8 @@ void DRLG_CheckQuests(Point position)
 int GetMapReturnLevel()
 {
 	switch (setlvlnum) {
+	case SL_BUTCHER:
+		return Quests[Q_BUTCHER]._qlevel;
 	case SL_SKELKING:
 		return Quests[Q_SKELKING]._qlevel;
 	case SL_BONECHAMB:
@@ -522,6 +568,8 @@ int GetMapReturnLevel()
 Point GetMapReturnPosition()
 {
 	switch (setlvlnum) {
+	case SL_BUTCHER:
+		return Quests[Q_BUTCHER].position + Direction::South;
 	case SL_SKELKING:
 		return Quests[Q_SKELKING].position + Direction::SouthEast;
 	case SL_BONECHAMB:
@@ -561,20 +609,20 @@ void ResyncMPQuests()
 	if (gbIsSpawn)
 		return;
 
-	auto &kingQuest = Quests[Q_SKELKING];
-	if (kingQuest._qactive == QUEST_INIT
-	    && currlevel >= kingQuest._qlevel - 1
-	    && currlevel <= kingQuest._qlevel + 1) {
-		kingQuest._qactive = QUEST_ACTIVE;
-		NetSendCmdQuest(true, kingQuest);
-	}
-
 	auto &butcherQuest = Quests[Q_BUTCHER];
 	if (butcherQuest._qactive == QUEST_INIT
 	    && currlevel >= butcherQuest._qlevel - 1
 	    && currlevel <= butcherQuest._qlevel + 1) {
 		butcherQuest._qactive = QUEST_ACTIVE;
 		NetSendCmdQuest(true, butcherQuest);
+	}
+
+	auto &kingQuest = Quests[Q_SKELKING];
+	if (kingQuest._qactive == QUEST_INIT
+	    && currlevel >= kingQuest._qlevel - 1
+	    && currlevel <= kingQuest._qlevel + 1) {
+		kingQuest._qactive = QUEST_ACTIVE;
+		NetSendCmdQuest(true, kingQuest);
 	}
 
 	auto &betrayerQuest = Quests[Q_BETRAYER];

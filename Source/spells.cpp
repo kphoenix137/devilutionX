@@ -218,9 +218,20 @@ void CastSpell(int id, SpellID spl, int sx, int sy, int dx, int dy, int spllvl)
 
 	bool fizzled = false;
 	const SpellData &spellData = GetSpellData(spl);
+	Quest &butcherQuest = Quests[Q_BUTCHER];
+	const Point butcherRoomPos = butcherQuest.position;
+	const Point butcherRoomLastPos = butcherRoomPos + Displacement { 7, 7 };
+	
 	for (size_t i = 0; i < sizeof(spellData.sMissiles) / sizeof(spellData.sMissiles[0]) && spellData.sMissiles[i] != MissileID::Null; i++) {
-		Missile *missile = AddMissile({ sx, sy }, { dx, dy }, dir, spellData.sMissiles[i], TARGET_MONSTERS, id, 0, spllvl);
-		fizzled |= (missile == nullptr);
+		if (spl == SpellID::TownPortal && (butcherQuest._qvar1 < QS_BUTCHER_PORTAL_UP && currlevel == butcherQuest._qlevel && dx >= butcherRoomPos.x && dy >= butcherRoomPos.y && dx <= butcherRoomLastPos.x && dy <= butcherRoomLastPos.y)) {
+			butcherQuest._qvar1 = QS_BUTCHER_PORTAL_UP;
+			AddMissile(butcherQuest.position, butcherQuest.position, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
+			NetSendCmdQuest(true, butcherQuest);
+		} else {
+			Missile *missile = AddMissile({ sx, sy }, { dx, dy }, dir, spellData.sMissiles[i], TARGET_MONSTERS, id, 0, spllvl);
+			fizzled |= (missile == nullptr);
+		}
+		
 	}
 	if (spl == SpellID::ChargedBolt) {
 		for (int i = (spllvl / 2) + 3; i > 0; i--) {

@@ -370,6 +370,9 @@ void PlaceUniqueMonst(UniqueMonsterType uniqindex, size_t minionType, int bosspa
 		if (uniqindex == UniqueMonsterType::SkeletonKing) {
 			position = { 35, 47 };
 		}
+		if (uniqindex == UniqueMonsterType::Butcher) {
+			position = { 24, 38 };
+		}
 	} else {
 		if (uniqindex == UniqueMonsterType::Lazarus) {
 			position = SetPiece.position.megaToWorld() + Displacement { 3, 6 };
@@ -380,9 +383,6 @@ void PlaceUniqueMonst(UniqueMonsterType uniqindex, size_t minionType, int bosspa
 		if (uniqindex == UniqueMonsterType::BlackJade) {
 			position = SetPiece.position.megaToWorld() + Displacement { 5, 9 };
 		}
-	}
-	if (uniqindex == UniqueMonsterType::Butcher) {
-		position = SetPiece.position.megaToWorld() + Displacement { 4, 4 };
 	}
 
 	if (uniqindex == UniqueMonsterType::NaKrul) {
@@ -479,10 +479,6 @@ void PlaceUniqueMonsters()
 void PlaceQuestMonsters()
 {
 	if (!setlevel) {
-		if (Quests[Q_BUTCHER].IsAvailable()) {
-			PlaceUniqueMonst(UniqueMonsterType::Butcher, 0, 0);
-		}
-
 		if (currlevel == Quests[Q_SKELKING]._qlevel && UseMultiplayerQuests()) {
 			for (size_t i = 0; i < LevelMonsterTypeCount; i++) {
 				if (IsSkel(LevelMonsterTypes[i].type)) {
@@ -545,6 +541,8 @@ void PlaceQuestMonsters()
 			if (UberDiabloMonsterIndex == -1)
 				PlaceUniqueMonst(UniqueMonsterType::NaKrul, 0, 0);
 		}
+	} else if (setlvlnum == SL_BUTCHER) {
+		PlaceUniqueMonst(UniqueMonsterType::Butcher, 0, 0);
 	} else if (setlvlnum == SL_SKELKING) {
 		PlaceUniqueMonst(UniqueMonsterType::SkeletonKing, 0, 0);
 	}
@@ -3246,8 +3244,6 @@ void GetLevelMTypes()
 	}
 
 	if (!setlevel) {
-		if (Quests[Q_BUTCHER].IsAvailable())
-			AddMonsterType(MT_CLEAVER, PLACE_SPECIAL);
 		if (Quests[Q_GARBUD].IsAvailable())
 			AddMonsterType(UniqueMonsterType::Garbud, PLACE_UNIQUE);
 		if (Quests[Q_ZHAR].IsAvailable())
@@ -3301,6 +3297,8 @@ void GetLevelMTypes()
 			}
 		}
 	} else {
+		if (setlvlnum == SL_BUTCHER)
+			AddMonsterType(MT_CLEAVER, PLACE_SPECIAL);
 		if (setlvlnum == SL_SKELKING) {
 			AddMonsterType(MT_SKING, PLACE_UNIQUE);
 		}

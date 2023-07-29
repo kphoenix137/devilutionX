@@ -311,6 +311,14 @@ void InitCryptTriggers()
 	trigflag = false;
 }
 
+void InitButcherTriggers()
+{
+	trigflag = false;
+	numtrigs = 1;
+	trigs[0].position = { 54, 38 };
+	trigs[0]._tmsg = WM_DIABRTNLVL;
+}
+
 void InitSKingTriggers()
 {
 	trigflag = false;

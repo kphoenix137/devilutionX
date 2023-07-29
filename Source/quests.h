@@ -21,6 +21,20 @@ namespace devilution {
 
 #define MAXQUESTS 24
 
+enum {
+	QS_BUTCHER_INIT,
+	QS_BUTCHER_MAN_DIED,
+	QS_BUTCHER_VISITED_WIRT,
+	QS_BUTCHER_PORTAL_UP,
+	QS_BUTCHER_KILLED,
+};
+
+enum {
+	QS2_BUTCHER_INIT,
+	QS2_BUTCHER_DO_PORTAL,
+	QS2_BUTCHER_NO_PORTAL,
+};
+
 /** States of the mushroom quest */
 enum {
 	QS_INIT,

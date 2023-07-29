@@ -302,6 +302,14 @@ void TalkToBarOwner(Player &player, Towner &barOwner)
 		return;
 	}
 
+	auto &butcherQuest = Quests[Q_BUTCHER];
+	if (butcherQuest._qactive != QUEST_NOTAVAIL) {
+		if (butcherQuest._qvar1 == QS_BUTCHER_VISITED_WIRT) {
+			InitQTextMsg(TEXT_OGDEN_BUTCHER1);
+			return;
+		}
+	}
+
 	auto &kingQuest = Quests[Q_SKELKING];
 	if (kingQuest._qactive != QUEST_NOTAVAIL) {
 		if (player._pLvlVisited[2] || player._pLvlVisited[4]) {

@@ -338,7 +338,16 @@ void CheckRportal()
 			if (EntranceBoundaryContains(missile.position.tile, cursPosition)) {
 				trigflag = true;
 				InfoString = _("Portal to");
-				AddPanelString(!setlevel ? _("The Unholy Altar") : _("level 15"));
+				string_view dest;
+				string_view back;
+				if (currlevel = Quests[Q_BUTCHER]._qlevel) {
+					dest = _("The Butcher's Chamber");
+					back = _("level 2");
+				} else {
+					dest = _("The Unholy Altar");
+					back = _("level 15");
+				}
+				AddPanelString(!setlevel ? dest : back);
 				cursPosition = missile.position.tile;
 			}
 		}

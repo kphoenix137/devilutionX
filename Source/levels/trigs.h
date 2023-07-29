@@ -33,6 +33,7 @@ void InitL3Triggers();
 void InitL4Triggers();
 void InitHiveTriggers();
 void InitCryptTriggers();
+void InitButcherTriggers();
 void InitSKingTriggers();
 void InitSChambTriggers();
 void InitPWaterTriggers();

@@ -393,6 +393,9 @@ int ItemsGetCurrlevel()
 {
 	if (setlevel) {
 		switch (setlvlnum) {
+		case SL_BUTCHER:
+			return Quests[Q_BUTCHER]._qlevel;
+			break;
 		case SL_SKELKING:
 			return Quests[Q_SKELKING]._qlevel;
 		case SL_BONECHAMB:
