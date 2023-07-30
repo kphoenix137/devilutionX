@@ -51,7 +51,7 @@ QuestData QuestsData[] = {
 	{       8,          -1, DTYPE_NONE,          9,      100,    SL_NONE,         true,               TEXT_ZHAR1,    N_("Zhar the Mad")             },
 	{      14,          -1, DTYPE_NONE,         21,      100,    SL_NONE,         true,               TEXT_VEIL9,    N_("Lachdanan")                },
 	{      15,          -1, DTYPE_NONE,         23,      100,    SL_NONE,         false,              TEXT_VILE3,    N_("Diablo")                   },
-	{       2,           2, DTYPE_CATHEDRAL,     0,      100,    SL_BUTCHER,      false,              TEXT_BUTCH9,   N_("The Butcher")              },
+	{       2,           2, DTYPE_CATHEDRAL,     0,      100,    SL_BUTCHER,      false,              TEXT_DEADGUY_BUTCHER,   N_("The Butcher")              },
 	{       4,          -1, DTYPE_NONE,          4,      100,    SL_NONE,         true,               TEXT_BANNER2,  N_("Ogden's Sign")             },
 	{       7,          -1, DTYPE_NONE,          8,      100,    SL_NONE,         true,               TEXT_BLINDING, N_("Halls of the Blind")       },
 	{       5,          -1, DTYPE_NONE,          6,      100,    SL_NONE,         true,               TEXT_BLOODY,   N_("Valor")                    },
@@ -660,7 +660,21 @@ void ResyncQuests()
 		return;
 
 	LoadingMapObjects = true;
-
+	if (currlevel == Quests[Q_BUTCHER]._qlevel && !setlevel) {
+		if (Quests[Q_BUTCHER]._qactive == QUEST_ACTIVE) {
+			if (Quests[Q_BUTCHER]._qvar1 >= QS_BUTCHER_VISITED_WIRT) {
+				QuestDialogTable[TOWN_DRUNK][Q_BUTCHER] = TEXT_FARNHAM_BUTCHER2;
+				QuestDialogTable[TOWN_BMAID][Q_BUTCHER] = TEXT_GILLIAN_BUTCHER2;
+				QuestDialogTable[TOWN_HEALER][Q_BUTCHER] = TEXT_PEPIN_BUTCHER2;
+				QuestDialogTable[TOWN_SMITH][Q_BUTCHER] = TEXT_GRISWOLD_BUTCHER2;
+				QuestDialogTable[TOWN_PEGBOY][Q_BUTCHER] = TEXT_WIRT_BUTCHER3;
+				QuestDialogTable[TOWN_STORY][Q_BUTCHER] = TEXT_CAIN_BUTCHER2;
+				QuestDialogTable[TOWN_TAVERN][Q_BUTCHER] = TEXT_OGDEN_BUTCHER2;
+				QuestDialogTable[TOWN_WITCH][Q_BUTCHER] = TEXT_ADRIA_BUTCHER2;
+				
+			}
+		}
+	}
 	if (Quests[Q_LTBANNER].IsAvailable()) {
 		Monster *snotSpill = FindUniqueMonster(UniqueMonsterType::SnotSpill);
 		if (Quests[Q_LTBANNER]._qvar1 == 1) {
