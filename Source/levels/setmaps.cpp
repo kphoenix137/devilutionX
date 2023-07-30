@@ -39,10 +39,10 @@ namespace {
 
 void AddButcherObjs()
 {
-	constexpr WorldTileRectangle StartRoomGate { { 19, 9 }, { 1, 1 } };
-	ObjectAtPosition({ 34, 50 }).InitializeLoadedObject(StartRoomGate, 0);
-	constexpr WorldTileRectangle MiddleGates { { 12, 9 }, { 5, 1 } };
-	ObjectAtPosition({ 34, 26 }).InitializeLoadedObject(MiddleGates, 1);
+	constexpr WorldTileRectangle SecretRoom { { 29, 22 }, { 5, 5 } };
+	ObjectAtPosition({ 26, 67 }).InitializeLoadedObject(SecretRoom, 0);
+	constexpr WorldTileRectangle ButcherDoors { { 19, 16 }, { 3, 1 } };
+	ObjectAtPosition({ 85, 52 }).InitializeLoadedObject(ButcherDoors, 1);
 }
 
 void AddSKingObjs()
@@ -123,11 +123,11 @@ void LoadSetMap()
 		} else if (Quests[Q_BUTCHER]._qactive == QUEST_ACTIVE) {
 			Quests[Q_BUTCHER]._qvar2 = QS2_BUTCHER_NO_PORTAL;
 		}
-		LoadPreL1Dungeon("levels\\l1data\\bchamber1.dun");
-		Point spawn { 54, 38 };
-		LoadL1Dungeon("levels\\l1data\\bchamber2.dun", spawn + Direction::South);
-		SetMapTransparency("levels\\l1data\\bchambert.dun");
-		LoadPalette("levels\\l1data\\l1_1.pal");
+		LoadPreL1Dungeon("levels\\l2data\\bchamber1.dun");
+		Point spawn { 55, 65 };
+		LoadL1Dungeon("levels\\l2data\\bchamber2.dun", spawn + Direction::South);
+		SetMapTransparency("levels\\l2data\\bchamber1.dun");
+		LoadPalette("levels\\l2data\\l2_1.pal");
 		AddButcherObjs();
 		InitNoTriggers();
 		break;

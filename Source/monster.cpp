@@ -371,7 +371,7 @@ void PlaceUniqueMonst(UniqueMonsterType uniqindex, size_t minionType, int bosspa
 			position = { 35, 47 };
 		}
 		if (uniqindex == UniqueMonsterType::Butcher) {
-			position = { 24, 38 };
+			position = { 56, 36 };
 		}
 	} else {
 		if (uniqindex == UniqueMonsterType::Lazarus) {

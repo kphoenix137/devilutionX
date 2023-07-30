@@ -51,7 +51,7 @@ QuestData QuestsData[] = {
 	{       8,          -1, DTYPE_NONE,          9,      100,    SL_NONE,         true,               TEXT_ZHAR1,    N_("Zhar the Mad")             },
 	{      14,          -1, DTYPE_NONE,         21,      100,    SL_NONE,         true,               TEXT_VEIL9,    N_("Lachdanan")                },
 	{      15,          -1, DTYPE_NONE,         23,      100,    SL_NONE,         false,              TEXT_VILE3,    N_("Diablo")                   },
-	{       2,           2, DTYPE_CATHEDRAL,     0,      100,    SL_BUTCHER,      false,              TEXT_DEADGUY_BUTCHER,   N_("The Butcher")              },
+	{       2,           2, DTYPE_CATACOMBS,     0,      100,    SL_BUTCHER,      false,              TEXT_DEADGUY_BUTCHER,   N_("The Butcher")              },
 	{       4,          -1, DTYPE_NONE,          4,      100,    SL_NONE,         true,               TEXT_BANNER2,  N_("Ogden's Sign")             },
 	{       7,          -1, DTYPE_NONE,          8,      100,    SL_NONE,         true,               TEXT_BLINDING, N_("Halls of the Blind")       },
 	{       5,          -1, DTYPE_NONE,          6,      100,    SL_NONE,         true,               TEXT_BLOODY,   N_("Valor")                    },
@@ -129,7 +129,7 @@ int QuestGroup4[2] = { Q_VEIL, Q_WARLORD };
 /**
  * @brief There is no reason to run this, the room has already had a proper sector assigned
  */
-void DrawButcher(quest_id q, Point position)
+void DrawButcher(quest_id q)
 {
 	Point pos = SetPiece.position.megaToWorld() + Displacement { 3, 3 };
 	DRLG_RectTrans({ pos, { 7, 7 } });
@@ -361,7 +361,7 @@ void CheckQuests()
 	    && butcherQuest._qvar1 >= QS_BUTCHER_PORTAL_UP
 	    && (butcherQuest._qactive == QUEST_ACTIVE || butcherQuest._qactive == QUEST_DONE)
 	    && butcherQuest._qvar2 == QS2_BUTCHER_DO_PORTAL) {
-		Point portalLocation { 54, 38 };
+		Point portalLocation { 55, 65 };
 		AddMissile(portalLocation, portalLocation, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
 		butcherQuest._qvar2 = QS2_BUTCHER_NO_PORTAL;
 	}
@@ -456,7 +456,8 @@ void CheckQuestKill(const Monster &monster, bool sendmsg)
 		myPlayer.Say(HeroSpeech::TheSpiritsOfTheDeadAreNowAvenged, 30);
 		InitButcherTriggers();
 		quest._qvar2 = 4;
-		AddMissile({ 54, 38 }, { 54, 38 }, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
+		Point portal { 55, 65 };
+		AddMissile(portal, portal, Direction::South, MissileID::RedPortal, TARGET_MONSTERS, MyPlayerId, 0, 0);
 		if (sendmsg)
 			NetSendCmdQuest(true, quest);
 	} break;
@@ -522,7 +523,7 @@ void DRLG_CheckQuests(Point position)
 		if (quest.IsAvailable()) {
 			switch (quest._qidx) {
 			case Q_BUTCHER:
-				DrawButcher(quest._qidx, position);
+				DrawButcher(quest._qidx);
 				break;
 			case Q_LTBANNER:
 				DrawLTBanner(position);
@@ -671,7 +672,6 @@ void ResyncQuests()
 				QuestDialogTable[TOWN_STORY][Q_BUTCHER] = TEXT_CAIN_BUTCHER2;
 				QuestDialogTable[TOWN_TAVERN][Q_BUTCHER] = TEXT_OGDEN_BUTCHER2;
 				QuestDialogTable[TOWN_WITCH][Q_BUTCHER] = TEXT_ADRIA_BUTCHER2;
-				
 			}
 		}
 	}
