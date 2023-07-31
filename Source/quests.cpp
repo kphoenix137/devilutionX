@@ -45,30 +45,32 @@ int ReturnLevel;
 QuestData QuestsData[] = {
 	// clang-format off
 	// _qdlvl,  _qdmultlvl, _qlvlt,          bookOrder,   _qdrnd, _qslvl,          isSinglePlayerOnly, _qdmsg,        _qlstr
-	{       5,          -1, DTYPE_NONE,          5,      100,    SL_NONE,         true,               TEXT_INFRA5,   N_( /* TRANSLATORS: Quest Name Block */ "The Magic Rock")           },
-	{       9,          -1, DTYPE_NONE,         10,      100,    SL_NONE,         true,               TEXT_MUSH8,    N_("Black Mushroom")           },
-	{       4,          -1, DTYPE_NONE,          3,      100,    SL_NONE,         true,               TEXT_GARBUD1,  N_("Gharbad The Weak")         },
-	{       8,          -1, DTYPE_NONE,          9,      100,    SL_NONE,         true,               TEXT_ZHAR1,    N_("Zhar the Mad")             },
-	{      14,          -1, DTYPE_NONE,         21,      100,    SL_NONE,         true,               TEXT_VEIL9,    N_("Lachdanan")                },
-	{      15,          -1, DTYPE_NONE,         23,      100,    SL_NONE,         false,              TEXT_VILE3,    N_("Diablo")                   },
+	{       5,          -1, DTYPE_NONE,          5,      100,    SL_NONE,         true,               TEXT_INFRA5,            N_( /* TRANSLATORS: Quest Name Block */ "The Magic Rock")           },
+	{       9,          -1, DTYPE_NONE,         10,      100,    SL_NONE,         true,               TEXT_MUSH8,             N_("Black Mushroom")           },
+	{       4,          -1, DTYPE_NONE,          3,      100,    SL_NONE,         true,               TEXT_GARBUD1,           N_("Gharbad The Weak")         },
+	{       8,          -1, DTYPE_NONE,          9,      100,    SL_NONE,         true,               TEXT_ZHAR1,             N_("Zhar the Mad")             },
+	{      14,          -1, DTYPE_NONE,         21,      100,    SL_NONE,         true,               TEXT_VEIL9,             N_("Lachdanan")                },
+	{      15,          -1, DTYPE_NONE,         23,      100,    SL_NONE,         false,              TEXT_VILE3,             N_("Diablo")                   },
 	{       2,           2, DTYPE_CATACOMBS,     0,      100,    SL_BUTCHER,      false,              TEXT_DEADGUY_BUTCHER,   N_("The Butcher")              },
-	{       4,          -1, DTYPE_NONE,          4,      100,    SL_NONE,         true,               TEXT_BANNER2,  N_("Ogden's Sign")             },
-	{       7,          -1, DTYPE_NONE,          8,      100,    SL_NONE,         true,               TEXT_BLINDING, N_("Halls of the Blind")       },
-	{       5,          -1, DTYPE_NONE,          6,      100,    SL_NONE,         true,               TEXT_BLOODY,   N_("Valor")                    },
-	{      10,          -1, DTYPE_NONE,         11,      100,    SL_NONE,         true,               TEXT_ANVIL5,   N_("Anvil of Fury")            },
-	{      13,          -1, DTYPE_NONE,         20,      100,    SL_NONE,         true,               TEXT_BLOODWAR, N_("Warlord of Blood")         },
-	{       3,           3, DTYPE_CATHEDRAL,     2,      100,    SL_SKELKING,     false,              TEXT_KING2,    N_("The Curse of King Leoric") },
-	{       2,          -1, DTYPE_CAVES,         1,      100,    SL_POISONWATER,  true,               TEXT_POISON3,  N_("Poisoned Water Supply")    },
-	{       6,          -1, DTYPE_CATACOMBS,     7,      100,    SL_BONECHAMB,    true,               TEXT_BONER,    N_("The Chamber of Bone")      },
-	{      15,          15, DTYPE_CATHEDRAL,    22,      100,    SL_VILEBETRAYER, false,              TEXT_VILE1,    N_("Archbishop Lazarus")       },
-	{      17,          17, DTYPE_NONE,         17,      100,    SL_NONE,         false,              TEXT_GRAVE7,   N_("Grave Matters")            },
-	{      9,            9, DTYPE_NONE,         12,      100,    SL_NONE,         false,              TEXT_FARMER1,  N_("Farmer's Orchard")         },
-	{      17,          -1, DTYPE_NONE,         14,      100,    SL_NONE,         true,               TEXT_GIRL2,    N_("Little Girl")              },
-	{      19,          -1, DTYPE_NONE,         16,      100,    SL_NONE,         true,               TEXT_TRADER,   N_("Wandering Trader")         },
-	{      17,          17, DTYPE_NONE,         15,      100,    SL_NONE,         false,              TEXT_DEFILER1, N_("The Defiler")              },
-	{      21,          21, DTYPE_NONE,         19,      100,    SL_NONE,         false,              TEXT_NAKRUL1,  N_("Na-Krul")                  },
-	{      21,          -1, DTYPE_NONE,         18,      100,    SL_NONE,         true,               TEXT_CORNSTN,  N_("Cornerstone of the World") },
-	{       9,           9, DTYPE_NONE,         13,      100,    SL_NONE,         false,              TEXT_JERSEY4,  N_( /* TRANSLATORS: Quest Name Block end*/ "The Jersey's Jersey")      },
+	{       4,          -1, DTYPE_NONE,          4,      100,    SL_NONE,         true,               TEXT_BANNER2,           N_("Ogden's Sign")             },
+	{       7,          -1, DTYPE_NONE,          8,      100,    SL_NONE,         true,               TEXT_BLINDING,          N_("Halls of the Blind")       },
+	{       5,          -1, DTYPE_NONE,          6,      100,    SL_NONE,         true,               TEXT_BLOODY,            N_("Valor")                    },
+	{      10,          -1, DTYPE_NONE,         11,      100,    SL_NONE,         true,               TEXT_ANVIL5,            N_("Anvil of Fury")            },
+	{      13,          -1, DTYPE_NONE,         20,      100,    SL_NONE,         true,               TEXT_BLOODWAR,          N_("Warlord of Blood")         },
+	{       3,           3, DTYPE_CATHEDRAL,     2,      100,    SL_SKELKING,     false,              TEXT_KING2,             N_("The Curse of King Leoric") },
+	{       0,           0, DTYPE_CAVES,        22,      100,    SL_INFESTED,     false,              TEXT_VILE1,             N_("Infested Cellar")          },
+	{       2,          -1, DTYPE_CAVES,         1,      100,    SL_POISONWATER,  true,               TEXT_POISON3,           N_("Poisoned Water Supply")    },
+	{       6,          -1, DTYPE_CATACOMBS,     7,      100,    SL_BONECHAMB,    true,               TEXT_BONER,             N_("The Chamber of Bone")      },
+	{      15,          15, DTYPE_CATHEDRAL,    22,      100,    SL_VILEBETRAYER, false,              TEXT_VILE1,             N_("Archbishop Lazarus")       },
+
+	{      17,          17, DTYPE_NONE,         17,      100,    SL_NONE,         false,              TEXT_GRAVE7,            N_("Grave Matters")            },
+	{      9,            9, DTYPE_NONE,         12,      100,    SL_NONE,         false,              TEXT_FARMER1,           N_("Farmer's Orchard")         },
+	{      17,          -1, DTYPE_NONE,         14,      100,    SL_NONE,         true,               TEXT_GIRL2,             N_("Little Girl")              },
+	{      19,          -1, DTYPE_NONE,         16,      100,    SL_NONE,         true,               TEXT_TRADER,            N_("Wandering Trader")         },
+	{      17,          17, DTYPE_NONE,         15,      100,    SL_NONE,         false,              TEXT_DEFILER1,          N_("The Defiler")              },
+	{      21,          21, DTYPE_NONE,         19,      100,    SL_NONE,         false,              TEXT_NAKRUL1,           N_("Na-Krul")                  },
+	{      21,          -1, DTYPE_NONE,         18,      100,    SL_NONE,         true,               TEXT_CORNSTN,           N_("Cornerstone of the World") },
+	{       9,           9, DTYPE_NONE,         13,      100,    SL_NONE,         false,              TEXT_JERSEY4,           N_( /* TRANSLATORS: Quest Name Block end*/ "The Jersey's Jersey")      },
 	// clang-format on
 };
 
@@ -93,9 +95,10 @@ int LineSpacing;
 /** The number of pixels to move finished quest, to seperate them from the active ones */
 int FinishedQuestOffset;
 
-const char *const QuestTriggerNames[6] = {
+const char *const QuestTriggerNames[7] = {
 	N_(/* TRANSLATORS: Quest Map*/ "The Butcher's Chamber"),
 	N_(/* TRANSLATORS: Quest Map*/ "King Leoric's Tomb"),
+	N_(/* TRANSLATORS: Quest Map*/ "Infested Cellar"),
 	N_(/* TRANSLATORS: Quest Map*/ "The Chamber of Bone"),
 	N_(/* TRANSLATORS: Quest Map*/ "Maze"),
 	N_(/* TRANSLATORS: Quest Map*/ "A Dark Passage"),
@@ -139,6 +142,11 @@ void DrawButcher(quest_id q)
 void DrawSkelKing(quest_id q, Point position)
 {
 	Quests[q].position = position.megaToWorld() + Displacement { 12, 7 };
+}
+
+void DrawInfested(quest_id q, Point position)
+{
+	Quests[q].position = { 73, 80 };
 }
 
 void DrawWarLord(Point position)
@@ -284,13 +292,21 @@ void InitQuests()
 
 	if (Quests[Q_BUTCHER]._qactive == QUEST_NOTAVAIL)
 		Quests[Q_BUTCHER]._qvar2 = QS2_BUTCHER_NO_PORTAL;
+
 	if (Quests[Q_SKELKING]._qactive == QUEST_NOTAVAIL)
 		Quests[Q_SKELKING]._qvar2 = 2;
+
+	if (Quests[Q_INFESTED]._qactive != QUEST_NOTAVAIL)
+		Quests[Q_INFESTED].position = { 73, 80 }; // INFESTED : hacky solution, i just need to set position somewhere
+
 	if (Quests[Q_ROCK]._qactive == QUEST_NOTAVAIL)
 		Quests[Q_ROCK]._qvar2 = 2;
+
 	Quests[Q_LTBANNER]._qvar1 = 1;
+
 	if (UseMultiplayerQuests())
 		Quests[Q_BETRAYER]._qvar1 = 2;
+
 	// In multiplayer items spawn during level generation to avoid desyncs
 	if (gbIsMultiplayer && Quests[Q_MUSHROOM]._qactive == QUEST_INIT)
 		Quests[Q_MUSHROOM]._qvar1 = QS_TOMESPAWNED;
@@ -407,6 +423,18 @@ void CheckQuests()
 			poisonWater._qlog = true; // even if the player skips talking to Pepin completely they should at least notice the water being purified once they cleanse the level
 			NetSendCmdQuest(true, poisonWater);
 			StartPWaterPurify();
+		}
+
+		Quest &infestedCellarQuest = Quests[Q_INFESTED];
+		if (setlvlnum == infestedCellarQuest._qslvl
+		    && infestedCellarQuest._qactive != QUEST_INIT
+		    && leveltype == infestedCellarQuest._qlvltype
+		    && ActiveMonsterCount == 4
+		    && infestedCellarQuest._qactive != QUEST_DONE) {
+			infestedCellarQuest._qactive = QUEST_DONE;
+			infestedCellarQuest._qlog = true; // even if the player skips talking to Pepin completely they should at least notice the water being purified once they cleanse the level
+			NetSendCmdQuest(true, infestedCellarQuest);
+			// TODO: Play sound to notify the player the level is clear 
 		}
 	} else if (MyPlayer->_pmode == PM_STAND) {
 		for (auto &quest : Quests) {
@@ -565,6 +593,8 @@ int GetMapReturnLevel()
 		return Quests[Q_BUTCHER]._qlevel;
 	case SL_SKELKING:
 		return Quests[Q_SKELKING]._qlevel;
+	case SL_INFESTED:
+		return Quests[Q_INFESTED]._qlevel;
 	case SL_BONECHAMB:
 		return Quests[Q_SCHAMB]._qlevel;
 	case SL_POISONWATER:
@@ -583,6 +613,8 @@ Point GetMapReturnPosition()
 		return Quests[Q_BUTCHER].position + Direction::South;
 	case SL_SKELKING:
 		return Quests[Q_SKELKING].position + Direction::SouthEast;
+	case SL_INFESTED:
+		return Quests[Q_INFESTED].position + Direction::SouthEast;
 	case SL_BONECHAMB:
 		return Quests[Q_SCHAMB].position + Direction::SouthEast;
 	case SL_POISONWATER:

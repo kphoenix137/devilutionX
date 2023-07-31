@@ -36,6 +36,8 @@ enum {
 	QS2_BUTCHER_NO_PORTAL
 };
 
+/** States of the infestation quest */
+
 /** States of the mushroom quest */
 enum {
 	QS_INIT,

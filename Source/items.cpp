@@ -398,6 +398,8 @@ int ItemsGetCurrlevel()
 			break;
 		case SL_SKELKING:
 			return Quests[Q_SKELKING]._qlevel;
+		case SL_INFESTED:
+			return 4; // INFESTED : fix this, we need to determine the dlvl for item quality
 		case SL_BONECHAMB:
 			return Quests[Q_SCHAMB]._qlevel;
 		case SL_POISONWATER:

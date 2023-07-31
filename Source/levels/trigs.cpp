@@ -327,6 +327,14 @@ void InitSKingTriggers()
 	trigs[0]._tmsg = WM_DIABRTNLVL;
 }
 
+void InitInfestedTriggers()
+{
+	trigflag = false;
+	numtrigs = 1;
+	trigs[0].position = { 43, 64 };
+	trigs[0]._tmsg = WM_DIABRTNLVL;
+}
+
 void InitSChambTriggers()
 {
 	trigflag = false;
@@ -390,6 +398,8 @@ bool ForceTownTrig()
 			}
 		}
 	}
+
+	// INFESTED : add handling for infested trigger in town
 
 	if (IsWarpOpen(DTYPE_NEST)) {
 		for (const uint16_t tileId : TownHiveList) {
@@ -734,6 +744,20 @@ bool ForceSKingTrig()
 	return false;
 }
 
+bool ForceInfestedTrig()
+{
+	for (const uint16_t tileId : L3UpList) {
+		if (dPiece[cursPosition.x][cursPosition.y] == tileId) {
+			InfoString = fmt::format(fmt::runtime(_("Back to Town")), Quests[Q_INFESTED]._qlevel);
+			cursPosition = trigs[0].position;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool ForceSChambTrig()
 {
 	for (const uint16_t tileId : L2DownList) {
@@ -850,6 +874,9 @@ void CheckTrigForce()
 		switch (setlvlnum) {
 		case SL_SKELKING:
 			trigflag = ForceSKingTrig();
+			break;
+		case SL_INFESTED:
+			trigflag = ForceInfestedTrig();
 			break;
 		case SL_BONECHAMB:
 			trigflag = ForceSChambTrig();

@@ -26,6 +26,7 @@ const char *const QuestLevelNames[] = {
 	"",
 	N_("The Butcher's Chamber"),
 	N_("Skeleton King's Lair"),
+	N_("Infested Cellar"),
 	N_("Chamber of Bone"),
 	N_("Maze"),
 	N_("Poisoned Water Supply"),
@@ -148,9 +149,16 @@ void LoadSetMap()
 		AddSKingObjs();
 		InitSKingTriggers();
 		break;
+	case SL_INFESTED:
+		if (Quests[Q_INFESTED]._qactive == QUEST_INIT)
+			Quests[Q_INFESTED]._qactive = QUEST_ACTIVE;
+		LoadL3Dungeon("levels\\l3data\\lair.dun", { 43, 65 });
+		LoadPalette("levels\\l3data\\l3_2.pal");
+		InitInfestedTriggers();
+		break;
 	case SL_BONECHAMB:
-		LoadPreL2Dungeon("levels\\l2data\\tbonecha2.dun");
-		LoadL2Dungeon("levels\\l2data\\tbonecha1.dun", { 70, 40 });
+		LoadPreL2Dungeon("levels\\l2data\\bonecha2.dun");
+		LoadL2Dungeon("levels\\l2data\\bonecha1.dun", { 70, 40 });
 		SetMapTransparency("levels\\l2data\\bonechat.dun");
 		LoadPalette("levels\\l2data\\l2_2.pal");
 		AddSChamObjs();

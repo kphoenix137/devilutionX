@@ -35,6 +35,7 @@ void InitHiveTriggers();
 void InitCryptTriggers();
 void InitButcherTriggers();
 void InitSKingTriggers();
+void InitInfestedTriggers();
 void InitSChambTriggers();
 void InitPWaterTriggers();
 void InitVPTriggers();

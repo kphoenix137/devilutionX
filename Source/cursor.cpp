@@ -329,6 +329,12 @@ void CheckTown()
 			}
 		}
 	}
+
+	if (EntranceBoundaryContains(Quests[Q_INFESTED].position, cursPosition)) {
+		trigflag = true;
+		InfoString = _("Down to Infested Cellar");
+		cursPosition = Quests[Q_INFESTED].position;
+	}
 }
 
 void CheckRportal()

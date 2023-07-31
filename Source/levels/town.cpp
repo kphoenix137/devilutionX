@@ -242,6 +242,16 @@ void DrlgTPass3()
 		FillTile(60, 70, 71);
 	}
 
+	// INFESTED : Add stuff here to change the door piece based on quest status
+	//if (IsNoneOf(Quests[Q_PWATER]._qactive, QUEST_DONE, QUEST_NOTAVAIL)) {
+		
+		FillTile(72, 80, 309);
+		FillTile(72, 78, 310);
+	    FillTile(70, 78, 311);
+	    FillTile(74, 80, 312);
+	    FillTile(74, 78, 313);
+	//}
+
 	InitTownPieces();
 }
 
@@ -380,6 +390,8 @@ void CreateTown(lvl_entry entry)
 		if (TWarpFrom == 17) {
 			ViewPosition = { 79, 62 };
 		}
+	} else if (entry == ENTRY_RTNLVL) { // Infested Cellar
+		ViewPosition = { 73, 80 };
 	}
 
 	DrlgTPass3();

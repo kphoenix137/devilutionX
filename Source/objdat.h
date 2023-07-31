@@ -229,6 +229,7 @@ enum quest_id : int8_t {
 	Q_ANVIL,
 	Q_WARLORD,
 	Q_SKELKING,
+	Q_INFESTED,
 	Q_PWATER,
 	Q_SCHAMB,
 	Q_BETRAYER,
