@@ -537,7 +537,7 @@ void TalkToBoy(Player & /*player*/, Towner & /*boy*/)
 {
 	auto &butcherQuest = Quests[Q_BUTCHER];
 	if (IsNoneOf(butcherQuest._qactive, QUEST_NOTAVAIL, QUEST_DONE)) {
-		if (butcherQuest._qvar1 == QS_BUTCHER_MAN_DIED) {
+		if (butcherQuest._qvar1 == QS_BUTCHER_VISITED_ROOM) {
 			InitQTextMsg(TEXT_WIRT_BUTCHER2);
 			butcherQuest._qvar1 = QS_BUTCHER_VISITED_WIRT;
 			QuestDialogTable[TOWN_DRUNK][Q_BUTCHER] = TEXT_FARNHAM_BUTCHER2;

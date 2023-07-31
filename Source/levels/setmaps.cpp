@@ -117,20 +117,24 @@ void LoadArenaMap(const char *path, Point viewPosition, Point exitTrigger)
 void LoadSetMap()
 {
 	switch (setlvlnum) {
-	case SL_BUTCHER:
-		if (Quests[Q_BUTCHER]._qactive == QUEST_DONE) {
-			Quests[Q_BUTCHER]._qvar2 = QS2_BUTCHER_DO_PORTAL;
-		} else if (Quests[Q_BUTCHER]._qactive == QUEST_ACTIVE) {
-			Quests[Q_BUTCHER]._qvar2 = QS2_BUTCHER_NO_PORTAL;
+	case SL_BUTCHER: {
+		Quest &butcherQuest = Quests[Q_BUTCHER];
+		if (butcherQuest._qactive == QUEST_DONE) {
+			butcherQuest._qvar2 = QS2_BUTCHER_DO_PORTAL;
+		} else if (butcherQuest._qactive == QUEST_ACTIVE) {
+			butcherQuest._qvar2 = QS2_BUTCHER_NO_PORTAL;
 		}
 		LoadPreL1Dungeon("levels\\l2data\\bchamber1.dun");
 		Point spawn { 55, 65 };
-		LoadL1Dungeon("levels\\l2data\\bchamber2.dun", spawn + Direction::South);
+		LoadL2Dungeon("levels\\l2data\\bchamber2.dun", spawn + Direction::South);
 		SetMapTransparency("levels\\l2data\\bchamber1.dun");
-		LoadPalette("levels\\l2data\\l2_1.pal");
+		LoadPalette("levels\\l2data\\l2_5.pal");
 		AddButcherObjs();
-		InitNoTriggers();
-		break;
+		if (butcherQuest._qactive != QUEST_DONE)
+			InitNoTriggers();
+		else
+			InitButcherTriggers();
+	} break;
 	case SL_SKELKING:
 		if (Quests[Q_SKELKING]._qactive == QUEST_INIT) {
 			Quests[Q_SKELKING]._qactive = QUEST_ACTIVE;
@@ -145,8 +149,8 @@ void LoadSetMap()
 		InitSKingTriggers();
 		break;
 	case SL_BONECHAMB:
-		LoadPreL2Dungeon("levels\\l2data\\bonecha2.dun");
-		LoadL2Dungeon("levels\\l2data\\bonecha1.dun", { 70, 40 });
+		LoadPreL2Dungeon("levels\\l2data\\tbonecha2.dun");
+		LoadL2Dungeon("levels\\l2data\\tbonecha1.dun", { 70, 40 });
 		SetMapTransparency("levels\\l2data\\bonechat.dun");
 		LoadPalette("levels\\l2data\\l2_2.pal");
 		AddSChamObjs();
