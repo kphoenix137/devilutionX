@@ -21,6 +21,7 @@ namespace devilution {
 
 #define MAXQUESTS 24
 
+/** States of the butcher quest */
 enum {
 	QS_BUTCHER_INIT,
 	QS_BUTCHER_MAN_DIED,
