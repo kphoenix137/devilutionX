@@ -26,11 +26,13 @@
 #include "monster.h"
 #include "spells.h"
 #include "utils/str_cat.hpp"
+#include <SDL_timer.h>
 
 namespace devilution {
 
 std::list<Missile> Missiles;
 bool MissilePreFlag;
+bool LightningFlag;
 
 namespace {
 
@@ -1933,7 +1935,6 @@ void AddLightning(Missile &missile, AddMissileParameter &parameter)
 	} else {
 		missile._mirange = (missile._mispllvl / 2) + 6;
 	}
-	missile._mlid = AddLight(missile.position.tile, 4);
 }
 
 void AddMissileExplosion(Missile &missile, AddMissileParameter &parameter)
@@ -3318,6 +3319,13 @@ void ProcessLightning(Missile &missile)
 		CheckMissileCol(missile, GetMissileData(missile._mitype).damageType(), missile._midam, missile._midam, true, missile.position.tile, false);
 	if (missile._miHitFlag)
 		missile._mirange = j;
+	if (!LightningFlag) {
+		AddUnLight(missile._mlid);
+		missile._mlid = AddLight(missile.position.tile, 11);
+	} else {
+		AddUnLight(missile._mlid);
+		missile._mlid = AddLight(missile.position.tile, GenerateRnd(3) + 13);
+	}
 	if (missile._mirange == 0) {
 		missile._miDelFlag = true;
 		AddUnLight(missile._mlid);
@@ -4156,6 +4164,7 @@ void ProcessMissiles()
 
 	DeleteMissiles();
 
+	LightningFlag = !LightningFlag;
 	MissilePreFlag = false;
 
 	for (auto &missile : Missiles) {

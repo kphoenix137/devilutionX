@@ -241,12 +241,12 @@ void DoLighting(Point position, uint8_t radius, DisplacementOf<int8_t> offset)
 	}
 
 	// Allow for dim lights in crypt and nest
-	if (IsAnyOf(leveltype, DTYPE_NEST, DTYPE_CRYPT)) {
+	//if (IsAnyOf(leveltype, DTYPE_NEST, DTYPE_CRYPT)) {
 		if (GetLight(position) > LightFalloffs[radius][0])
 			SetLight(position, LightFalloffs[radius][0]);
-	} else {
-		SetLight(position, 0);
-	}
+	//} else {
+	//	SetLight(position, 0);
+	//}
 
 	for (int i = 0; i < 4; i++) {
 		int yBound = i > 0 && i < 3 ? maxY : minY;
@@ -381,15 +381,14 @@ void MakeLightTable()
 			} else {
 				const float factor = static_cast<float>(distance) / maxDistance;
 				float scaled;
-				if (IsAnyOf(leveltype, DTYPE_NEST, DTYPE_CRYPT)) {
+				//if (IsAnyOf(leveltype, DTYPE_NEST, DTYPE_CRYPT)) {
 					// quardratic falloff with over exposure
-					const float brightness = radius * 1.25;
-					scaled = factor * factor * brightness + (maxDarkness - brightness);
+					scaled = factor * radius + (maxDarkness - radius);
 					scaled = std::max(maxBrightness, scaled);
-				} else {
-					// Leaner falloff
-					scaled = factor * maxDarkness;
-				}
+				//} else {
+				//	// Leaner falloff
+				//	scaled = factor * maxDarkness;
+				//}
 				LightFalloffs[radius][distance] = static_cast<uint8_t>(scaled + 0.5F); // round up
 			}
 		}
