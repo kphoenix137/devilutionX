@@ -3321,7 +3321,7 @@ void ProcessLightning(Missile &missile)
 		missile._mirange = j;
 	if (!LightningFlag) {
 		AddUnLight(missile._mlid);
-		missile._mlid = AddLight(missile.position.tile, 11);
+		missile._mlid = AddLight(missile.position.tile, 12);
 	} else {
 		AddUnLight(missile._mlid);
 		missile._mlid = AddLight(missile.position.tile, GenerateRnd(3) + 13);
