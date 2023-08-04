@@ -407,12 +407,6 @@ void DrawPlayer(const Surface &out, const Player &player, Point tilePosition, Po
 	if (static_cast<size_t>(pcursplr) < Players.size() && &player == &Players[pcursplr])
 		ClxDrawOutlineSkipColorZero(out, 165, spriteBufferPosition, sprite);
 
-	if (&player == MyPlayer && IsNoneOf(leveltype, DTYPE_NEST, DTYPE_CRYPT)) {
-		ClxDraw(out, spriteBufferPosition, sprite);
-		DrawPlayerIcons(out, player, targetBufferPosition, false);
-		return;
-	}
-
 	if (!IsTileLit(tilePosition) || ((MyPlayer->_pInfraFlag || MyPlayer->isOnArenaLevel()) && LightTableIndex > 8)) {
 		ClxDrawTRN(out, spriteBufferPosition, sprite, GetInfravisionTRN());
 		DrawPlayerIcons(out, player, targetBufferPosition, true);
