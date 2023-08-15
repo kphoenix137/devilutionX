@@ -64,6 +64,7 @@ const SpellIcon SpellITbl[] = {
 /* SpellID::HealOther        */ SpellIcon::HealOther,
 /* SpellID::BloodStar        */ SpellIcon::BloodStar,
 /* SpellID::BoneSpirit       */ SpellIcon::BoneSpirit,
+/* SpellID::MagmaBolt        */ SpellIcon::RedSkull,
 /* SpellID::Mana             */ SpellIcon::Mana,
 /* SpellID::Magi             */ SpellIcon::Mana,
 /* SpellID::Jester           */ SpellIcon::Jester,

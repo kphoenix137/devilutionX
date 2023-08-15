@@ -13,7 +13,7 @@
 
 namespace devilution {
 
-#define MAX_SPELLS 52
+#define MAX_SPELLS 53
 
 enum class SpellType : uint8_t {
 	Skill,
@@ -64,7 +64,8 @@ enum class SpellID : int8_t {
 	HealOther,
 	BloodStar,
 	BoneSpirit,
-	LastDiablo = BoneSpirit,
+	MagmaBolt,
+	LastDiablo = MagmaBolt,
 	Mana,
 	Magi,
 	Jester,
@@ -161,6 +162,7 @@ enum class MissileID : int8_t {
 	RedPortal,
 	DiabloApocalypseBoom,
 	DiabloApocalypse,
+	MagmaBolt,
 	Mana,
 	Magi,
 	LightningWall,

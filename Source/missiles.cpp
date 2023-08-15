@@ -888,6 +888,10 @@ void GetDamageAmt(SpellID i, int *mind, int *maxd)
 		*mind = (myPlayer._pMagic / 2) + 3 * sl - (myPlayer._pMagic / 8);
 		*maxd = *mind;
 		break;
+	case SpellID::MagmaBolt:
+		*mind = 1;
+		*maxd = 2;
+		break;
 	default:
 		break;
 	}
@@ -4126,6 +4130,97 @@ void ProcessRedPortal(Missile &missile)
 		missile._miDelFlag = true;
 		AddUnLight(missile._mlid);
 	}
+	PutMissile(missile);
+}
+
+void AddMagmaBolt(Missile &missile, AddMissileParameter &parameter)
+{
+	Point dst = parameter.dst;
+	if (missile.position.start == dst) {
+		dst += parameter.midir;
+	}
+	int sp = 1;
+	if (missile._micaster == TARGET_MONSTERS) {
+		sp += std::min(missile._mispllvl, 34);
+		Player &player = Players[missile._misource];
+
+		int dmg = (player._pLevel + GenerateRndSum(10, 2)) + 1;
+		missile._midam = ScaleSpellEffect(dmg, missile._mispllvl);
+	}
+	UpdateMissileVelocity(missile, dst, sp);
+	SetMissDir(missile, GetDirection16(missile.position.start, dst));
+	missile._mirange = 256;
+	missile.var1 = missile.position.start.x;
+	missile.var2 = missile.position.start.y;
+	missile._mlid = AddLight(missile.position.start, 8);
+}
+
+void ProcessMagmaBolt(Missile &missile)
+{
+	missile._mirange--;
+
+	if (missile._miAnimType == MissileGraphicID::BigExplosion) {
+		if (missile._mirange == 0) {
+			missile._miDelFlag = true;
+			AddUnLight(missile._mlid);
+		}
+	} else {
+		int minDam = missile._midam;
+		int maxDam = missile._midam;
+
+		if (missile._micaster != TARGET_MONSTERS) {
+			auto &monster = Monsters[missile._misource];
+			minDam = monster.minDamage;
+			maxDam = monster.maxDamage;
+		}
+		const DamageType damageType = GetMissileData(missile._mitype).damageType();
+		MoveMissileAndCheckMissileCol(missile, damageType, minDam, maxDam, true, false);
+		if (missile._mirange == 0) {
+			const Point missilePosition = missile.position.tile;
+			ChangeLight(missile._mlid, missile.position.tile, missile._miAnimFrame);
+
+			constexpr Direction Offsets[] = {
+				Direction::NoDirection,
+				Direction::SouthWest,
+				Direction::NorthEast,
+				Direction::SouthEast,
+				Direction::East,
+				Direction::South,
+				Direction::NorthWest,
+				Direction::West,
+				Direction::North
+			};
+			for (Direction offset : Offsets) {
+				if (!CheckBlock(missile.position.start, missilePosition + offset))
+					CheckMissileCol(missile, damageType, minDam, maxDam, false, missilePosition + offset, true);
+			}
+
+			if (!TransList[dTransVal[missilePosition.x][missilePosition.y]]
+			    || (missile.position.velocity.deltaX < 0 && ((TransList[dTransVal[missilePosition.x][missilePosition.y + 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y + 1], TileProperties::Solid)) || (TransList[dTransVal[missilePosition.x][missilePosition.y - 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y - 1], TileProperties::Solid))))) {
+				missile.position.tile += Displacement { 1, 1 };
+				missile.position.offset.deltaY -= 32;
+			}
+			if (missile.position.velocity.deltaY > 0
+			    && ((TransList[dTransVal[missilePosition.x + 1][missilePosition.y]] && TileHasAny(dPiece[missilePosition.x + 1][missilePosition.y], TileProperties::Solid))
+			        || (TransList[dTransVal[missilePosition.x - 1][missilePosition.y]] && TileHasAny(dPiece[missilePosition.x - 1][missilePosition.y], TileProperties::Solid)))) {
+				missile.position.offset.deltaY -= 32;
+			}
+			if (missile.position.velocity.deltaX > 0
+			    && ((TransList[dTransVal[missilePosition.x][missilePosition.y + 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y + 1], TileProperties::Solid))
+			        || (TransList[dTransVal[missilePosition.x][missilePosition.y - 1]] && TileHasAny(dPiece[missilePosition.x][missilePosition.y - 1], TileProperties::Solid)))) {
+				missile.position.offset.deltaX -= 32;
+			}
+			missile._mimfnum = 0;
+			SetMissAnim(missile, MissileGraphicID::BigExplosion);
+			missile._mirange = missile._miAnimLen - 1;
+			missile.position.velocity = {};
+		} else if (missile.position.tile != Point { missile.var1, missile.var2 }) {
+			missile.var1 = missile.position.tile.x;
+			missile.var2 = missile.position.tile.y;
+			ChangeLight(missile._mlid, missile.position.tile, 8);
+		}
+	}
+
 	PutMissile(missile);
 }
 

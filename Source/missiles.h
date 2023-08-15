@@ -285,6 +285,7 @@ void AddFireWall(Missile &missile, AddMissileParameter &parameter);
  * var5: Y coordinate of the missile-light
  */
 void AddFireball(Missile &missile, AddMissileParameter &parameter);
+void AddMagmaBolt(Missile &missile, AddMissileParameter &parameter);
 
 /**
  * var1: X coordinate of the missile
@@ -396,6 +397,7 @@ void ProcessNovaBall(Missile &missilei);
 void ProcessAcidPuddle(Missile &missile);
 void ProcessFireWall(Missile &missile);
 void ProcessFireball(Missile &missile);
+void ProcessMagmaBolt(Missile &missile);
 void ProcessHorkSpawn(Missile &missile);
 void ProcessRune(Missile &missile);
 void ProcessLightningWall(Missile &missile);
