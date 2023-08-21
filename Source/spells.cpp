@@ -136,7 +136,7 @@ int GetManaAmount(const Player &player, SpellID sn)
 	} else if (player._pClass == HeroClass::Rogue || player._pClass == HeroClass::Monk || player._pClass == HeroClass::Bard) {
 		ma -= ma / 4;
 	} else if (player._pClass == HeroClass::BloodMage && IsAnyOf(sn, SpellID::BloodStar, SpellID::BoneSpirit)) {
-		ma /= 4;
+		ma /= 8;
 	}
 
 	if (GetSpellData(sn).sMinMana > ma >> 6) {
@@ -170,10 +170,10 @@ void ConsumeSpell(Player &player, SpellID sn)
 		break;
 	}
 	if (sn == SpellID::BloodStar) {
-		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? (player._pMaxHP / 20) >> 6 : 5);
+		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? (player._pMaxHP / 16) >> 6 : 5);
 	}
 	if (sn == SpellID::BoneSpirit) {
-		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? (player._pMaxHP / 15) >> 6 : 6);
+		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? (player._pMaxHP / 12) >> 6 : 6);
 	}
 }
 
