@@ -2245,8 +2245,8 @@ void AddGenericMagicMissile(Missile &missile, AddMissileParameter &parameter)
 		case MissileSource::Player: {
 			const Player &player = *missile.sourcePlayer();
 			if (player._pClass == HeroClass::BloodMage && missile._miAnimType == MissileGraphicID::BloodStar) {
-				UpdateMissileVelocity(missile, dst, 16 + missile._mispllvl / 2);
-				missile._midam = 3 * missile._mispllvl - (player._pVitality / 16) + (player._pVitality / 2);
+				UpdateMissileVelocity(missile, dst, 18 + missile._mispllvl / 2);
+				missile._midam = 10 * missile._mispllvl + player._pVitality / 2;
 			} else {
 				missile._midam = 3 * missile._mispllvl - (player._pMagic / 8) + (player._pMagic / 2);
 			}
