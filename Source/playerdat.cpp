@@ -93,7 +93,7 @@ const PlayerData PlayersData[] = {
 /* HeroClass::Monk */      { N_("Monk"),      "monk",           25,      15,         25,        20,       150,     80,        150,        80,         25, (23 << 6),  static_cast<int>(5.5F * 64),  (2 << 6),  (2 << 6), (1 << 6),                    (1 << 6), static_cast<int>(1.5F * 64),  static_cast<int>(1.5F * 64), SpellID::Search,       },
 /* HeroClass::Bard */      { N_("Bard"),      "rogue",          20,      20,         25,        20,       120,    120,        120,       100,         25, (23 << 6),                     (3 << 6),  (2 << 6),  (2 << 6), (1 << 6), static_cast<int>(1.5F * 64), static_cast<int>(1.5F * 64), static_cast<int>(1.75F * 64), SpellID::Identify      },
 /* HeroClass::Barbarian */ { N_("Barbarian"), "warrior",        40,       0,         20,        25,       255,      0,         55,       150,         30, (18 << 6),                     (0 << 6),  (2 << 6),  (0 << 6), (2 << 6),                    (1 << 6), static_cast<int>(2.5F * 64),                     (1 << 6), SpellID::Rage          },
-/* HeroClass::BloodMage */ { N_("Blood Mage"),"sorceror",       15,      20,         20,        30,        60,     80,         70,       250,         10, (18 << 6),                    -(2 << 6),  (2 << 6),  (2 << 6), (2 << 6),                    (2 << 6),                    (2 << 6),                     (1 << 6), SpellID::BloodSiphon   },
+/* HeroClass::BloodMage */ { N_("Blood Mage"),"sorceror",       15,      20,         20,        30,        50,    100,         60,       250,         10, (18 << 6),                    -(2 << 6),  (2 << 6),  (2 << 6), (2 << 6),                    (1 << 6),                    (2 << 6),  static_cast<int>(1.5F * 64), SpellID::BloodSiphon   },
 	// clang-format on
 };
 
