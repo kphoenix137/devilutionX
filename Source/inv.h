@@ -231,6 +231,7 @@ bool CanUseStaff(Player &player, SpellID spellId);
 Item &GetInventoryItem(Player &player, int location);
 bool UseInvItem(int cii);
 void DoTelekinesis();
+void DoBloodSiphon();
 int CalculateGold(Player &player);
 
 /**

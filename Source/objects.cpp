@@ -702,6 +702,7 @@ void AddCryptObject(Object &object, int a2)
 				object._oVar2 = TEXT_RBOOKA;
 				break;
 			case HeroClass::Sorcerer:
+			case HeroClass::BloodMage:
 				object._oVar2 = TEXT_MBOOKA;
 				break;
 			case HeroClass::Monk:
@@ -722,6 +723,7 @@ void AddCryptObject(Object &object, int a2)
 				object._oVar2 = TEXT_RBOOKB;
 				break;
 			case HeroClass::Sorcerer:
+			case HeroClass::BloodMage:
 				object._oVar2 = TEXT_MBOOKB;
 				break;
 			case HeroClass::Monk:
@@ -742,6 +744,7 @@ void AddCryptObject(Object &object, int a2)
 				object._oVar2 = TEXT_RBOOKC;
 				break;
 			case HeroClass::Sorcerer:
+			case HeroClass::BloodMage:
 				object._oVar2 = TEXT_MBOOKC;
 				break;
 			case HeroClass::Monk:
@@ -2095,6 +2098,7 @@ void OperateChamberOfBoneBook(Object &questBook, bool sendmsg)
 		textdef = TEXT_RBONER;
 		break;
 	case HeroClass::Sorcerer:
+	case HeroClass::BloodMage:
 		textdef = TEXT_MBONER;
 		break;
 	case HeroClass::Monk:
@@ -2238,19 +2242,30 @@ void OperateSlainHero(const Player &player, Object &corpse, bool sendmsg)
 
 	SetRndSeed(corpse._oRndSeed);
 
-	if (player._pClass == HeroClass::Warrior) {
+	switch (player._pClass) {
+	case HeroClass::Warrior:
 		CreateMagicArmor(corpse.position, ItemType::HeavyArmor, ICURS_BREAST_PLATE, sendmsg, false);
-	} else if (player._pClass == HeroClass::Rogue) {
+		break;
+	case HeroClass::Rogue:
 		CreateMagicWeapon(corpse.position, ItemType::Bow, ICURS_LONG_BATTLE_BOW, sendmsg, false);
-	} else if (player._pClass == HeroClass::Sorcerer) {
+		break;
+	case HeroClass::Sorcerer:
 		CreateSpellBook(corpse.position, SpellID::Lightning, sendmsg, false);
-	} else if (player._pClass == HeroClass::Monk) {
+		break;
+	case HeroClass::Monk:
 		CreateMagicWeapon(corpse.position, ItemType::Staff, ICURS_WAR_STAFF, sendmsg, false);
-	} else if (player._pClass == HeroClass::Bard) {
+		break;
+	case HeroClass::Bard:
 		CreateMagicWeapon(corpse.position, ItemType::Sword, ICURS_BASTARD_SWORD, sendmsg, false);
-	} else if (player._pClass == HeroClass::Barbarian) {
+		break;
+	case HeroClass::Barbarian:
 		CreateMagicWeapon(corpse.position, ItemType::Axe, ICURS_BATTLE_AXE, sendmsg, false);
+		break;
+	case HeroClass::BloodMage:
+		CreateSpellBook(corpse.position, SpellID::BoneSpirit, sendmsg, false);
+		break;
 	}
+
 	MyPlayer->Say(HeroSpeech::RestInPeaceMyFriend);
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, corpse.position);
@@ -2918,6 +2933,10 @@ void OperateShrineOily(Player &player, Point spawnPosition)
 	case HeroClass::Bard:
 		ModifyPlrDex(player, 1);
 		ModifyPlrMag(player, 1);
+		break;
+	case HeroClass::BloodMage:
+		ModifyPlrMag(player, 1);
+		ModifyPlrVit(player, 1);
 		break;
 	}
 
@@ -3961,6 +3980,7 @@ void InitObjects()
 					spId = TEXT_RBLINDING;
 					break;
 				case HeroClass::Sorcerer:
+				case HeroClass::BloodMage:
 					spId = TEXT_MBLINDING;
 					break;
 				case HeroClass::Monk:
@@ -3987,6 +4007,7 @@ void InitObjects()
 					spId = TEXT_RBLOODY;
 					break;
 				case HeroClass::Sorcerer:
+				case HeroClass::BloodMage:
 					spId = TEXT_MBLOODY;
 					break;
 				case HeroClass::Monk:
@@ -4020,6 +4041,7 @@ void InitObjects()
 					spId = TEXT_RBLOODWAR;
 					break;
 				case HeroClass::Sorcerer:
+				case HeroClass::BloodMage:
 					spId = TEXT_MBLOODWAR;
 					break;
 				case HeroClass::Monk:

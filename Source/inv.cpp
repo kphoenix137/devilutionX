@@ -12,9 +12,11 @@
 #include "DiabloUI/ui_flags.hpp"
 #include "controls/plrctrls.h"
 #include "cursor.h"
+#include "dead.h"
 #include "engine/backbuffer_state.hpp"
 #include "engine/clx_sprite.hpp"
 #include "engine/load_cel.hpp"
+#include "engine/random.hpp"
 #include "engine/render/clx_render.hpp"
 #include "engine/render/text_render.hpp"
 #include "engine/size.hpp"
@@ -1059,6 +1061,7 @@ void InitInv()
 		pInvCels = LoadCel("data\\inv\\inv_rog", static_cast<uint16_t>(SidePanelSize.width));
 		break;
 	case HeroClass::Sorcerer:
+	case HeroClass::BloodMage:
 		pInvCels = LoadCel("data\\inv\\inv_sor", static_cast<uint16_t>(SidePanelSize.width));
 		break;
 	case HeroClass::Monk:
@@ -2145,6 +2148,30 @@ void DoTelekinesis()
 		if (!M_Talker(monter) && monter.talkMsg == TEXT_NONE)
 			NetSendCmdParam1(true, CMD_KNOCKBACK, pcursmonst);
 	}
+	NewCursor(CURSOR_HAND);
+}
+
+void DoBloodSiphon()
+{
+	if (TileContainsDeadMonster(cursPosition)) {
+		int8_t &bDead = dCorpse[cursPosition.x][cursPosition.y];
+		//Corpse &corpse = Corpses[(bDead & 0x1F) - 1];
+
+		Player &player = Players[MyPlayerId];
+		if (bDead != 0) {
+			bDead = 0;
+			int hp = GenerateRnd(10) + 1;
+			hp += GenerateRnd(player._pLevel) + player._pLevel;
+			hp <<= 6;
+
+			player._pHitPoints = std::min(player._pHitPoints + hp, player._pMaxHP);
+			player._pHPBase = std::min(player._pHPBase + hp, player._pMaxHPBase);
+
+			RedrawComponent(PanelDrawComponent::Health);
+		}	
+	}
+
+	// FIXME: Send command to other players showing the removal of the corpse
 	NewCursor(CURSOR_HAND);
 }
 

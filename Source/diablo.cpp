@@ -2444,6 +2444,13 @@ bool TryIconCurs()
 		return false;
 	}
 
+	Player &myPlayer = *MyPlayer;
+
+	if (pcurs == CURSOR_HEALOTHER && myPlayer._pClass == HeroClass::BloodMage) {
+		DoBloodSiphon();
+		return true;
+	}
+
 	if (pcurs == CURSOR_HEALOTHER) {
 		if (pcursplr != -1) {
 			NetSendCmdParam1(true, CMD_HEALOTHER, pcursplr);
@@ -2458,8 +2465,6 @@ bool TryIconCurs()
 		DoTelekinesis();
 		return true;
 	}
-
-	Player &myPlayer = *MyPlayer;
 
 	if (pcurs == CURSOR_IDENTIFY) {
 		if (pcursinvitem != -1 && !IsInspectingPlayer())

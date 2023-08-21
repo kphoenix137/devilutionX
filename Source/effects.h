@@ -190,6 +190,7 @@ enum _sfx_id : int16_t {
 	IS_TRAP,
 	IS_CAST2,
 	IS_CAST4,
+	IS_CAST5,
 	IS_CAST6,
 	IS_CAST7,
 	IS_CAST8,

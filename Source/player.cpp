@@ -1556,6 +1556,8 @@ HeroClass GetPlayerSpriteClass(HeroClass cls)
 		return HeroClass::Rogue;
 	if (cls == HeroClass::Barbarian && !gbBarbarian)
 		return HeroClass::Warrior;
+	if (cls == HeroClass::BloodMage)
+		return HeroClass::Sorcerer;
 	return cls;
 }
 
@@ -1809,7 +1811,7 @@ void Player::RestorePartialLife()
 {
 	int wholeHitpoints = _pMaxHP >> 6;
 	int l = ((wholeHitpoints / 8) + GenerateRnd(wholeHitpoints / 4)) << 6;
-	if (IsAnyOf(_pClass, HeroClass::Warrior, HeroClass::Barbarian))
+	if (IsAnyOf(_pClass, HeroClass::Warrior, HeroClass::Barbarian, HeroClass::BloodMage))
 		l *= 2;
 	if (IsAnyOf(_pClass, HeroClass::Rogue, HeroClass::Monk, HeroClass::Bard))
 		l += l / 2;
@@ -1823,7 +1825,7 @@ void Player::RestorePartialMana()
 	int l = ((wholeManaPoints / 8) + GenerateRnd(wholeManaPoints / 4)) << 6;
 	if (_pClass == HeroClass::Sorcerer)
 		l *= 2;
-	if (IsAnyOf(_pClass, HeroClass::Rogue, HeroClass::Monk, HeroClass::Bard))
+	if (IsAnyOf(_pClass, HeroClass::Rogue, HeroClass::Monk, HeroClass::Bard, HeroClass::BloodMage))
 		l += l / 2;
 	if (HasNoneOf(_pIFlags, ItemSpecialEffect::NoMana)) {
 		_pMana = std::min(_pMana + l, _pMaxMana);
@@ -2322,6 +2324,10 @@ void CreatePlayer(Player &player, HeroClass c)
 		player._pMemSpells = GetSpellBitmask(SpellID::Firebolt);
 		player._pRSplType = SpellType::Spell;
 		player._pRSpell = SpellID::Firebolt;
+	} else if (c == HeroClass::BloodMage) {
+		player._pMemSpells = GetSpellBitmask(SpellID::BloodStar);
+		player._pRSplType = SpellType::Spell;
+		player._pRSpell = SpellID::BloodStar;
 	} else {
 		player._pMemSpells = 0;
 	}
@@ -2334,6 +2340,8 @@ void CreatePlayer(Player &player, HeroClass c)
 
 	if (player._pClass == HeroClass::Sorcerer) {
 		player._pSplLvl[static_cast<int8_t>(SpellID::Firebolt)] = 2;
+	} else if (player._pClass == HeroClass::BloodMage) {
+		player._pSplLvl[static_cast<int8_t>(SpellID::BloodStar)] = 1;
 	}
 
 	// Initializing the hotkey bindings to no selection
@@ -2351,6 +2359,7 @@ void CreatePlayer(Player &player, HeroClass c)
 		break;
 	case HeroClass::Sorcerer:
 	case HeroClass::Monk:
+	case HeroClass::BloodMage:
 		animWeaponId = PlayerWeaponGraphic::Staff;
 		break;
 	}
@@ -2764,6 +2773,7 @@ StartPlayerKill(Player &player, DeathReason deathReason)
 				CopyUtf8(ear._iIName, player._pName, sizeof(ear._iIName));
 				switch (player._pClass) {
 				case HeroClass::Sorcerer:
+				case HeroClass::BloodMage:
 					ear._iCurs = ICURS_EAR_SORCERER;
 					break;
 				case HeroClass::Warrior:

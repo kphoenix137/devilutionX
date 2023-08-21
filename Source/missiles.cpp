@@ -204,13 +204,14 @@ int ProjectileTrapDamage(Missile &missile)
 bool MonsterMHit(int pnum, int monsterId, int mindam, int maxdam, int dist, MissileID t, DamageType damageType, bool shift)
 {
 	auto &monster = Monsters[monsterId];
+	const Player &player = Players[pnum];
 
-	if (!monster.isPossibleToHit() || monster.isImmune(t, damageType))
+	if (!monster.isPossibleToHit() || (monster.isImmune(t, damageType) && !(player._pClass == HeroClass::BloodMage && IsAnyOf(t, MissileID::BloodStar, MissileID::BoneSpirit))))
 		return false;
 
 	int hit = GenerateRnd(100);
 	int hper = 0;
-	const Player &player = Players[pnum];
+
 	const MissileData &missileData = GetMissileData(t);
 	if (missileData.isArrow()) {
 		hper = player.GetRangedPiercingToHit();
@@ -237,7 +238,10 @@ bool MonsterMHit(int pnum, int monsterId, int mindam, int maxdam, int dist, Miss
 
 	int dam;
 	if (t == MissileID::BoneSpirit) {
-		dam = monster.hitPoints / 3 >> 6;
+		if (player._pClass == HeroClass::BloodMage)
+			dam = monster.hitPoints / 2 >> 6;
+		else
+			dam = monster.hitPoints / 3 >> 6;
 	} else {
 		dam = mindam + GenerateRnd(maxdam - mindam + 1);
 	}
@@ -254,8 +258,11 @@ bool MonsterMHit(int pnum, int monsterId, int mindam, int maxdam, int dist, Miss
 	bool resist = monster.isResistant(t, damageType);
 	if (!shift)
 		dam <<= 6;
-	if (resist)
-		dam >>= 2;
+	if (resist) {
+		if (!(IsAnyOf(t, MissileID::BloodStar, MissileID::BoneSpirit) && player._pClass == HeroClass::BloodMage)) {
+			dam >>= 2;
+		}
+	}
 
 	if (&player == MyPlayer)
 		ApplyMonsterDamage(damageType, monster, dam);
@@ -831,6 +838,7 @@ void GetDamageAmt(SpellID i, int *mind, int *maxd)
 	case SpellID::Berserk:
 	case SpellID::Search:
 	case SpellID::RuneOfStone:
+	case SpellID::BloodSiphon:
 		*mind = -1;
 		*maxd = -1;
 		break;
@@ -894,7 +902,10 @@ void GetDamageAmt(SpellID i, int *mind, int *maxd)
 		*maxd = *mind + 9;
 		break;
 	case SpellID::BloodStar:
-		*mind = (myPlayer._pMagic / 2) + 3 * sl - (myPlayer._pMagic / 8);
+		if (myPlayer._pClass == HeroClass::BloodMage)
+			*mind = (myPlayer._pVitality / 2) + 3 * sl - (myPlayer._pVitality / 4);
+		else
+			*mind = (myPlayer._pMagic / 2) + 3 * sl - (myPlayer._pMagic / 8);
 		*maxd = *mind;
 		break;
 	default:
@@ -1589,7 +1600,7 @@ void AddMana(Missile &missile, AddMissileParameter & /*parameter*/)
 	}
 	if (player._pClass == HeroClass::Sorcerer)
 		manaAmount *= 2;
-	if (player._pClass == HeroClass::Rogue || player._pClass == HeroClass::Bard)
+	if (IsAnyOf(player._pClass, HeroClass::Rogue, HeroClass::Bard, HeroClass::BloodMage))
 		manaAmount += manaAmount / 2;
 	player._pMana += manaAmount;
 	if (player._pMana > player._pMaxMana)
@@ -2207,6 +2218,7 @@ void AddGenericMagicMissile(Missile &missile, AddMissileParameter &parameter)
 	if (missile.position.start == dst) {
 		dst += parameter.midir;
 	}
+
 	UpdateMissileVelocity(missile, dst, 16);
 	missile._mirange = 256;
 	missile.var1 = missile.position.start.x;
@@ -2232,7 +2244,12 @@ void AddGenericMagicMissile(Missile &missile, AddMissileParameter &parameter)
 		switch (missile.sourceType()) {
 		case MissileSource::Player: {
 			const Player &player = *missile.sourcePlayer();
-			missile._midam = 3 * missile._mispllvl - (player._pMagic / 8) + (player._pMagic / 2);
+			if (player._pClass == HeroClass::BloodMage && missile._miAnimType == MissileGraphicID::BloodStar) {
+				UpdateMissileVelocity(missile, dst, 16 + missile._mispllvl / 2);
+				missile._midam = 3 * missile._mispllvl - (player._pVitality / 16) + (player._pVitality / 2);
+			} else {
+				missile._midam = 3 * missile._mispllvl - (player._pMagic / 8) + (player._pMagic / 2);
+			}
 			break;
 		}
 		case MissileSource::Monster:
@@ -2399,6 +2416,15 @@ void AddHealOther(Missile &missile, AddMissileParameter & /*parameter*/)
 		if (ControlMode != ControlTypes::KeyboardAndMouse)
 			TryIconCurs();
 	}
+}
+
+void AddBloodSiphon(Missile &missile, AddMissileParameter & /*parameter*/)
+{
+	Player &player = Players[missile._misource];
+
+	missile._miDelFlag = true;
+	if (&player == MyPlayer)
+		NewCursor(CURSOR_HEALOTHER);
 }
 
 void AddElemental(Missile &missile, AddMissileParameter &parameter)

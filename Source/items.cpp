@@ -2930,7 +2930,10 @@ void InitializeItem(Item &item, _item_indexes itemData)
 	item._iSpell = pAllItem.iSpell;
 
 	if (pAllItem.iMiscId == IMISC_STAFF) {
-		item._iCharges = gbIsHellfire ? 18 : 40;
+		if (itemData == IDI_BLOODMAGE)
+			item._iCharges = 20;
+		else
+			item._iCharges = gbIsHellfire ? 18 : 40;
 	}
 
 	item._iMaxCharges = item._iCharges;
@@ -3031,7 +3034,6 @@ void CreatePlrItems(Player &player)
 		InitializeItem(player.SpdList[1], gbIsHellfire ? IDI_HEAL : IDI_MANA);
 		GenerateNewSeed(player.SpdList[1]);
 		break;
-
 	case HeroClass::Monk:
 		InitializeItem(player.InvBody[INVLOC_HAND_LEFT], IDI_SHORTSTAFF);
 		GenerateNewSeed(player.InvBody[INVLOC_HAND_LEFT]);
@@ -3063,6 +3065,16 @@ void CreatePlrItems(Player &player)
 		GenerateNewSeed(player.SpdList[0]);
 
 		InitializeItem(player.SpdList[1], IDI_HEAL);
+		GenerateNewSeed(player.SpdList[1]);
+		break;
+	case HeroClass::BloodMage:
+		InitializeItem(player.InvBody[INVLOC_HAND_LEFT], IDI_BLOODMAGE);
+		GenerateNewSeed(player.InvBody[INVLOC_HAND_LEFT]);
+
+		InitializeItem(player.SpdList[0], IDI_HEAL);
+		GenerateNewSeed(player.SpdList[0]);
+
+		InitializeItem(player.SpdList[1], IDI_MANA);
 		GenerateNewSeed(player.SpdList[1]);
 		break;
 	}
@@ -4089,6 +4101,8 @@ void UseItem(size_t pnum, item_misc_id mid, SpellID spellID, int spellFrom)
 		break;
 	case IMISC_SCROLL:
 	case IMISC_SCROLLT:
+		if (player._pClass == HeroClass::BloodMage && IsAnyOf(spellID, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt))
+			return;
 		if (ControlMode == ControlTypes::KeyboardAndMouse && GetSpellData(spellID).isTargeted()) {
 			prepareSpellID = spellID;
 		} else {
@@ -4104,6 +4118,8 @@ void UseItem(size_t pnum, item_misc_id mid, SpellID spellID, int spellFrom)
 		}
 		break;
 	case IMISC_BOOK: {
+		if (player._pClass == HeroClass::BloodMage && IsAnyOf(spellID, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt))
+			return;
 		uint8_t newSpellLevel = player._pSplLvl[static_cast<int8_t>(spellID)] + 1;
 		if (newSpellLevel <= MaxSpellLevel) {
 			player._pSplLvl[static_cast<int8_t>(spellID)] = newSpellLevel;
@@ -4425,6 +4441,7 @@ void SpawnBoy(int lvl)
 					ivalue = INT_MAX;
 				break;
 			case HeroClass::Sorcerer:
+			case HeroClass::BloodMage:
 				if (IsAnyOf(itemType, ItemType::Staff, ItemType::Axe, ItemType::Bow, ItemType::Mace))
 					ivalue = INT_MAX;
 				break;

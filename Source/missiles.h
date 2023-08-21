@@ -339,6 +339,7 @@ void AddGolem(Missile &missile, AddMissileParameter &parameter);
 void AddApocalypseBoom(Missile &missile, AddMissileParameter &parameter);
 void AddHealing(Missile &missile, AddMissileParameter &parameter);
 void AddHealOther(Missile &missile, AddMissileParameter &parameter);
+void AddBloodSiphon(Missile &missile, AddMissileParameter &parameter);
 
 /**
  * var1: X coordinate of the missile-light

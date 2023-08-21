@@ -3784,6 +3784,7 @@ void DoEnding()
 	switch (MyPlayer->_pClass) {
 	case HeroClass::Sorcerer:
 	case HeroClass::Monk:
+	case HeroClass::BloodMage:
 		play_movie("gendata\\diabvic1.smk", false);
 		break;
 	case HeroClass::Warrior:

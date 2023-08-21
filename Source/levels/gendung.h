@@ -262,6 +262,16 @@ constexpr bool TileContainsDeadPlayer(Point position)
 }
 
 /**
+ * @brief Checks if a given tile contains a monster corpse
+ * @param position Coordinates of the dungeon tile to check
+ * @return true if a dead monster exists at this position
+ */
+constexpr bool TileContainsDeadMonster(Point position)
+{
+	return InDungeonBounds(position) && dCorpse[position.x][position.y] != -1;
+}
+
+/**
  * @brief Check if a given tile contains a decorative object (or similar non-pathable set piece)
  *
  * This appears to include stairs so that monsters do not spawn or path onto them, but players can path to them to navigate between layers

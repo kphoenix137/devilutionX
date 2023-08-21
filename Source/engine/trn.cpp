@@ -52,6 +52,9 @@ std::optional<std::array<uint8_t, 256>> GetClassTRN(Player &player)
 	case HeroClass::Barbarian:
 		path = "plrgfx\\barbarian.trn";
 		break;
+	case HeroClass::BloodMage:
+		path = "plrgfx\\bloodmage.trn";
+		break;
 	}
 
 #ifdef _DEBUG

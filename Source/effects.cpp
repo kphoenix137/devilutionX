@@ -105,6 +105,7 @@ TSFX sgSFX[] = {
 /*IS_TRAP*/       { sfx_MISC,                  "sfx\\items\\trap.wav",        nullptr },
 /*IS_CAST2*/      { sfx_MISC,                  "sfx\\misc\\cast2.wav",        nullptr },
 /*IS_CAST4*/      { sfx_MISC,                  "sfx\\misc\\cast4.wav",        nullptr },
+/*IS_CAST4*/      { sfx_MISC,                  "sfx\\misc\\cast5.wav",        nullptr },
 /*IS_CAST6*/      { sfx_MISC,                  "sfx\\misc\\cast6.wav",        nullptr },
 /*IS_CAST7*/      { sfx_MISC,                  "sfx\\misc\\cast7.wav",        nullptr },
 /*IS_CAST8*/      { sfx_MISC,                  "sfx\\misc\\cast8.wav",        nullptr },
@@ -1175,6 +1176,7 @@ void sound_init()
 			mask |= sfx_ROGUE;
 			break;
 		case HeroClass::Sorcerer:
+		case HeroClass::BloodMage:
 			mask |= sfx_SORCERER;
 			break;
 		case HeroClass::Monk:

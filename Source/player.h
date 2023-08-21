@@ -61,8 +61,9 @@ enum class HeroClass : uint8_t {
 	Monk,
 	Bard,
 	Barbarian,
+	BloodMage,
 
-	LAST = Barbarian
+	LAST = BloodMage,
 };
 
 enum class CharacterAttribute : uint8_t {
@@ -192,13 +193,14 @@ constexpr std::array<char, 9> WepChar = {
 };
 
 /** Maps from player class to letter used in graphic files. */
-constexpr std::array<char, 6> CharChar = {
+constexpr std::array<char, 7> CharChar = {
 	'w', // warrior
 	'r', // rogue
 	's', // sorcerer
 	'm', // monk
 	'b',
 	'c',
+	's', // blood mage
 };
 
 /**
@@ -381,6 +383,9 @@ struct Player {
 
 	bool CanUseItem(const Item &item) const
 	{
+		if (_pClass == HeroClass::BloodMage && IsAnyOf(item._iSpell, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt))
+			return false;
+
 		return _pStrength >= item._iMinStr
 		    && _pMagic >= item._iMinMag
 		    && _pDexterity >= item._iMinDex;
@@ -560,7 +565,7 @@ struct Player {
 		int hper = _pMagic + BaseHitChance;
 		if (_pClass == HeroClass::Sorcerer)
 			hper += 20;
-		else if (_pClass == HeroClass::Bard)
+		else if (IsAnyOf(_pClass, HeroClass::Bard, HeroClass::BloodMage))
 			hper += 10;
 		return hper;
 	}

@@ -58,6 +58,8 @@ SpellID GetSpellFromSpellPage(size_t page, size_t entry)
 			return SpellID::Identify;
 		case HeroClass::Barbarian:
 			return SpellID::Rage;
+		case HeroClass::BloodMage:
+			return SpellID::BloodSiphon;
 		}
 	}
 	return SpellPages[page][entry];

@@ -1829,6 +1829,8 @@ _item_indexes RemapItemIdxFromDiablo(_item_indexes i)
 		if (i == IDI_SORCERER) {
 			return IDI_SORCERER_DIABLO;
 		}
+		if (i == IDI_BLOODMAGE)
+			return i;
 		if (i >= 156) {
 			i += 5; // Hellfire exclusive items
 		}
@@ -1851,6 +1853,8 @@ _item_indexes RemapItemIdxToDiablo(_item_indexes i)
 		if (i == IDI_SORCERER_DIABLO) {
 			return IDI_SORCERER;
 		}
+		if (i == IDI_BLOODMAGE)
+			return i;
 		if ((i >= 83 && i <= 86) || i == 92 || i >= 161) {
 			return -1; // Hellfire exclusive items
 		}

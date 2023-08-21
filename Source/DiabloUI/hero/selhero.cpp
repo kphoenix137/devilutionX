@@ -168,6 +168,7 @@ void SelheroListSelect(int value)
 		if (gbBarbarian || *sgOptions.Gameplay.testBarbarian) {
 			vecSelHeroDlgItems.push_back(std::make_unique<UiListItem>(_("Barbarian"), static_cast<int>(HeroClass::Barbarian)));
 		}
+		vecSelHeroDlgItems.push_back(std::make_unique<UiListItem>(_("Blood Mage"), static_cast<int>(HeroClass::BloodMage)));
 		if (vecSelHeroDlgItems.size() > 4)
 			itemH = 26;
 		int itemY = 246 + (176 - vecSelHeroDlgItems.size() * itemH) / 2;
@@ -263,7 +264,7 @@ void AddSelHeroBackground()
 void SelheroClassSelectorSelect(int value)
 {
 	auto hClass = static_cast<HeroClass>(vecSelHeroDlgItems[value]->m_value);
-	if (gbIsSpawn && (hClass == HeroClass::Rogue || hClass == HeroClass::Sorcerer || (hClass == HeroClass::Bard && !gbBard))) {
+	if (gbIsSpawn && (hClass == HeroClass::Rogue || hClass == HeroClass::Sorcerer || hClass == HeroClass::BloodMage || (hClass == HeroClass::Bard && !gbBard))) {
 		RemoveSelHeroBackground();
 		UiSelOkDialog(nullptr, _("The Rogue and Sorcerer are only available in the full retail version of Diablo. Visit https://www.gog.com/game/diablo to purchase.").data(), false);
 		AddSelHeroBackground();
@@ -367,7 +368,7 @@ void SelheroLoadSelect(int value)
 
 const char *SelheroGenerateName(HeroClass heroClass)
 {
-	static const char *const Names[6][10] = {
+	static const char *const Names[7][10] = {
 		{
 		    // Warrior
 		    "Aidan",
@@ -445,6 +446,19 @@ const char *SelheroGenerateName(HeroClass heroClass)
 		    "Qual-Kehk",
 		    "Ragnar",
 		    "Ulf",
+		},
+		{
+		    // Blood Mage (uses Sorcerer names)
+		    "Jazreth",
+		    "Drognan",
+		    "Armin",
+		    "Fauztin",
+		    "Jere",
+		    "Kazzulk",
+		    "Ranslor",
+		    "Sarnakyle",
+		    "Valthek",
+		    "Horazon",
 		},
 	};
 
