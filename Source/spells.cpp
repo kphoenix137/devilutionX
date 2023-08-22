@@ -170,10 +170,10 @@ void ConsumeSpell(Player &player, SpellID sn)
 		break;
 	}
 	if (sn == SpellID::BloodStar) {
-		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? (player._pLevel * 4 / 5) : 5);
+		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? ((player._pLevel + 1) * 4 / 5) : 5);
 	}
 	if (sn == SpellID::BoneSpirit) {
-		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? (player._pLevel * 9 / 10) : 6);
+		ApplyPlrDamage(DamageType::Physical, player, player._pClass == HeroClass::BloodMage ? ((player._pLevel + 1) * 9 / 10) : 6);
 	}
 }
 
