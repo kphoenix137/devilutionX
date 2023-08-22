@@ -4101,7 +4101,7 @@ void UseItem(size_t pnum, item_misc_id mid, SpellID spellID, int spellFrom)
 		break;
 	case IMISC_SCROLL:
 	case IMISC_SCROLLT:
-		if (player._pClass == HeroClass::BloodMage && IsAnyOf(spellID, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt))
+		if (player._pClass == HeroClass::BloodMage && IsAnyOf(spellID, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt, SpellID::ManaShield))
 			return;
 		if (ControlMode == ControlTypes::KeyboardAndMouse && GetSpellData(spellID).isTargeted()) {
 			prepareSpellID = spellID;
@@ -4118,7 +4118,7 @@ void UseItem(size_t pnum, item_misc_id mid, SpellID spellID, int spellFrom)
 		}
 		break;
 	case IMISC_BOOK: {
-		if (player._pClass == HeroClass::BloodMage && IsAnyOf(spellID, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt))
+		if (player._pClass == HeroClass::BloodMage && IsAnyOf(spellID, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt, SpellID::ManaShield))
 			return;
 		uint8_t newSpellLevel = player._pSplLvl[static_cast<int8_t>(spellID)] + 1;
 		if (newSpellLevel <= MaxSpellLevel) {

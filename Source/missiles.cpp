@@ -903,7 +903,7 @@ void GetDamageAmt(SpellID i, int *mind, int *maxd)
 		break;
 	case SpellID::BloodStar:
 		if (myPlayer._pClass == HeroClass::BloodMage)
-			*mind = (myPlayer._pVitality / 2) + (10 * sl) + (myPlayer._pLevel * 3);
+			*mind = (myPlayer._pVitality / 4) + (5 * sl) + (myPlayer._pLevel * 4) + ((myPlayer._pMaxHP - myPlayer._pHitPoints) >> 6) / 4;
 		else
 			*mind = (myPlayer._pMagic / 2) + (3 * sl) - (myPlayer._pMagic / 8);
 		*maxd = *mind;
@@ -2246,7 +2246,7 @@ void AddGenericMagicMissile(Missile &missile, AddMissileParameter &parameter)
 			const Player &player = *missile.sourcePlayer();
 			if (player._pClass == HeroClass::BloodMage && missile._miAnimType == MissileGraphicID::BloodStar) {
 				UpdateMissileVelocity(missile, dst, 18 + missile._mispllvl / 2);
-				missile._midam = (10 * missile._mispllvl) + (player._pVitality / 2) + (player._pLevel * 3);
+				missile._midam = (5 * missile._mispllvl) + (player._pVitality / 4) + (player._pLevel * 4) + ((player._pMaxHP - player._pHitPoints) >> 6) / 4;
 			} else {
 				missile._midam = (3 * missile._mispllvl) - (player._pMagic / 8) + (player._pMagic / 2);
 			}

@@ -383,7 +383,7 @@ struct Player {
 
 	bool CanUseItem(const Item &item) const
 	{
-		if (_pClass == HeroClass::BloodMage && IsAnyOf(item._iSpell, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt))
+		if (_pClass == HeroClass::BloodMage && IsAnyOf(item._iSpell, SpellID::Healing, SpellID::HealOther, SpellID::HolyBolt, SpellID::ManaShield))
 			return false;
 
 		return _pStrength >= item._iMinStr
