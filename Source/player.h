@@ -22,6 +22,7 @@
 #include "items.h"
 #include "levels/gendung.h"
 #include "multi.h"
+#include "playerdat.hpp"
 #include "spelldat.h"
 #include "utils/attributes.h"
 #include "utils/enum_traits.h"
@@ -512,10 +513,7 @@ struct Player {
 	 */
 	int GetMeleeToHit() const
 	{
-		int hper = _pLevel + _pDexterity / 2 + _pIBonusToHit + BaseHitChance;
-		if (_pClass == HeroClass::Warrior)
-			hper += 20;
-		return hper;
+		return _pLevel + _pDexterity / 2 + _pIBonusToHit + BaseHitChance + PlayersBonusData[static_cast<std::size_t>(_pClass)].bonusToHit;
 	}
 
 	/**
@@ -535,11 +533,7 @@ struct Player {
 	 */
 	int GetRangedToHit() const
 	{
-		int hper = _pLevel + _pDexterity + _pIBonusToHit + BaseHitChance;
-		if (_pClass == HeroClass::Rogue)
-			hper += 20;
-		else if (_pClass == HeroClass::Warrior || _pClass == HeroClass::Bard)
-			hper += 10;
+		int hper = _pLevel + _pDexterity + _pIBonusToHit + BaseHitChance + PlayersBonusData[static_cast<std::size_t>(_pClass)].bonusRangedToHit;
 		return hper;
 	}
 
@@ -557,12 +551,7 @@ struct Player {
 	 */
 	int GetMagicToHit() const
 	{
-		int hper = _pMagic + BaseHitChance;
-		if (_pClass == HeroClass::Sorcerer)
-			hper += 20;
-		else if (_pClass == HeroClass::Bard)
-			hper += 10;
-		return hper;
+		return _pMagic + BaseHitChance + PlayersBonusData[static_cast<std::size_t>(_pClass)].bonusMagicToHit;
 	}
 
 	/**

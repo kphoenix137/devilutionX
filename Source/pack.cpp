@@ -452,7 +452,7 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 
 	player._pExperience = SDL_SwapLE32(packed.pExperience);
 	player._pGold = SDL_SwapLE32(packed.pGold);
-	player._pBaseToBlk = PlayersData[static_cast<std::size_t>(player._pClass)].blockBonus;
+	player._pBaseToBlk = PlayersBonusData[static_cast<std::size_t>(player._pClass)].bonusToBlock;
 	if ((int)(player._pHPBase & 0xFFFFFFC0) < 64)
 		player._pHPBase = 64;
 
@@ -541,7 +541,7 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 	player._pStatPts = packed.pStatPts;
 
 	player._pExperience = SDL_SwapLE32(packed.pExperience);
-	player._pBaseToBlk = PlayersData[static_cast<std::size_t>(player._pClass)].blockBonus;
+	player._pBaseToBlk = PlayersBonusData[static_cast<std::size_t>(player._pClass)].bonusToBlock;
 	player._pMaxManaBase = baseManaMax;
 	player._pManaBase = baseMana;
 	player._pMemSpells = SDL_SwapLE64(packed.pMemSpells);

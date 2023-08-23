@@ -17,24 +17,6 @@ struct PlayerData {
 	const char *className;
 	/* Class Directory Path */
 	const char *classPath;
-	/* Class Starting Strength Stat */
-	uint8_t baseStr;
-	/* Class Starting Magic Stat */
-	uint8_t baseMag;
-	/* Class Starting Dexterity Stat */
-	uint8_t baseDex;
-	/* Class Starting Vitality Stat */
-	uint8_t baseVit;
-	/* Class Maximum Strength Stat */
-	uint8_t maxStr;
-	/* Class Maximum Magic Stat */
-	uint8_t maxMag;
-	/* Class Maximum Dexterity Stat */
-	uint8_t maxDex;
-	/* Class Maximum Vitality Stat */
-	uint8_t maxVit;
-	/* Class Block Bonus % */
-	uint8_t blockBonus;
 	/* Class Life Adjustment */
 	int16_t adjLife;
 	/* Class Mana Adjustment */
@@ -53,6 +35,25 @@ struct PlayerData {
 	int16_t itmMana;
 	/* Class Skill */
 	SpellID skill;
+};
+
+struct PlayerAttributeData {
+	/* Class Starting Strength Stat */
+	uint8_t baseStr;
+	/* Class Starting Magic Stat */
+	uint8_t baseMag;
+	/* Class Starting Dexterity Stat */
+	uint8_t baseDex;
+	/* Class Starting Vitality Stat */
+	uint8_t baseVit;
+	/* Class Maximum Strength Stat */
+	uint8_t maxStr;
+	/* Class Maximum Magic Stat */
+	uint8_t maxMag;
+	/* Class Maximum Dexterity Stat */
+	uint8_t maxDex;
+	/* Class Maximum Vitality Stat */
+	uint8_t maxVit;
 };
 
 struct PlayerSpriteData {
@@ -135,10 +136,23 @@ struct PlayerAnimData {
 	int8_t castingActionFrame;
 };
 
+struct PlayerBonusData {
+	/* Class Melee To Hit Bonus */
+	int8_t bonusToHit;
+	/* Class Ranged To Hit Bonus */
+	int8_t bonusRangedToHit;
+	/* Class Magic To Hit Bonus */
+	int8_t bonusMagicToHit;
+	/* Class To Block Bonus */
+	int8_t bonusToBlock;
+};
+
 extern const _sfx_id herosounds[enum_size<HeroClass>::value][enum_size<HeroSpeech>::value];
 extern const uint32_t ExpLvlsTbl[MaxCharacterLevel];
 extern const PlayerData PlayersData[];
+extern const PlayerAttributeData PlayersAttributeData[];
 extern const PlayerSpriteData PlayersSpriteData[];
 extern const PlayerAnimData PlayersAnimData[];
+extern const PlayerBonusData PlayersBonusData[];
 
 } // namespace devilution

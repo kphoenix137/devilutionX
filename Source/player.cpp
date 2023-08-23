@@ -36,7 +36,6 @@
 #include "objects.h"
 #include "options.h"
 #include "player.h"
-#include "playerdat.hpp"
 #include "qol/autopickup.h"
 #include "qol/floatingnumbers.h"
 #include "qol/stash.h"
@@ -1713,7 +1712,7 @@ int Player::GetCurrentAttributeValue(CharacterAttribute attribute) const
 
 int Player::GetMaximumAttributeValue(CharacterAttribute attribute) const
 {
-	PlayerData plrData = PlayersData[static_cast<std::size_t>(_pClass)];
+	PlayerAttributeData plrData = PlayersAttributeData[static_cast<std::size_t>(_pClass)];
 	switch (attribute) {
 	case CharacterAttribute::Strength:
 		return plrData.maxStr;
@@ -2278,23 +2277,25 @@ void CreatePlayer(Player &player, HeroClass c)
 	SetRndSeed(SDL_GetTicks());
 
 	const PlayerData &playerData = PlayersData[static_cast<size_t>(c)];
+	const PlayerAttributeData &playerAttributeData = PlayersAttributeData[static_cast<size_t>(c)];
+	const PlayerBonusData &playerBonusData = PlayersBonusData[static_cast<size_t>(c)];
 
 	player._pLevel = 1;
 	player._pClass = c;
 
-	player._pBaseStr = playerData.baseStr;
+	player._pBaseStr = playerAttributeData.baseStr;
 	player._pStrength = player._pBaseStr;
 
-	player._pBaseMag = playerData.baseMag;
+	player._pBaseMag = playerAttributeData.baseMag;
 	player._pMagic = player._pBaseMag;
 
-	player._pBaseDex = playerData.baseDex;
+	player._pBaseDex = playerAttributeData.baseDex;
 	player._pDexterity = player._pBaseDex;
 
-	player._pBaseVit = playerData.baseVit;
+	player._pBaseVit = playerAttributeData.baseVit;
 	player._pVitality = player._pBaseVit;
 
-	player._pBaseToBlk = playerData.blockBonus;
+	player._pBaseToBlk = playerBonusData.bonusToBlock;
 
 	player._pHitPoints = player.calculateBaseLife();
 	player._pMaxHP = player._pHitPoints;
