@@ -87,6 +87,7 @@ void GamemenuUpdateSingle()
 void GamemenuUpdateMulti()
 {
 	sgMultiMenu[1].setEnabled(MyPlayerIsDead);
+	sgMultiMenu[2].setEnabled(!MyPlayerIsDead);
 }
 
 void GamemenuPrevious(bool /*bActivate*/)
