@@ -35,13 +35,12 @@ void GamemenuSpeed(bool bActivate);
 /** Contains the game menu items of the single player menu. */
 TMenuItem sgSingleMenu[] = {
 	// clang-format off
-	// dwFlags,      pszStr,          fnMenu
-	{ GMENU_ENABLED, N_("Save Game"), &gamemenu_save_game },
-	{ GMENU_ENABLED, N_("Options"),   &GamemenuOptions    },
-	{ GMENU_ENABLED, N_("New Game"),  &GamemenuNewGame    },
-	{ GMENU_ENABLED, N_("Load Game"), &gamemenu_load_game },
-	{ GMENU_ENABLED, N_("Quit Game"), &gamemenu_quit_game },
-	{ GMENU_ENABLED, nullptr,         nullptr             }
+	// dwFlags,      pszStr,                     fnMenu
+	{ GMENU_ENABLED, N_("Options"),              &GamemenuOptions    },
+	{ GMENU_ENABLED, N_("Save Game"),            &gamemenu_save_game },
+	{ GMENU_ENABLED, N_("Load Game"),            &gamemenu_load_game },
+	{ GMENU_ENABLED, N_("Exit Without Saving"),  &GamemenuNewGame    },
+	{ GMENU_ENABLED, nullptr,                    nullptr             }
 	// clang-format on
 };
 /** Contains the game menu items of the multi player menu. */
@@ -49,9 +48,8 @@ TMenuItem sgMultiMenu[] = {
 	// clang-format off
 	// dwFlags,      pszStr,                fnMenu
 	{ GMENU_ENABLED, N_("Options"),         &GamemenuOptions     },
-	{ GMENU_ENABLED, N_("New Game"),        &GamemenuNewGame     },
 	{ GMENU_ENABLED, N_("Restart In Town"), &GamemenuRestartTown },
-	{ GMENU_ENABLED, N_("Quit Game"),       &gamemenu_quit_game  },
+	{ GMENU_ENABLED, N_("Exit Game"),       &GamemenuNewGame     },
 	{ GMENU_ENABLED, nullptr,               nullptr              },
 	// clang-format on
 };
@@ -79,16 +77,16 @@ const char *const SoundToggleNames[] = {
 
 void GamemenuUpdateSingle()
 {
-	sgSingleMenu[3].setEnabled(gbValidSaveFile);
+	sgSingleMenu[2].setEnabled(gbValidSaveFile);
 
 	bool enable = MyPlayer->_pmode != PM_DEATH && !MyPlayerIsDead;
 
-	sgSingleMenu[0].setEnabled(enable);
+	sgSingleMenu[1].setEnabled(enable);
 }
 
 void GamemenuUpdateMulti()
 {
-	sgMultiMenu[2].setEnabled(MyPlayerIsDead);
+	sgMultiMenu[1].setEnabled(MyPlayerIsDead);
 }
 
 void GamemenuPrevious(bool /*bActivate*/)
