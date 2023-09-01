@@ -909,7 +909,6 @@ void DrawAutomap(const Surface &out)
 	Displacement myPlayerOffset = {};
 	if (myPlayer.isWalking())
 		myPlayerOffset = GetOffsetForWalking(myPlayer.AnimInfo, myPlayer._pdir, true);
-	myPlayerOffset += Displacement { -1, (leveltype != DTYPE_CAVES) ? TILE_HEIGHT - 1 : -1 };
 
 	int d = (AutoMapScale * 64) / 100;
 	int cells = 2 * (gnScreenWidth / 2 / d) + 1;
@@ -922,7 +921,7 @@ void DrawAutomap(const Surface &out)
 
 	Point screen {
 		gnScreenWidth / 2,
-		(gnScreenHeight - GetMainPanel().size.height) / 2
+		(gnScreenHeight - GetMainPanel().size.height) / 2 + TILE_HEIGHT - 1
 	};
 	if ((cells & 1) != 0) {
 		screen.x -= AmLine(64) * ((cells - 1) / 2);
@@ -971,8 +970,6 @@ void DrawAutomap(const Surface &out)
 		screen.y += AmLine(32);
 	}
 
-	if (leveltype == DTYPE_CAVES)
-		myPlayerOffset.deltaY += TILE_HEIGHT;
 	for (size_t playerId = 0; playerId < Players.size(); playerId++) {
 		Player &player = Players[playerId];
 		if (player.isOnActiveLevel() && player.plractive && !player._pLvlChanging && (&player == MyPlayer || player.friendlyMode)) {
@@ -980,7 +977,6 @@ void DrawAutomap(const Surface &out)
 		}
 	}
 
-	myPlayerOffset.deltaY -= TILE_HEIGHT / 2;
 	if (AutoMapShowItems)
 		SearchAutomapItem(out, myPlayerOffset, 8, [](Point position) { return dItem[position.x][position.y] != 0; });
 #ifdef _DEBUG
