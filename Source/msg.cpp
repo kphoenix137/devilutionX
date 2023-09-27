@@ -34,6 +34,7 @@
 #include "nthread.h"
 #include "objects.h"
 #include "options.h"
+#include "pack.h"
 #include "pfile.h"
 #include "plrmsg.h"
 #include "spells.h"
@@ -961,12 +962,30 @@ bool IsGItemValid(const TCmdGItem &message)
 	return IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 }
 
-bool IsPItemValid(const TCmdPItem &message)
+bool IsPItemValid(const TCmdPItem &message, const Player &player)
 {
 	const Point position { message.x, message.y };
 
 	if (!InDungeonBounds(position))
 		return false;
+
+	uint16_t creationFlags = SDL_SwapLE16(message.item.wCI);
+	uint32_t dwBuff = SDL_SwapLE16(message.item.dwBuff);
+	_item_indexes idx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
+	if (idx != IDI_GOLD) {
+		if (!IsCreationFlagComboValid(creationFlags))
+			return false;
+	}
+	if ((creationFlags & CF_TOWN) != 0) {
+		if (!IsTownItemValid(creationFlags, player))
+			return false;
+	} else if ((creationFlags & CF_USEFUL) == CF_UPER15) {
+		if (!IsUniqueMonsterItemValid(creationFlags, dwBuff))
+			return false;
+	} else {
+		if (!IsDungeonItemValid(creationFlags, dwBuff))
+			return false;
+	}
 
 	return IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 }
@@ -1251,7 +1270,7 @@ size_t OnPutItem(const TCmd *pCmd, size_t pnum)
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (IsPItemValid(message)) {
+	} else if (IsPItemValid(message, Players[pnum])) {
 		const Point position { message.x, message.y };
 		Player &player = Players[pnum];
 		bool isSelf = &player == MyPlayer;
@@ -1292,7 +1311,7 @@ size_t OnSyncPutItem(const TCmd *pCmd, size_t pnum)
 
 	if (gbBufferMsgs == 1)
 		SendPacket(pnum, &message, sizeof(message));
-	else if (IsPItemValid(message)) {
+	else if (IsPItemValid(message, Players[pnum])) {
 		Player &player = Players[pnum];
 		const int32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
@@ -1965,7 +1984,7 @@ size_t OnDropItem(const TCmd *pCmd, size_t pnum)
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (IsPItemValid(message)) {
+	} else if (IsPItemValid(message, Players[pnum])) {
 		DeltaPutItem(message, { message.x, message.y }, Players[pnum]);
 	}
 
@@ -1978,7 +1997,7 @@ size_t OnSpawnItem(const TCmd *pCmd, size_t pnum)
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (IsPItemValid(message)) {
+	} else if (IsPItemValid(message, Players[pnum])) {
 		Player &player = Players[pnum];
 		if (player.isOnActiveLevel() && &player != MyPlayer) {
 			SyncDropItem(message);
