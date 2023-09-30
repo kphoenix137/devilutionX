@@ -968,6 +968,9 @@ bool IsPItemValid(const TCmdPItem &message)
 	if (!InDungeonBounds(position))
 		return false;
 
+	if (!IsItemValid(message, *MyPlayer))
+		return false;
+
 	return IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 }
 

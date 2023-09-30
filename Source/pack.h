@@ -142,6 +142,10 @@ struct PlayerNetPack {
 };
 #pragma pack(pop)
 
+namespace {
+bool IsItemValid(const auto &packedItem, const Player &player);
+} // namespace
+
 void PackPlayer(PlayerPack &pPack, const Player &player);
 void UnPackPlayer(const PlayerPack &pPack, Player &player);
 void PackNetPlayer(PlayerNetPack &packed, const Player &player);

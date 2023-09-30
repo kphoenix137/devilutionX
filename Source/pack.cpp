@@ -154,6 +154,22 @@ bool IsDungeonItemValid(uint16_t iCreateInfo, uint32_t dwBuff)
 	return level <= 30;
 }
 
+bool IsItemValid(const auto &packedItem, const Player &player)
+{
+	auto idx = static_cast<_item_indexes>(SDL_SwapLE16(packedItem.def.wIndx));
+	uint16_t creationFlags = SDL_SwapLE16(packedItem.item.wCI);
+	uint32_t dwBuff = SDL_SwapLE16(packedItem.item.dwBuff);
+
+	if (idx != IDI_GOLD)
+		ValidateField(creationFlags, IsCreationFlagComboValid(creationFlags));
+	if ((creationFlags & CF_TOWN) != 0)
+		ValidateField(creationFlags, IsTownItemValid(creationFlags, player));
+	else if ((creationFlags & CF_USEFUL) == CF_UPER15)
+		ValidateFields(creationFlags, dwBuff, IsUniqueMonsterItemValid(creationFlags, dwBuff));
+	else
+		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
+}
+
 } // namespace
 
 void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
@@ -483,16 +499,8 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 		return true;
 	}
 
-	uint16_t creationFlags = SDL_SwapLE16(packedItem.item.wCI);
-	uint32_t dwBuff = SDL_SwapLE16(packedItem.item.dwBuff);
-	if (idx != IDI_GOLD)
-		ValidateField(creationFlags, IsCreationFlagComboValid(creationFlags));
-	if ((creationFlags & CF_TOWN) != 0)
-		ValidateField(creationFlags, IsTownItemValid(creationFlags, player));
-	else if ((creationFlags & CF_USEFUL) == CF_UPER15)
-		ValidateFields(creationFlags, dwBuff, IsUniqueMonsterItemValid(creationFlags, dwBuff));
-	else
-		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
+	if (!IsItemValid(packedItem, player))
+		return false;
 
 	RecreateItem(player, packedItem.item, item);
 	return true;
