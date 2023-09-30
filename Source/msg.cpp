@@ -34,6 +34,7 @@
 #include "nthread.h"
 #include "objects.h"
 #include "options.h"
+#include "pack.h"
 #include "pfile.h"
 #include "plrmsg.h"
 #include "spells.h"
@@ -45,6 +46,24 @@
 #include "utils/str_cat.hpp"
 #include "utils/utf8.hpp"
 
+#define ValidateField(logValue, condition)                    \
+	do {                                                      \
+		if (!(condition)) {                                   \
+			LogFailedPacket(#condition, #logValue, logValue); \
+			EventFailedPacket(player._pName);                 \
+			return false;                                     \
+		}                                                     \
+	} while (0)
+
+#define ValidateFields(logValue1, logValue2, condition)                                \
+	do {                                                                               \
+		if (!(condition)) {                                                            \
+			LogFailedPacket(#condition, #logValue1, logValue1, #logValue2, logValue2); \
+			EventFailedPacket(player._pName);                                          \
+			return false;                                                              \
+		}                                                                              \
+	} while (0)
+
 namespace devilution {
 
 // #define LOG_RECEIVED_MESSAGES
@@ -53,6 +72,24 @@ uint8_t gbBufferMsgs;
 int dwRecCount;
 
 namespace {
+
+void EventFailedPacket(const char *playerName)
+{
+	std::string message = fmt::format("Player '{}' sent an invalid packet.", playerName);
+	EventPlrMsg(message);
+}
+
+template <typename T>
+void LogFailedPacket(const char *condition, const char *name, T value)
+{
+	LogDebug("Remote player packet validation failed: ValidateField({}: {}, {})", name, value, condition);
+}
+
+template <typename T1, typename T2>
+void LogFailedPacket(const char *condition, const char *name1, T1 value1, const char *name2, T2 value2)
+{
+	LogDebug("Remote player packet validation failed: ValidateFields({}: {}, {}: {}, {})", name1, value1, name2, value2, condition);
+}
 
 #ifdef LOG_RECEIVED_MESSAGES
 std::string_view CmdIdString(_cmd_id cmd)
@@ -961,12 +998,24 @@ bool IsGItemValid(const TCmdGItem &message)
 	return IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 }
 
-bool IsPItemValid(const TCmdPItem &message)
+bool IsPItemValid(const TCmdPItem &message, const Player &player)
 {
 	const Point position { message.x, message.y };
 
-	if (!InDungeonBounds(position))
-		return false;
+	ValidateField(position, InDungeonBounds(position));
+
+	auto idx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
+	uint16_t creationFlags = SDL_SwapLE16(message.item.wCI);
+	uint32_t dwBuff = SDL_SwapLE16(message.item.dwBuff);
+
+	if (idx != IDI_GOLD)
+		ValidateField(creationFlags, IsCreationFlagComboValid(creationFlags));
+	if ((creationFlags & CF_TOWN) != 0)
+		ValidateField(creationFlags, IsTownItemValid(creationFlags, player));
+	else if ((creationFlags & CF_USEFUL) == CF_UPER15)
+		ValidateFields(creationFlags, dwBuff, IsUniqueMonsterItemValid(creationFlags, dwBuff));
+	else
+		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
 
 	return IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 }
@@ -1248,16 +1297,17 @@ size_t OnItemExtra(const TCmd *pCmd, size_t pnum)
 size_t OnPutItem(const TCmd *pCmd, size_t pnum)
 {
 	const auto &message = *reinterpret_cast<const TCmdPItem *>(pCmd);
+	const auto &player = Players[pnum];
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (IsPItemValid(message)) {
+	} else if (IsPItemValid(message, player)) {
 		const Point position { message.x, message.y };
 		Player &player = Players[pnum];
 		bool isSelf = &player == MyPlayer;
 		const int32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
-		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
+		const auto wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 		if (player.isOnActiveLevel()) {
 			int ii;
 			if (isSelf) {
@@ -1275,12 +1325,11 @@ size_t OnPutItem(const TCmd *pCmd, size_t pnum)
 					pfile_update(true);
 			}
 			return sizeof(message);
-		} else {
-			PutItemRecord(dwSeed, wCI, wIndx);
-			DeltaPutItem(message, position, player);
-			if (isSelf)
-				pfile_update(true);
 		}
+		PutItemRecord(dwSeed, wCI, wIndx);
+		DeltaPutItem(message, position, player);
+		if (isSelf)
+			pfile_update(true);
 	}
 
 	return sizeof(message);
@@ -1289,14 +1338,15 @@ size_t OnPutItem(const TCmd *pCmd, size_t pnum)
 size_t OnSyncPutItem(const TCmd *pCmd, size_t pnum)
 {
 	const auto &message = *reinterpret_cast<const TCmdPItem *>(pCmd);
+	const auto &player = Players[pnum];
 
 	if (gbBufferMsgs == 1)
 		SendPacket(pnum, &message, sizeof(message));
-	else if (IsPItemValid(message)) {
+	else if (IsPItemValid(message, player)) {
 		Player &player = Players[pnum];
 		const int32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
-		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
+		const auto wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 		if (player.isOnActiveLevel()) {
 			int ii = SyncDropItem(message);
 			if (ii != -1) {
@@ -1306,12 +1356,11 @@ size_t OnSyncPutItem(const TCmd *pCmd, size_t pnum)
 					pfile_update(true);
 			}
 			return sizeof(message);
-		} else {
-			PutItemRecord(dwSeed, wCI, wIndx);
-			DeltaPutItem(message, { message.x, message.y }, player);
-			if (&player == MyPlayer)
-				pfile_update(true);
 		}
+		PutItemRecord(dwSeed, wCI, wIndx);
+		DeltaPutItem(message, { message.x, message.y }, player);
+		if (&player == MyPlayer)
+			pfile_update(true);
 	}
 
 	return sizeof(message);
@@ -1962,10 +2011,11 @@ size_t OnPlayerLevel(const TCmd *pCmd, size_t pnum)
 size_t OnDropItem(const TCmd *pCmd, size_t pnum)
 {
 	const auto &message = *reinterpret_cast<const TCmdPItem *>(pCmd);
+	const auto &player = Players[pnum];
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (IsPItemValid(message)) {
+	} else if (IsPItemValid(message, player)) {
 		DeltaPutItem(message, { message.x, message.y }, Players[pnum]);
 	}
 
@@ -1975,10 +2025,11 @@ size_t OnDropItem(const TCmd *pCmd, size_t pnum)
 size_t OnSpawnItem(const TCmd *pCmd, size_t pnum)
 {
 	const auto &message = *reinterpret_cast<const TCmdPItem *>(pCmd);
+	const auto &player = Players[pnum];
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (IsPItemValid(message)) {
+	} else if (IsPItemValid(message, player)) {
 		Player &player = Players[pnum];
 		if (player.isOnActiveLevel() && &player != MyPlayer) {
 			SyncDropItem(message);

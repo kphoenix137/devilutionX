@@ -80,6 +80,8 @@ bool hasMultipleFlags(uint16_t flags)
 	return (flags & (flags - 1)) > 0;
 }
 
+} // namespace
+
 bool IsCreationFlagComboValid(uint16_t iCreateInfo)
 {
 	iCreateInfo = iCreateInfo & ~CF_LEVEL;
@@ -153,8 +155,6 @@ bool IsDungeonItemValid(uint16_t iCreateInfo, uint32_t dwBuff)
 
 	return level <= 30;
 }
-
-} // namespace
 
 void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
 {
