@@ -25,6 +25,7 @@ extern bool DebugGrid;
 extern std::unordered_map<int, Point> DebugCoordsMap;
 extern bool DebugScrollViewEnabled;
 extern std::string debugTRN;
+extern bool DebugDisableValidation;
 extern uint32_t glMid1Seed[NUMLEVELS];
 extern uint32_t glMid2Seed[NUMLEVELS];
 extern uint32_t glMid3Seed[NUMLEVELS];

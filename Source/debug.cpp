@@ -48,6 +48,7 @@ bool DebugGrid = false;
 std::unordered_map<int, Point> DebugCoordsMap;
 bool DebugScrollViewEnabled = false;
 std::string debugTRN;
+bool DebugDisableValidation = false;
 
 // Used for debugging level generation
 uint32_t glMid1Seed[NUMLEVELS];

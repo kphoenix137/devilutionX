@@ -7,6 +7,7 @@
 
 #include <cstdint>
 
+#include "debug.h"
 #include "engine/random.hpp"
 #include "init.h"
 #include "loadsave.h"
@@ -19,6 +20,8 @@
 
 #define ValidateField(logValue, condition)                         \
 	do {                                                           \
+		if (DebugDisableValidation)                                \
+			return true;                                           \
 		if (!(condition)) {                                        \
 			LogFailedJoinAttempt(#condition, #logValue, logValue); \
 			EventFailedJoinAttempt(player._pName);                 \
@@ -28,6 +31,8 @@
 
 #define ValidateFields(logValue1, logValue2, condition)                                     \
 	do {                                                                                    \
+		if (DebugDisableValidation)                                                         \
+			return true;                                                                    \
 		if (!(condition)) {                                                                 \
 			LogFailedJoinAttempt(#condition, #logValue1, logValue1, #logValue2, logValue2); \
 			EventFailedJoinAttempt(player._pName);                                          \
