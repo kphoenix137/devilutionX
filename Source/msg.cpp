@@ -1004,7 +1004,7 @@ bool IsPItemValid(const TCmdPItem &message, const Player &player)
 
 	if (!InDungeonBounds(position))
 		return false;
-	/*
+
 	auto idx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 	uint16_t creationFlags = SDL_SwapLE16(message.item.wCI);
 	uint32_t dwBuff = SDL_SwapLE16(message.item.dwBuff);
@@ -1017,7 +1017,7 @@ bool IsPItemValid(const TCmdPItem &message, const Player &player)
 		ValidateFields(creationFlags, dwBuff, IsUniqueMonsterItemValid(creationFlags, dwBuff));
 	else
 		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
-	*/
+
 
 	return IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 }
