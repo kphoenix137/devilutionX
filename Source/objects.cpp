@@ -74,7 +74,6 @@ enum shrine_type : uint8_t {
 	ShrineDivine,
 	ShrineHoly,
 	ShrineSacred,
-	ShrineSpiritual,
 	ShrineSpooky,
 	ShrineAbandoned,
 	ShrineCreepy,
@@ -137,7 +136,6 @@ const char *const ShrineNames[] = {
 	N_("Divine"),
 	N_("Holy"),
 	N_("Sacred"),
-	N_("Spiritual"),
 	N_("Spooky"),
 	N_("Abandoned"),
 	N_("Creepy"),
@@ -187,7 +185,6 @@ shrine_gametype shrineavail[] = {
 	ShrineTypeAny,    // Divine
 	ShrineTypeAny,    // Holy
 	ShrineTypeAny,    // Sacred
-	ShrineTypeAny,    // Spiritual
 	ShrineTypeMulti,  // Spooky
 	ShrineTypeAny,    // Abandoned
 	ShrineTypeAny,    // Creepy
@@ -3034,9 +3031,6 @@ void OperateShrine(Player &player, Object &shrine, SfxID sType)
 		break;
 	case ShrineSacred:
 		OperateShrineCostOfWisdom(player, SpellID::ChargedBolt, EMSG_SHRINE_SACRED);
-		break;
-	case ShrineSpiritual:
-		OperateShrineSpiritual(rng, player);
 		break;
 	case ShrineSpooky:
 		OperateShrineSpooky(player);

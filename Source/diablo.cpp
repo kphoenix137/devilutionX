@@ -370,10 +370,10 @@ void LeftMouseDown(uint16_t modState)
 				CheckChrBtns();
 			} else if (invflag && GetRightPanel().contains(MousePosition)) {
 				if (!dropGoldFlag)
-					CheckInvItem(isShiftHeld, isCtrlHeld);
+					CheckInvItem(false, isCtrlHeld);
 			} else if (IsStashOpen && GetLeftPanel().contains(MousePosition)) {
 				if (!IsWithdrawGoldOpen)
-					CheckStashItem(MousePosition, isShiftHeld, isCtrlHeld);
+					CheckStashItem(MousePosition, false, isCtrlHeld);
 				CheckStashButtonPress(MousePosition);
 			} else if (sbookflag && GetRightPanel().contains(MousePosition)) {
 				CheckSBook();
@@ -394,7 +394,7 @@ void LeftMouseDown(uint16_t modState)
 		}
 	} else {
 		if (!talkflag && !dropGoldFlag && !IsWithdrawGoldOpen && !gmenu_is_active())
-			CheckInvScrn(isShiftHeld, isCtrlHeld);
+			CheckInvScrn(false, isCtrlHeld);
 		DoPanBtn();
 		CheckStashButtonPress(MousePosition);
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)

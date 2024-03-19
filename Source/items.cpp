@@ -3279,6 +3279,9 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 	if (idx == IDI_NONE)
 		return;
 
+	if (idx == IDI_GOLD)
+		return;
+
 	if (ActiveItemCount >= MAXITEMS)
 		return;
 
