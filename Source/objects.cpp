@@ -1289,7 +1289,7 @@ void AddShrine(Object &shrine)
 
 	shrine._oPreFlag = true;
 
-	int shrines = gbIsHellfire ? NumberOfShrineTypes : 26;
+	int shrines = gbIsHellfire ? NumberOfShrineTypes : 25;
 
 	for (int j = 0; j < shrines; j++) {
 		slist[j] = j != ShrineEnchanted || IsAnyOf(leveltype, DTYPE_CATHEDRAL, DTYPE_CATACOMBS);
@@ -3170,7 +3170,7 @@ void OperateArmorStand(Object &armorStand, bool sendmsg, bool sendLootMsg)
 int FindValidShrine()
 {
 	for (;;) {
-		int rv = GenerateRnd(gbIsHellfire ? NumberOfShrineTypes : 26);
+		int rv = GenerateRnd(gbIsHellfire ? NumberOfShrineTypes : 25);
 		if ((rv == ShrineEnchanted && !IsAnyOf(leveltype, DTYPE_CATHEDRAL, DTYPE_CATACOMBS)) || rv == ShrineThaumaturgic)
 			continue;
 		if (gbIsMultiplayer && shrineavail[rv] == ShrineTypeSingle)
