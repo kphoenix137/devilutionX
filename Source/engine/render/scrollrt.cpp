@@ -576,7 +576,7 @@ int DetermineRotationCount(int dx, int dy)
 	if (dx <= 0 && dy > 0) return 1; // -x, +y and +y axis
 	if (dx < 0 && dy <= 0) return 2; // -x, -y and -x axis
 	if (dx >= 0 && dy < 0) return 3; // +x, -y and -y axis
-	return 0;                        // Default case, should not happen
+	return 0;
 }
 
 void ApplyRotationAdjustment(DisplacementOf<int8_t> &offset, int rotationCount)
@@ -585,7 +585,7 @@ void ApplyRotationAdjustment(DisplacementOf<int8_t> &offset, int rotationCount)
 		// Apply rotation adjustment logic similar to RotateRadius
 		int temp = offset.deltaX;
 		offset.deltaX = offset.deltaY;
-		offset.deltaY = 7 - temp; // Adjust based on your system's rotation logic
+		offset.deltaY = 7 - temp;
 	}
 }
 
@@ -593,7 +593,7 @@ uint8_t CalculateDimming(Point tilePosition)
 {
 	Point playerLightPosition = Lights[MyPlayer->lightId].position.tile;
 	DisplacementOf<int8_t> playerLightOffset = Lights[MyPlayer->lightId].position.offset;
-	int radius = 16; // Assuming 31 is the maximum index for your expanded radius
+	int radius = 15; // Should allow full effect from +Light Radius items, but harshly dims the edges. No noticeable change in vanilla settings.
 	int originalLight = dLight[tilePosition.x][tilePosition.y];
 
 	// Adjust player's light offset based on movement
@@ -624,7 +624,7 @@ uint8_t CalculateDimming(Point tilePosition)
 	int linearDistance = LightConeInterpolations2[std::abs(playerLightOffset.deltaX)][std::abs(playerLightOffset.deltaY)][std::abs(dx)][std::abs(dy)];
 
 	// Ensure linearDistance is within the bounds of the LightFalloffs2 array
-	linearDistance = std::min(linearDistance, 255); // Assuming LightFalloffs2 uses 256 as its second dimension
+	linearDistance = std::min(linearDistance, 255);
 
 	// Determine the dimming level using LightFalloffs2
 	uint8_t dimmingLevel = LightFalloffs2[radius][linearDistance];
