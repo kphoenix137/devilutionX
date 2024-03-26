@@ -3121,6 +3121,11 @@ void CheckPlrSpell(bool isShiftHeld, SpellID spellID, SpellType spellType)
 	assert(MyPlayer != nullptr);
 	Player &myPlayer = *MyPlayer;
 
+	if (GetSpellData(spellID).isTargeted()) {
+		if (!IsScreenPosLegalPlayArea(MousePosition.x, MousePosition.y))
+			return;
+	}
+
 	if (!IsValidSpell(spellID)) {
 		myPlayer.Say(HeroSpeech::IDontHaveASpellReady);
 		return;
