@@ -42,6 +42,7 @@
 #include "help.h"
 #include "hwcursor.hpp"
 #include "init.h"
+#include "inv.h"
 #include "levels/drlg_l1.h"
 #include "levels/drlg_l2.h"
 #include "levels/drlg_l3.h"
@@ -493,6 +494,17 @@ void PressKey(SDL_Keycode vkey, uint16_t modState)
 	}
 
 	if (MyPlayerIsDead) {
+		if (vkey == SDLK_ESCAPE) {
+			if (!gbIsMultiplayer) {
+				if (gbValidSaveFile)
+					gamemenu_load_game(false);
+				else
+					gamemenu_exit_game(false);
+			} else {
+				NetSendCmd(true, CMD_RETOWN);
+			}
+			return;
+		}
 		if (sgnTimeoutCurs != CURSOR_NONE) {
 			return;
 		}
@@ -509,7 +521,8 @@ void PressKey(SDL_Keycode vkey, uint16_t modState)
 			return;
 		}
 	}
-	if (vkey == SDLK_ESCAPE) {
+	// Disallow player from accessing escape menu during the frames before the death message appears
+	if (vkey == SDLK_ESCAPE && MyPlayer->_pHitPoints > 0) {
 		if (!PressEscKey()) {
 			LastMouseButtonAction = MouseActionType::None;
 			gamemenu_on();
@@ -1954,6 +1967,14 @@ void InitKeymapActions()
 	    [] {
 		    ToggleChatLog();
 	    });
+	sgOptions.Keymapper.AddAction(
+	    "SortInv",
+	    N_("Sort Inventory"),
+	    N_("Sorts the inventory."),
+	    'R',
+	    [] {
+		    ReorganizeInventory(*MyPlayer);
+	    });
 #ifdef _DEBUG
 	sgOptions.Keymapper.AddAction(
 	    "OpenConsole",
@@ -2577,6 +2598,9 @@ int DiabloMain(int argc, char **argv)
 
 bool TryIconCurs()
 {
+	if (!IsScreenPosLegalPlayArea(MousePosition.x, MousePosition.y))
+		return false;
+
 	if (pcurs == CURSOR_RESURRECT) {
 		if (PlayerUnderCursor != nullptr) {
 			NetSendCmdParam1(true, CMD_RESURRECT, PlayerUnderCursor->getId());

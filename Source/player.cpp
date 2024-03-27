@@ -1085,9 +1085,6 @@ bool DoDeath(Player &player)
 			dFlags[player.position.tile.x][player.position.tile.y] |= DungeonFlag::DeadPlayer;
 		} else if (&player == MyPlayer && player.AnimInfo.tickCounterOfCurrentFrame == 30) {
 			MyPlayerIsDead = true;
-			if (!gbIsMultiplayer) {
-				gamemenu_on();
-			}
 		}
 	}
 
@@ -2432,14 +2429,9 @@ void Player::_addExperience(uint32_t experience, int levelDelta)
 	}
 
 	// Adjust xp based on difference between the players current level and the target level (usually a monster level)
-	uint32_t clampedExp = static_cast<uint32_t>(std::clamp<int64_t>(static_cast<int64_t>(experience * (1 + levelDelta / 10.0)), 0, std::numeric_limits<uint32_t>::max()));
-
-	// Prevent power leveling
-	if (gbIsMultiplayer) {
-		// for low level characters experience gain is capped to 1/20 of current levels xp
-		// for high level characters experience gain is capped to 200 * current level - this is a smaller value than 1/20 of the exp needed for the next level after level 5.
-		clampedExp = std::min<uint32_t>({ clampedExp, /* level 1-5: */ getNextExperienceThreshold() / 20U, /* level 6-50: */ 200U * getCharacterLevel() });
-	}
+	// If the monster level is 10 or more away from the player level in either direction, no experience will be gained
+	// BUGFIX: Certain unique monsters may never give experience
+	uint32_t clampedExp = static_cast<uint32_t>(std::clamp<int64_t>(static_cast<int64_t>(experience * (1 - std::abs(levelDelta) / 10.0)), 0, std::numeric_limits<uint32_t>::max()));
 
 	const uint32_t maxExperience = GetNextExperienceThresholdForLevel(getMaxCharacterLevel());
 
@@ -2683,6 +2675,7 @@ StartPlayerKill(Player &player, DeathReason deathReason)
 
 	if (&player == MyPlayer) {
 		NetSendCmdParam1(true, CMD_PLRDEAD, static_cast<uint16_t>(deathReason));
+		gamemenu_off();
 	}
 
 	const bool dropGold = !gbIsMultiplayer || !(player.isOnLevel(16) || player.isOnArenaLevel());
@@ -3153,6 +3146,11 @@ void CheckPlrSpell(bool isShiftHeld, SpellID spellID, SpellType spellType)
 
 	assert(MyPlayer != nullptr);
 	Player &myPlayer = *MyPlayer;
+
+	if (GetSpellData(spellID).isTargeted()) {
+		if (!IsScreenPosLegalPlayArea(MousePosition.x, MousePosition.y))
+			return;
+	}
 
 	if (!IsValidSpell(spellID)) {
 		myPlayer.Say(HeroSpeech::IDontHaveASpellReady);

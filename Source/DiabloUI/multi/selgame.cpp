@@ -240,21 +240,15 @@ void selgame_GameSelection_Focus(size_t value)
 			case DIFF_HELL:
 				difficulty = _("Hell");
 				break;
+			case DIFF_INFERNO:
+				difficulty = _("Inferno");
+				break;
 			}
 			infoString.append(fmt::format(fmt::runtime(_(/* TRANSLATORS: {:s} means: Game Difficulty. */ "Difficulty: {:s}")), difficulty));
 			infoString += '\n';
 			switch (gameInfo.gameData.nTickRate) {
 			case 20:
 				infoString.append(_("Speed: Normal"));
-				break;
-			case 30:
-				infoString.append(_("Speed: Fast"));
-				break;
-			case 40:
-				infoString.append(_("Speed: Faster"));
-				break;
-			case 50:
-				infoString.append(_("Speed: Fastest"));
 				break;
 			default:
 				// This should not occure, so no translations is needed
@@ -329,6 +323,7 @@ void selgame_GameSelection_Select(size_t value)
 		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Normal"), DIFF_NORMAL));
 		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Nightmare"), DIFF_NIGHTMARE));
 		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Hell"), DIFF_HELL));
+		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Hell"), DIFF_INFERNO));
 
 		vecSelGameDialog.push_back(std::make_unique<UiList>(vecSelGameDlgItems, vecSelGameDlgItems.size(), uiPosition.x + 300, (uiPosition.y + 282), 295, 26, UiFlags::AlignCenter | UiFlags::FontSize24 | UiFlags::ColorUiGold));
 
@@ -398,13 +393,17 @@ void selgame_Diff_Focus(size_t value)
 		CopyUtf8(selgame_Label, _("Hell"), sizeof(selgame_Label));
 		CopyUtf8(selgame_Description, _("Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm."), sizeof(selgame_Description));
 		break;
+	case DIFF_INFERNO:
+		CopyUtf8(selgame_Label, _("Inferno"), sizeof(selgame_Label));
+		CopyUtf8(selgame_Description, _("Inferno Difficulty\nThe final test of the most hardened adventurers. Prepare for the worst."), sizeof(selgame_Description));
+		break;
 	}
 	CopyUtf8(selgame_Description, WordWrapString(selgame_Description, DESCRIPTION_WIDTH), sizeof(selgame_Description));
 }
 
 bool IsDifficultyAllowed(int value)
 {
-	if (value == 0 || (value == 1 && heroLevel >= 20) || (value == 2 && heroLevel >= 30)) {
+	if (value == 0 || (value == 1 && heroLevel >= 20) || (value == 2 && heroLevel >= 30) || (value == 3 && heroLevel >= 40)) {
 		return true;
 	}
 
@@ -414,6 +413,8 @@ bool IsDifficultyAllowed(int value)
 		UiSelOkDialog(title, _("Your character must reach level 20 before you can enter a multiplayer game of Nightmare difficulty.").data(), false);
 	if (value == 2)
 		UiSelOkDialog(title, _("Your character must reach level 30 before you can enter a multiplayer game of Hell difficulty.").data(), false);
+	if (value == 3)
+		UiSelOkDialog(title, _("Your character must reach level 40 before you can enter a multiplayer game of Inferno difficulty.").data(), false);
 
 	selgame_Init();
 
@@ -494,9 +495,6 @@ void selgame_GameSpeedSelection()
 	vecSelGameDialog.push_back(std::make_unique<UiArtText>(_("Select Game Speed").data(), rect4, UiFlags::AlignCenter | UiFlags::FontSize30 | UiFlags::ColorUiSilver, 3));
 
 	vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Normal"), 20));
-	vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Fast"), 30));
-	vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Faster"), 40));
-	vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Fastest"), 50));
 
 	vecSelGameDialog.push_back(std::make_unique<UiList>(vecSelGameDlgItems, vecSelGameDlgItems.size(), uiPosition.x + 300, (uiPosition.y + 279), 295, 26, UiFlags::AlignCenter | UiFlags::FontSize24 | UiFlags::ColorUiGold));
 
@@ -515,18 +513,6 @@ void selgame_Speed_Focus(size_t value)
 	case 20:
 		CopyUtf8(selgame_Label, _("Normal"), sizeof(selgame_Label));
 		CopyUtf8(selgame_Description, _("Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo."), sizeof(selgame_Description));
-		break;
-	case 30:
-		CopyUtf8(selgame_Label, _("Fast"), sizeof(selgame_Label));
-		CopyUtf8(selgame_Description, _("Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge. This is recommended for experienced characters only."), sizeof(selgame_Description));
-		break;
-	case 40:
-		CopyUtf8(selgame_Label, _("Faster"), sizeof(selgame_Label));
-		CopyUtf8(selgame_Description, _("Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before. Only an experienced champion should try their luck at this speed."), sizeof(selgame_Description));
-		break;
-	case 50:
-		CopyUtf8(selgame_Label, _("Fastest"), sizeof(selgame_Label));
-		CopyUtf8(selgame_Description, _("Fastest Speed\nThe minions of the underworld will rush to attack without hesitation. Only a true speed demon should enter at this pace."), sizeof(selgame_Description));
 		break;
 	}
 	CopyUtf8(selgame_Description, WordWrapString(selgame_Description, DESCRIPTION_WIDTH), sizeof(selgame_Description));
