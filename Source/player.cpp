@@ -414,6 +414,7 @@ bool DoWalk(Player &player, int variant)
 	if (!player.AnimInfo.isLastFrame()) {
 		// We didn't reach new tile so update player's "sub-tile" position
 		UpdatePlayerLightOffset(player);
+		UpdatePlayerVisionOffset(player);
 		return false;
 	}
 
@@ -446,6 +447,7 @@ bool DoWalk(Player &player, int variant)
 	// Reset the "sub-tile" position of the player's light entry to 0
 	if (leveltype != DTYPE_TOWN) {
 		ChangeLightOffset(player.lightId, { 0, 0 });
+		ChangeVisionOffset(player.getId(), { 0, 0 });
 	}
 
 	AutoPickup(player);
