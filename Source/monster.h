@@ -353,8 +353,6 @@ struct Monster { // note: missing field _mAFNum
 			monsterExp = 2 * (monsterExp + 1000);
 		} else if (difficulty == DIFF_HELL) {
 			monsterExp = 4 * (monsterExp + 1000);
-		} else if (difficulty == DIFF_INFERNO) {
-			monsterExp = 6 * (monsterExp + 1000);
 		}
 
 		if (isUnique()) {
@@ -398,8 +396,6 @@ struct Monster { // note: missing field _mAFNum
 			baseLevel += 15;
 		} else if (difficulty == DIFF_HELL) {
 			baseLevel += 30;
-		} else if (difficulty == DIFF_INFERNO) {
-			baseLevel += 40;
 		}
 
 		return baseLevel;
