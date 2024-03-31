@@ -11,7 +11,7 @@ android {
 	compileSdk 33
 	defaultConfig {
 		if (buildAsApplication) {
-			applicationId "org.diasurgical.devilutionx"
+			applicationId "org.kpdevelopment.lordofterror"
 		}
 		minSdkVersion 21
 		targetSdkVersion 33

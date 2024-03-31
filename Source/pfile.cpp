@@ -56,8 +56,8 @@ std::string GetSavePath(uint32_t saveNum, std::string_view savePrefix = {})
 {
 	return StrCat(paths::PrefPath(), savePrefix,
 	    gbIsSpawn
-	        ? (gbIsMultiplayer ? "share_" : "spawn_")
-	        : (gbIsMultiplayer ? "multi_" : "single_"),
+	        ? (gbIsMultiplayer ? "lot_share_" : "lot_spawn_")
+	        : (gbIsMultiplayer ? "lot_multi_" : "lot_single_"),
 	    saveNum,
 #ifdef UNPACKED_SAVES
 	    gbIsHellfire ? "_hsv" DIRECTORY_SEPARATOR_STR : "_sv" DIRECTORY_SEPARATOR_STR
@@ -70,7 +70,7 @@ std::string GetSavePath(uint32_t saveNum, std::string_view savePrefix = {})
 std::string GetStashSavePath()
 {
 	return StrCat(paths::PrefPath(),
-	    gbIsSpawn ? "stash_spawn" : "stash",
+	    gbIsSpawn ? "lot_stash_spawn" : "lot_stash",
 #ifdef UNPACKED_SAVES
 	    gbIsHellfire ? "_hsv" DIRECTORY_SEPARATOR_STR : "_sv" DIRECTORY_SEPARATOR_STR
 #else
