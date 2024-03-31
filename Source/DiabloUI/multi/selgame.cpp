@@ -88,12 +88,6 @@ static std::string GetErrorMessageIncompatibility(const GameData &data)
 		case GameIdDiabloSpawn:
 			gameMode = _("Diablo Shareware");
 			break;
-		case GameIdHellfireFull:
-			gameMode = _("Hellfire");
-			break;
-		case GameIdHellfireSpawn:
-			gameMode = _("Hellfire Shareware");
-			break;
 		default:
 			return std::string(_("The host is running a different game than you."));
 		}
