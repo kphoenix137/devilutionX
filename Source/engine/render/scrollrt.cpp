@@ -1727,6 +1727,11 @@ void DrawAndBlit()
 	if (*sgOptions.Gameplay.showManaValues)
 		DrawFlaskValues(out, { mainPanel.position.x + mainPanel.size.width - 138, mainPanel.position.y + 28 }, MyPlayer->_pMana >> 6, MyPlayer->_pMaxMana >> 6);
 
+	if (*sgOptions.Gameplay.enableFloatingInfoBox) {
+		DrawInvFloatingInfo(out);
+		DrawStashFloatingInfo(out);
+	}
+
 	DrawCursor(out);
 
 	DrawFPS(out);
