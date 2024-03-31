@@ -53,7 +53,7 @@ std::string FromSDL(char *s)
 const std::string &NxdkGetPrefPath()
 {
 	static const std::string Path = []() {
-		const char *path = "E:\\UDATA\\devilutionx\\";
+		const char *path = "E:\\UDATA\\lordofterror\\";
 		if (CreateDirectoryA(path, nullptr) == FALSE && ::GetLastError() != ERROR_ALREADY_EXISTS) {
 			DirErrorDlg(path);
 		}
@@ -81,9 +81,9 @@ const std::string &PrefPath()
 #elif defined(NXDK)
 		prefPath = NxdkGetPrefPath();
 #else
-		prefPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
+		prefPath = FromSDL(SDL_GetPrefPath("KPDevelopment", "Lord of Terror"));
 #if !defined(__amigaos__)
-		if (FileExistsAndIsWriteable("diablo.ini")) {
+		if (FileExistsAndIsWriteable("lordofterror.ini")) {
 			prefPath = std::string();
 		}
 #endif
@@ -100,9 +100,9 @@ const std::string &ConfigPath()
 #elif defined(NXDK)
 		configPath = NxdkGetPrefPath();
 #else
-		configPath = FromSDL(SDL_GetPrefPath("diasurgical", "devilution"));
+		configPath = FromSDL(SDL_GetPrefPath("KPDevelopment", "Lord of Terror"));
 #if !defined(__amigaos__)
-		if (FileExistsAndIsWriteable("diablo.ini")) {
+		if (FileExistsAndIsWriteable("lordofterror.ini")) {
 			configPath = std::string();
 		}
 #endif
