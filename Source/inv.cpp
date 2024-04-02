@@ -850,7 +850,7 @@ void TryCombineNaKrulNotes(Player &player, Item &noteItem)
 
 	Point position = noteItem.position; // copy the position to restore it after re-initialising the item
 	noteItem = {};
-	GetItemAttrs(noteItem, IDI_FULLNOTE, 16);
+	GetItemAttrs(noteItem, IDI_FULLNOTE, 16, sgGameInitInfo.nDifficulty);
 	SetupItem(noteItem);
 	noteItem.position = position; // this ensures CleanupItem removes the entry in the dropped items lookup table
 }
@@ -1734,11 +1734,11 @@ void AutoGetItem(Player &player, Item *itemPointer, int ii)
 	NetSendCmdPItem(true, CMD_SPAWNITEM, item.position, item);
 }
 
-int FindGetItem(uint32_t iseed, _item_indexes idx, uint16_t createInfo)
+int FindGetItem(uint32_t iseed, _item_indexes idx, uint16_t createInfo, uint32_t createinfo2)
 {
 	for (uint8_t i = 0; i < ActiveItemCount; i++) {
 		auto &item = Items[ActiveItems[i]];
-		if (item.keyAttributesMatch(iseed, idx, createInfo)) {
+		if (item.keyAttributesMatch(iseed, idx, createInfo, createinfo2)) {
 			return i;
 		}
 	}
@@ -1746,14 +1746,14 @@ int FindGetItem(uint32_t iseed, _item_indexes idx, uint16_t createInfo)
 	return -1;
 }
 
-void SyncGetItem(Point position, uint32_t iseed, _item_indexes idx, uint16_t ci)
+void SyncGetItem(Point position, uint32_t iseed, _item_indexes idx, uint16_t ci, uint32_t ci2)
 {
 	// Check what the local client has at the target position
 	int ii = dItem[position.x][position.y] - 1;
 
 	if (ii >= 0 && ii < MAXITEMS) {
 		// If there was an item there, check that it's the same item as the remote player has
-		if (!Items[ii].keyAttributesMatch(iseed, idx, ci)) {
+		if (!Items[ii].keyAttributesMatch(iseed, idx, ci, ci2)) {
 			// Key attributes don't match so we must've desynced, ignore this index and try find a matching item via lookup
 			ii = -1;
 		}
@@ -1761,7 +1761,7 @@ void SyncGetItem(Point position, uint32_t iseed, _item_indexes idx, uint16_t ci)
 
 	if (ii == -1) {
 		// Either there's no item at the expected position or it doesn't match what is being picked up, so look for an item that matches the key attributes
-		ii = FindGetItem(iseed, idx, ci);
+		ii = FindGetItem(iseed, idx, ci, ci2);
 
 		if (ii != -1) {
 			// Translate to Items index for CleanupItems, FindGetItem returns an ActiveItems index
@@ -1831,14 +1831,14 @@ uint8_t ClampMaxDam(const Item &item, uint8_t maxDam)
 	return maxDam;
 }
 
-int SyncDropItem(Point position, _item_indexes idx, uint16_t icreateinfo, int iseed, int id, int dur, int mdur, int ch, int mch, int ivalue, uint32_t ibuff, int toHit, int maxDam)
+int SyncDropItem(Point position, _item_indexes idx, uint16_t icreateinfo, uint32_t icreateinfo2, int iseed, int id, int dur, int mdur, int ch, int mch, int ivalue, uint32_t ibuff, int toHit, int maxDam)
 {
 	if (ActiveItemCount >= MAXITEMS)
 		return -1;
 
 	Item item;
 
-	RecreateItem(*MyPlayer, item, idx, icreateinfo, iseed, ivalue, (ibuff & CF_HELLFIRE) != 0);
+	RecreateItem(*MyPlayer, item, idx, icreateinfo, icreateinfo2, iseed, ivalue, (ibuff & CF_HELLFIRE) != 0);
 	if (id != 0)
 		item._iIdentified = true;
 	item._iMaxDur = mdur;

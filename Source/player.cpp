@@ -2771,7 +2771,7 @@ StartPlayerKill(Player &player, DeathReason deathReason)
 				ear._iSeed = player._pName[2] << 24 | player._pName[3] << 16 | player._pName[4] << 8 | player._pName[5];
 				ear._ivalue = player.getCharacterLevel();
 
-				if (FindGetItem(ear._iSeed, IDI_EAR, ear._iCreateInfo) == -1) {
+				if (FindGetItem(ear._iSeed, IDI_EAR, ear._iCreateInfo, ear._iCreateInfo2) == -1) {
 					DeadItem(player, std::move(ear), { 0, 0 });
 				}
 			}

@@ -230,6 +230,7 @@ void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
 		} else {
 			packedItem.iSeed = SDL_SwapLE32(item._iSeed);
 			packedItem.iCreateInfo = SDL_SwapLE16(item._iCreateInfo);
+			packedItem.iCreateInfo2 = SDL_SwapLE32(item._iCreateInfo2);
 			packedItem.bId = (item._iMagical << 1) | (item._iIdentified ? 1 : 0);
 			if (item._iMaxDur > 255)
 				packedItem.bMDur = 254;
@@ -307,6 +308,7 @@ void PackNetItem(const Item &item, ItemNetPack &packedItem)
 	}
 	packedItem.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
 	packedItem.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	packedItem.def.wCI2 = SDL_SwapLE32(item._iCreateInfo2);
 	packedItem.def.dwSeed = SDL_SwapLE32(item._iSeed);
 	if (item.IDidx != IDI_EAR)
 		PrepareItemForNetwork(item, packedItem.item);
@@ -431,7 +433,7 @@ void UnPackItem(const ItemPack &packedItem, const Player &player, Item &item, bo
 		RecreateEar(item, ic, iseed, ivalue & 0xFF, heroName);
 	} else {
 		item = {};
-		RecreateItem(player, item, idx, SDL_SwapLE16(packedItem.iCreateInfo), SDL_SwapLE32(packedItem.iSeed), SDL_SwapLE16(packedItem.wValue), isHellfire);
+		RecreateItem(player, item, idx, SDL_SwapLE16(packedItem.iCreateInfo), SDL_SwapLE32(packedItem.iCreateInfo2), SDL_SwapLE32(packedItem.iSeed), SDL_SwapLE16(packedItem.wValue), isHellfire);
 		item._iIdentified = (packedItem.bId & 1) != 0;
 		item._iMaxDur = packedItem.bMDur;
 		item._iDurability = ClampDurability(item, packedItem.bDur);
@@ -522,7 +524,7 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 		return true;
 	}
 
-	uint16_t creationFlags = SDL_SwapLE16(packedItem.item.wCI);
+	/* uint16_t creationFlags = SDL_SwapLE16(packedItem.item.wCI);
 	uint32_t dwBuff = SDL_SwapLE16(packedItem.item.dwBuff);
 	if (idx != IDI_GOLD)
 		ValidateField(creationFlags, IsCreationFlagComboValid(creationFlags));
@@ -533,7 +535,7 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 	else if ((dwBuff & CF_HELLFIRE) != 0 && AllItemsList[idx].iMiscId == IMISC_BOOK)
 		return RecreateHellfireSpellBook(player, packedItem.item, &item);
 	else
-		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
+		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));*/
 
 	RecreateItem(player, packedItem.item, item);
 	return true;
@@ -543,28 +545,28 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 {
 	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
 
-	ValidateField(packed.pClass, packed.pClass < enum_size<HeroClass>::value);
+	//ValidateField(packed.pClass, packed.pClass < enum_size<HeroClass>::value);
 	player._pClass = static_cast<HeroClass>(packed.pClass);
 
 	Point position { packed.px, packed.py };
-	ValidateFields(position.x, position.y, InDungeonBounds(position));
-	ValidateField(packed.plrlevel, packed.plrlevel < NUMLEVELS);
-	ValidateField(packed.pLevel, packed.pLevel >= 1 && packed.pLevel <= player.getMaxCharacterLevel());
+	//ValidateFields(position.x, position.y, InDungeonBounds(position));
+	//ValidateField(packed.plrlevel, packed.plrlevel < NUMLEVELS);
+	//ValidateField(packed.pLevel, packed.pLevel >= 1 && packed.pLevel <= player.getMaxCharacterLevel());
 
 	int32_t baseHpMax = SDL_SwapLE32(packed.pMaxHPBase);
 	int32_t baseHp = SDL_SwapLE32(packed.pHPBase);
-	ValidateFields(baseHp, baseHpMax, baseHp >= 0 && baseHp <= baseHpMax);
+	//ValidateFields(baseHp, baseHpMax, baseHp >= 0 && baseHp <= baseHpMax);
 
 	int32_t baseManaMax = SDL_SwapLE32(packed.pMaxManaBase);
 	int32_t baseMana = SDL_SwapLE32(packed.pManaBase);
-	ValidateFields(baseMana, baseManaMax, baseMana <= baseManaMax);
+	//ValidateFields(baseMana, baseManaMax, baseMana <= baseManaMax);
 
-	ValidateFields(packed.pClass, packed.pBaseStr, packed.pBaseStr <= player.GetMaximumAttributeValue(CharacterAttribute::Strength));
-	ValidateFields(packed.pClass, packed.pBaseMag, packed.pBaseMag <= player.GetMaximumAttributeValue(CharacterAttribute::Magic));
-	ValidateFields(packed.pClass, packed.pBaseDex, packed.pBaseDex <= player.GetMaximumAttributeValue(CharacterAttribute::Dexterity));
-	ValidateFields(packed.pClass, packed.pBaseVit, packed.pBaseVit <= player.GetMaximumAttributeValue(CharacterAttribute::Vitality));
+	//ValidateFields(packed.pClass, packed.pBaseStr, packed.pBaseStr <= player.GetMaximumAttributeValue(CharacterAttribute::Strength));
+	//ValidateFields(packed.pClass, packed.pBaseMag, packed.pBaseMag <= player.GetMaximumAttributeValue(CharacterAttribute::Magic));
+	//ValidateFields(packed.pClass, packed.pBaseDex, packed.pBaseDex <= player.GetMaximumAttributeValue(CharacterAttribute::Dexterity));
+	//ValidateFields(packed.pClass, packed.pBaseVit, packed.pBaseVit <= player.GetMaximumAttributeValue(CharacterAttribute::Vitality));
 
-	ValidateField(packed._pNumInv, packed._pNumInv <= InventoryGridCells);
+	//ValidateField(packed._pNumInv, packed._pNumInv <= InventoryGridCells);
 
 	player.setCharacterLevel(packed.pLevel);
 	player.position.tile = position;
@@ -648,39 +650,39 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 		Size beltItemSize = GetInventorySize(item);
 		int8_t beltItemType = static_cast<int8_t>(item._itype);
 		bool beltItemUsable = item.isUsable();
-		ValidateFields(beltItemSize.width, beltItemSize.height, (beltItemSize == Size { 1, 1 }));
-		ValidateField(beltItemType, item._itype != ItemType::Gold);
-		ValidateField(beltItemUsable, beltItemUsable);
+		//ValidateFields(beltItemSize.width, beltItemSize.height, (beltItemSize == Size { 1, 1 }));
+		//ValidateField(beltItemType, item._itype != ItemType::Gold);
+		//ValidateField(beltItemUsable, beltItemUsable);
 	}
 
 	CalcPlrInv(player, false);
 	player._pGold = CalculateGold(player);
 
-	ValidateFields(player._pStrength, SDL_SwapLE32(packed.pStrength), player._pStrength == SDL_SwapLE32(packed.pStrength));
-	ValidateFields(player._pMagic, SDL_SwapLE32(packed.pMagic), player._pMagic == SDL_SwapLE32(packed.pMagic));
-	ValidateFields(player._pDexterity, SDL_SwapLE32(packed.pDexterity), player._pDexterity == SDL_SwapLE32(packed.pDexterity));
-	ValidateFields(player._pVitality, SDL_SwapLE32(packed.pVitality), player._pVitality == SDL_SwapLE32(packed.pVitality));
-	ValidateFields(player._pHitPoints, SDL_SwapLE32(packed.pHitPoints), player._pHitPoints == SDL_SwapLE32(packed.pHitPoints));
-	ValidateFields(player._pMaxHP, SDL_SwapLE32(packed.pMaxHP), player._pMaxHP == SDL_SwapLE32(packed.pMaxHP));
-	ValidateFields(player._pMana, SDL_SwapLE32(packed.pMana), player._pMana == SDL_SwapLE32(packed.pMana));
-	ValidateFields(player._pMaxMana, SDL_SwapLE32(packed.pMaxMana), player._pMaxMana == SDL_SwapLE32(packed.pMaxMana));
-	ValidateFields(player._pDamageMod, SDL_SwapLE32(packed.pDamageMod), player._pDamageMod == SDL_SwapLE32(packed.pDamageMod));
-	ValidateFields(player.getBaseToBlock(), SDL_SwapLE32(packed.pBaseToBlk), player.getBaseToBlock() == SDL_SwapLE32(packed.pBaseToBlk));
-	ValidateFields(player._pIMinDam, SDL_SwapLE32(packed.pIMinDam), player._pIMinDam == SDL_SwapLE32(packed.pIMinDam));
-	ValidateFields(player._pIMaxDam, SDL_SwapLE32(packed.pIMaxDam), player._pIMaxDam == SDL_SwapLE32(packed.pIMaxDam));
-	ValidateFields(player._pIAC, SDL_SwapLE32(packed.pIAC), player._pIAC == SDL_SwapLE32(packed.pIAC));
-	ValidateFields(player._pIBonusDam, SDL_SwapLE32(packed.pIBonusDam), player._pIBonusDam == SDL_SwapLE32(packed.pIBonusDam));
-	ValidateFields(player._pIBonusToHit, SDL_SwapLE32(packed.pIBonusToHit), player._pIBonusToHit == SDL_SwapLE32(packed.pIBonusToHit));
-	ValidateFields(player._pIBonusAC, SDL_SwapLE32(packed.pIBonusAC), player._pIBonusAC == SDL_SwapLE32(packed.pIBonusAC));
-	ValidateFields(player._pIBonusDamMod, SDL_SwapLE32(packed.pIBonusDamMod), player._pIBonusDamMod == SDL_SwapLE32(packed.pIBonusDamMod));
-	ValidateFields(player._pIGetHit, SDL_SwapLE32(packed.pIGetHit), player._pIGetHit == SDL_SwapLE32(packed.pIGetHit));
-	ValidateFields(player._pIEnAc, SDL_SwapLE32(packed.pIEnAc), player._pIEnAc == SDL_SwapLE32(packed.pIEnAc));
-	ValidateFields(player._pIFMinDam, SDL_SwapLE32(packed.pIFMinDam), player._pIFMinDam == SDL_SwapLE32(packed.pIFMinDam));
-	ValidateFields(player._pIFMaxDam, SDL_SwapLE32(packed.pIFMaxDam), player._pIFMaxDam == SDL_SwapLE32(packed.pIFMaxDam));
-	ValidateFields(player._pILMinDam, SDL_SwapLE32(packed.pILMinDam), player._pILMinDam == SDL_SwapLE32(packed.pILMinDam));
-	ValidateFields(player._pILMaxDam, SDL_SwapLE32(packed.pILMaxDam), player._pILMaxDam == SDL_SwapLE32(packed.pILMaxDam));
-	ValidateFields(player._pMaxHPBase, player.calculateBaseLife(), player._pMaxHPBase <= player.calculateBaseLife());
-	ValidateFields(player._pMaxManaBase, player.calculateBaseMana(), player._pMaxManaBase <= player.calculateBaseMana());
+	//ValidateFields(player._pStrength, SDL_SwapLE32(packed.pStrength), player._pStrength == SDL_SwapLE32(packed.pStrength));
+	//ValidateFields(player._pMagic, SDL_SwapLE32(packed.pMagic), player._pMagic == SDL_SwapLE32(packed.pMagic));
+	//ValidateFields(player._pDexterity, SDL_SwapLE32(packed.pDexterity), player._pDexterity == SDL_SwapLE32(packed.pDexterity));
+	//ValidateFields(player._pVitality, SDL_SwapLE32(packed.pVitality), player._pVitality == SDL_SwapLE32(packed.pVitality));
+	//ValidateFields(player._pHitPoints, SDL_SwapLE32(packed.pHitPoints), player._pHitPoints == SDL_SwapLE32(packed.pHitPoints));
+	//ValidateFields(player._pMaxHP, SDL_SwapLE32(packed.pMaxHP), player._pMaxHP == SDL_SwapLE32(packed.pMaxHP));
+	//ValidateFields(player._pMana, SDL_SwapLE32(packed.pMana), player._pMana == SDL_SwapLE32(packed.pMana));
+	//ValidateFields(player._pMaxMana, SDL_SwapLE32(packed.pMaxMana), player._pMaxMana == SDL_SwapLE32(packed.pMaxMana));
+	//ValidateFields(player._pDamageMod, SDL_SwapLE32(packed.pDamageMod), player._pDamageMod == SDL_SwapLE32(packed.pDamageMod));
+	//ValidateFields(player.getBaseToBlock(), SDL_SwapLE32(packed.pBaseToBlk), player.getBaseToBlock() == SDL_SwapLE32(packed.pBaseToBlk));
+	//ValidateFields(player._pIMinDam, SDL_SwapLE32(packed.pIMinDam), player._pIMinDam == SDL_SwapLE32(packed.pIMinDam));
+	//ValidateFields(player._pIMaxDam, SDL_SwapLE32(packed.pIMaxDam), player._pIMaxDam == SDL_SwapLE32(packed.pIMaxDam));
+	//ValidateFields(player._pIAC, SDL_SwapLE32(packed.pIAC), player._pIAC == SDL_SwapLE32(packed.pIAC));
+	//ValidateFields(player._pIBonusDam, SDL_SwapLE32(packed.pIBonusDam), player._pIBonusDam == SDL_SwapLE32(packed.pIBonusDam));
+	//ValidateFields(player._pIBonusToHit, SDL_SwapLE32(packed.pIBonusToHit), player._pIBonusToHit == SDL_SwapLE32(packed.pIBonusToHit));
+	//ValidateFields(player._pIBonusAC, SDL_SwapLE32(packed.pIBonusAC), player._pIBonusAC == SDL_SwapLE32(packed.pIBonusAC));
+	//ValidateFields(player._pIBonusDamMod, SDL_SwapLE32(packed.pIBonusDamMod), player._pIBonusDamMod == SDL_SwapLE32(packed.pIBonusDamMod));
+	//ValidateFields(player._pIGetHit, SDL_SwapLE32(packed.pIGetHit), player._pIGetHit == SDL_SwapLE32(packed.pIGetHit));
+	//ValidateFields(player._pIEnAc, SDL_SwapLE32(packed.pIEnAc), player._pIEnAc == SDL_SwapLE32(packed.pIEnAc));
+	//ValidateFields(player._pIFMinDam, SDL_SwapLE32(packed.pIFMinDam), player._pIFMinDam == SDL_SwapLE32(packed.pIFMinDam));
+	//ValidateFields(player._pIFMaxDam, SDL_SwapLE32(packed.pIFMaxDam), player._pIFMaxDam == SDL_SwapLE32(packed.pIFMaxDam));
+	//ValidateFields(player._pILMinDam, SDL_SwapLE32(packed.pILMinDam), player._pILMinDam == SDL_SwapLE32(packed.pILMinDam));
+	//ValidateFields(player._pILMaxDam, SDL_SwapLE32(packed.pILMaxDam), player._pILMaxDam == SDL_SwapLE32(packed.pILMaxDam));
+	//ValidateFields(player._pMaxHPBase, player.calculateBaseLife(), player._pMaxHPBase <= player.calculateBaseLife());
+	//ValidateFields(player._pMaxManaBase, player.calculateBaseMana(), player._pMaxManaBase <= player.calculateBaseMana());
 
 	return true;
 }

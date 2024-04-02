@@ -28,7 +28,7 @@ struct GameData {
 	uint8_t versionMajor;
 	uint8_t versionMinor;
 	uint8_t versionPatch;
-	_difficulty nDifficulty;
+	Difficulty nDifficulty;
 	uint8_t nTickRate;
 	uint8_t bRunInTown;
 	uint8_t bTheoQuest;

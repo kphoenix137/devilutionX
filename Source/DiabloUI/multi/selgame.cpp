@@ -29,7 +29,7 @@ bool selgame_enteringGame;
 size_t selgame_selectedGame;
 bool selgame_endMenu;
 int *gdwPlayerId;
-_difficulty nDifficulty;
+Difficulty nDifficulty;
 int nTickRate;
 int heroLevel;
 
@@ -225,16 +225,16 @@ void selgame_GameSelection_Focus(size_t value)
 		if (IsGameCompatible(gameInfo.gameData)) {
 			std::string_view difficulty;
 			switch (gameInfo.gameData.nDifficulty) {
-			case DIFF_NORMAL:
+			case Difficulty::Normal:
 				difficulty = _("Normal");
 				break;
-			case DIFF_NIGHTMARE:
+			case Difficulty::Nightmare:
 				difficulty = _("Nightmare");
 				break;
-			case DIFF_HELL:
+			case Difficulty::Hell:
 				difficulty = _("Hell");
 				break;
-			case DIFF_INFERNO:
+			case Difficulty::Inferno:
 				difficulty = _("Inferno");
 				break;
 			}
@@ -314,10 +314,10 @@ void selgame_GameSelection_Select(size_t value)
 		SDL_Rect rect4 = { (Sint16)(uiPosition.x + 299), (Sint16)(uiPosition.y + 211), 295, 35 };
 		vecSelGameDialog.push_back(std::make_unique<UiArtText>(_("Select Difficulty").data(), rect4, UiFlags::AlignCenter | UiFlags::FontSize30 | UiFlags::ColorUiSilver, 3));
 
-		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Normal"), DIFF_NORMAL));
-		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Nightmare"), DIFF_NIGHTMARE));
-		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Hell"), DIFF_HELL));
-		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Inferno"), DIFF_INFERNO));
+		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Normal"), static_cast<int>(Difficulty::Normal)));
+		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Nightmare"), static_cast<int>(Difficulty::Nightmare)));
+		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Hell"), static_cast<int>(Difficulty::Hell)));
+		vecSelGameDlgItems.push_back(std::make_unique<UiListItem>(_("Inferno"), static_cast<int>(Difficulty::Inferno)));
 
 		vecSelGameDialog.push_back(std::make_unique<UiList>(vecSelGameDlgItems, vecSelGameDlgItems.size(), uiPosition.x + 300, (uiPosition.y + 282), 295, 26, UiFlags::AlignCenter | UiFlags::FontSize24 | UiFlags::ColorUiGold));
 
@@ -375,19 +375,19 @@ void selgame_GameSelection_Esc()
 void selgame_Diff_Focus(size_t value)
 {
 	switch (vecSelGameDlgItems[value]->m_value) {
-	case DIFF_NORMAL:
+	case 0:
 		CopyUtf8(selgame_Label, _("Normal"), sizeof(selgame_Label));
 		CopyUtf8(selgame_Description, _("Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo."), sizeof(selgame_Description));
 		break;
-	case DIFF_NIGHTMARE:
+	case 1:
 		CopyUtf8(selgame_Label, _("Nightmare"), sizeof(selgame_Label));
 		CopyUtf8(selgame_Description, _("Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge. This is recommended for experienced characters only."), sizeof(selgame_Description));
 		break;
-	case DIFF_HELL:
+	case 2:
 		CopyUtf8(selgame_Label, _("Hell"), sizeof(selgame_Label));
 		CopyUtf8(selgame_Description, _("Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell. Only the most experienced characters should venture in this realm."), sizeof(selgame_Description));
 		break;
-	case DIFF_INFERNO:
+	case 3:
 		CopyUtf8(selgame_Label, _("Inferno"), sizeof(selgame_Label));
 		CopyUtf8(selgame_Description, _("Inferno Difficulty\nThe final test of the most hardened adventurers. Prepare for the worst."), sizeof(selgame_Description));
 		break;
@@ -422,7 +422,7 @@ void selgame_Diff_Select(size_t value)
 		return;
 	}
 
-	nDifficulty = (_difficulty)vecSelGameDlgItems[value]->m_value;
+	nDifficulty = (Difficulty)vecSelGameDlgItems[value]->m_value;
 
 	if (!selhero_isMultiPlayer) {
 		// This is part of a dangerous hack to enable difficulty selection in single-player.
@@ -569,7 +569,7 @@ void selgame_Password_Init(size_t /*value*/)
 static bool IsGameCompatibleWithErrorMessage(const GameData &data)
 {
 	if (IsGameCompatible(data))
-		return IsDifficultyAllowed(data.nDifficulty);
+		return IsDifficultyAllowed(static_cast<int>(data.nDifficulty));
 
 	selgame_Free();
 
