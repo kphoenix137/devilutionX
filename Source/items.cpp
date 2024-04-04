@@ -1405,7 +1405,7 @@ _item_indexes RndUItem(Monster *monster)
 {
 	int itemMaxLevel = ItemsGetCurrlevel() * 2;
 	if (monster != nullptr)
-		itemMaxLevel = monster->level(sgGameInitInfo.nDifficulty);
+		itemMaxLevel = monster->data().level;
 	return GetItemIndexForDroppableItem(false, [&itemMaxLevel](const ItemData &item) {
 		if (item.itype == ItemType::Misc && item.iMiscId == IMISC_BOOK)
 			return true;
@@ -3427,7 +3427,7 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 		if ((monster.data().treasure & T_NODROP) != 0)
 			return;
 		onlygood = false;
-		idx = RndItemForMonsterLevel(monster.level(sgGameInitInfo.nDifficulty));
+		idx = RndItemForMonsterLevel(monster.data().level);
 	}
 
 	if (idx == IDI_NONE)
