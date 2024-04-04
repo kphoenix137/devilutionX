@@ -2031,30 +2031,39 @@ _item_indexes RndPremiumItem(const Player &player, int minlvl, int maxlvl)
 
 void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
 {
+	auto diff = sgGameInitInfo.nDifficulty;
+	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
+	switch (diff) {
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
+		diffFlag = CF_INFERNO;
+		plvl -= 39;
+		plvl *= 1.45F;
+		break;
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
+		diffFlag = CF_HELL;
+		plvl -= 29;
+		plvl *= 1.45F;
+		break;
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
+		diffFlag = CF_NIGHTMARE;
+		plvl -= 19;
+		plvl *= 1.45F;
+		break;
+	}
+	plvl = std::clamp(plvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
+
 	premiumItem = {};
 	premiumItem._iSeed = AdvanceRndSeed();
 	SetRndSeed(premiumItem._iSeed);
 	_item_indexes itemType = RndPremiumItem(player, plvl / 4, plvl);
-	auto diff = sgGameInitInfo.nDifficulty;
+	
 	GetItemAttrs(premiumItem, itemType, plvl, diff);
 	GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire);
 
 	premiumItem._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumItem._iIdentified = true;
 	premiumItem._iStatFlag = player.CanUseItem(premiumItem);
-
-	uint8_t diffFlag = 0;
-	switch (sgGameInitInfo.nDifficulty) {
-	case Difficulty::Inferno:
-		diffFlag = CF_INFERNO;
-		break;
-	case Difficulty::Hell:
-		diffFlag = CF_HELL;
-		break;
-	case Difficulty::Nightmare:
-		diffFlag = CF_NIGHTMARE;
-		break;
-	}
 	premiumItem._iCreateInfo2 = diffFlag;
 }
 
@@ -4388,17 +4397,25 @@ void SpawnSmith(int lvl)
 
 	auto diff = sgGameInitInfo.nDifficulty;
 	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
 	switch (diff) {
-	case Difficulty::Inferno:
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
 		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Hell:
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
 		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Nightmare:
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
 		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
 		break;
 	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
 
 	int iCnt = RandomIntBetween(10, maxItems);
 	for (int i = 0; i < iCnt; i++) {
@@ -4469,17 +4486,25 @@ void SpawnWitch(int lvl)
 
 	auto diff = sgGameInitInfo.nDifficulty;
 	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
 	switch (diff) {
-	case Difficulty::Inferno:
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
 		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Hell:
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
 		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Nightmare:
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
 		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
 		break;
 	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
 
 	for (int i = 0; i < WITCH_ITEMS; i++) {
 		Item &item = witchitem[i];
@@ -4551,17 +4576,25 @@ void SpawnBoy(int lvl)
 
 	auto diff = sgGameInitInfo.nDifficulty;
 	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
 	switch (diff) {
-	case Difficulty::Inferno:
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
 		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Hell:
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
 		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Nightmare:
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
 		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
 		break;
 	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
 
 	GetItemAttrs(boyitem, itype, lvl, diff);
 	GetItemBonus(*MyPlayer, boyitem, lvl, 2 * lvl, true, true);
@@ -4580,17 +4613,25 @@ void SpawnHealer(int lvl)
 
 	auto diff = sgGameInitInfo.nDifficulty;
 	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
 	switch (diff) {
-	case Difficulty::Inferno:
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
 		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Hell:
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
 		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
 		break;
-	case Difficulty::Nightmare:
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
 		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
 		break;
 	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
 
 	for (size_t i = 0; i < sizeof(healitem) / sizeof(healitem[0]); ++i) {
 		Item &item = healitem[i];
