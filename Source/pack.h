@@ -18,6 +18,7 @@ namespace devilution {
 struct ItemPack {
 	uint32_t iSeed;
 	uint16_t iCreateInfo;
+	uint32_t iCreateInfo2;
 	uint16_t idx;
 	uint8_t bId;
 	uint8_t bDur;

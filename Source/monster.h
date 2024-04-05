@@ -345,15 +345,15 @@ struct Monster { // note: missing field _mAFNum
 	 * @param difficulty - difficulty on which calculation is performed
 	 * @return Monster's experience points, including bonuses from difficulty and monster being unique
 	 */
-	unsigned int exp(_difficulty difficulty) const
+	unsigned int exp(Difficulty difficulty) const
 	{
 		unsigned int monsterExp = data().exp;
 
-		if (difficulty == DIFF_NIGHTMARE) {
+		if (difficulty == Difficulty::Nightmare) {
 			monsterExp = 2 * (monsterExp + 1000);
-		} else if (difficulty == DIFF_HELL) {
+		} else if (difficulty == Difficulty::Hell) {
 			monsterExp = 4 * (monsterExp + 1000);
-		} else if (difficulty == DIFF_INFERNO) {
+		} else if (difficulty == Difficulty::Inferno) {
 			monsterExp = 6 * (monsterExp + 1000);
 		}
 
@@ -370,7 +370,7 @@ struct Monster { // note: missing field _mAFNum
 	 * @param difficulty - difficulty on which calculation is performed
 	 * @return Monster's chance to hit with special attack, including bonuses from difficulty and monster being unique
 	 */
-	unsigned int toHitSpecial(_difficulty difficulty) const;
+	unsigned int toHitSpecial(Difficulty difficulty) const;
 
 	/**
 	 * @brief Calculates monster's level.
@@ -378,7 +378,7 @@ struct Monster { // note: missing field _mAFNum
 	 * @param difficulty - difficulty on which calculation is performed
 	 * @return Monster's level, including bonuses from difficulty and monster being unique
 	 */
-	unsigned int level(_difficulty difficulty) const
+	unsigned int level(Difficulty difficulty) const
 	{
 		unsigned int baseLevel = data().level;
 		if (isUnique()) {
@@ -390,11 +390,11 @@ struct Monster { // note: missing field _mAFNum
 			}
 		}
 
-		if (difficulty == DIFF_NIGHTMARE) {
+		if (difficulty == Difficulty::Nightmare) {
 			baseLevel += 15;
-		} else if (difficulty == DIFF_HELL) {
+		} else if (difficulty == Difficulty::Hell) {
 			baseLevel += 25;
-		} else if (difficulty == DIFF_INFERNO) {
+		} else if (difficulty == Difficulty::Inferno) {
 			baseLevel += 35;
 		}
 

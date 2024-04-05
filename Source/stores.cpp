@@ -315,9 +315,9 @@ void PrintStoreItem(const Item &item, int l, UiFlags flags, bool cursIndent = fa
 			productLine.append(_("Indestructible,  "));
 	}
 
-	int8_t str = item._iMinStr;
-	uint8_t mag = item._iMinMag;
-	int8_t dex = item._iMinDex;
+	uint16_t str = item._iMinStr;
+	uint16_t mag = item._iMinMag;
+	uint16_t dex = item._iMinDex;
 
 	if (str == 0 && mag == 0 && dex == 0) {
 		productLine.append(_("No required attributes"));

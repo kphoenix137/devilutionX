@@ -453,9 +453,9 @@ struct ItemData {
 	uint8_t iMaxDam;
 	uint8_t iMinAC;
 	uint8_t iMaxAC;
-	uint8_t iMinStr;
-	uint8_t iMinMag;
-	uint8_t iMinDex;
+	uint16_t iMinStr;
+	uint16_t iMinMag;
+	uint16_t iMinDex;
 	ItemSpecialEffect iFlags; // ItemSpecialEffect as bit flags
 	enum item_misc_id iMiscId;
 	SpellID iSpell;

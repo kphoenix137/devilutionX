@@ -113,13 +113,12 @@ enum class TileProperties : uint8_t {
 };
 use_enum_as_flags(TileProperties);
 
-enum _difficulty : uint8_t {
-	DIFF_NORMAL,
-	DIFF_NIGHTMARE,
-	DIFF_HELL,
-	DIFF_INFERNO,
-
-	DIFF_LAST = DIFF_INFERNO,
+enum class Difficulty : uint8_t {
+	Normal,
+	Nightmare,
+	Hell,
+	Inferno,
+	Last = Inferno,
 };
 
 struct THEME_LOC {
