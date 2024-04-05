@@ -99,7 +99,7 @@ void RenderDifficultyIndicators()
 	    SELHERO_DIALOG_HERO_IMG->m_rect.y + SELHERO_DIALOG_HERO_IMG->m_rect.h - height - 1,
 	    width,
 	    height);
-	for (int i = 0; i <= DIFF_LAST; i++) {
+	for (int i = 0; i <= static_cast<int>(Difficulty::Last); i++) {
 		if (i >= selhero_heroInfo.herorank)
 			break;
 		UiRenderItem(UiImageClx((*DifficultyIndicator)[0], rect, UiFlags::None));
@@ -609,7 +609,7 @@ void UiSelHeroSingDialog(
     void (*fnstats)(HeroClass, _uidefaultstats *),
     _selhero_selections *dlgresult,
     uint32_t *saveNumber,
-    _difficulty *difficulty)
+    Difficulty *difficulty)
 {
 	selhero_isMultiPlayer = false;
 	UiSelHeroDialog(fninfo, fncreate, fnstats, fnremove, dlgresult, saveNumber);

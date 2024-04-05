@@ -459,7 +459,7 @@ void AddInitItems()
 		item._iSeed = AdvanceRndSeed();
 		SetRndSeed(item._iSeed);
 
-		GetItemAttrs(item, PickRandomlyAmong({ IDI_MANA, IDI_HEAL }), curlv);
+		GetItemAttrs(item, PickRandomlyAmong({ IDI_MANA, IDI_HEAL }), curlv, sgGameInitInfo.nDifficulty);
 
 		item._iCreateInfo = curlv | CF_PREGEN;
 		SetupItem(item);
@@ -709,8 +709,10 @@ int CalculateToHitBonus(int level)
 	}
 }
 
-int SaveItemPower(const Player &player, Item &item, ItemPower &power)
+int SaveItemPower(const Player &player, Item &item, ItemPower &power, const Difficulty diff)
 {
+	auto diffMult = static_cast<int>(diff) + 1;
+
 	if (!gbIsHellfire) {
 		if (power.type == IPL_TARGAC) {
 			power.param1 = 1 << power.param1;
@@ -722,10 +724,10 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 
 	switch (power.type) {
 	case IPL_TOHIT:
-		item._iPLToHit += r;
+		item._iPLToHit += r * diffMult;
 		break;
 	case IPL_TOHIT_CURSE:
-		item._iPLToHit -= r;
+		item._iPLToHit -= r * diffMult;
 		break;
 	case IPL_DAMP:
 		item._iPLDam += r;
@@ -739,11 +741,11 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case IPL_TOHIT_DAMP:
 		r = RndPL(power.param1, power.param2);
 		item._iPLDam += r;
-		item._iPLToHit += CalculateToHitBonus(power.param1);
+		item._iPLToHit += CalculateToHitBonus(power.param1) * diffMult;
 		break;
 	case IPL_TOHIT_DAMP_CURSE:
 		item._iPLDam -= r;
-		item._iPLToHit += CalculateToHitBonus(-power.param1);
+		item._iPLToHit += CalculateToHitBonus(-power.param1) * diffMult;
 		break;
 	case IPL_ACP:
 		item._iPLAC += r;
@@ -752,27 +754,27 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iPLAC -= r;
 		break;
 	case IPL_SETAC:
-		item._iAC = r;
+		item._iAC = r * diffMult;
 		break;
 	case IPL_AC_CURSE:
-		item._iAC -= r;
+		item._iAC -= r * diffMult;
 		break;
 	case IPL_FIRERES:
-		item._iPLFR += r;
+		item._iPLFR += r * diffMult;
 		break;
 	case IPL_LIGHTRES:
-		item._iPLLR += r;
+		item._iPLLR += r * diffMult;
 		break;
 	case IPL_MAGICRES:
-		item._iPLMR += r;
+		item._iPLMR += r * diffMult;
 		break;
 	case IPL_ALLRES:
-		item._iPLFR = std::max(item._iPLFR + r, 0);
-		item._iPLLR = std::max(item._iPLLR + r, 0);
-		item._iPLMR = std::max(item._iPLMR + r, 0);
+		item._iPLFR = std::max(item._iPLFR + r, 0) * diffMult;
+		item._iPLLR = std::max(item._iPLLR + r, 0) * diffMult;
+		item._iPLMR = std::max(item._iPLMR + r, 0) * diffMult;
 		break;
 	case IPL_SPLLVLADD:
-		item._iSplLvlAdd = r;
+		item._iSplLvlAdd = r * diffMult;
 		break;
 	case IPL_CHARGES:
 		item._iCharges *= power.param1;
@@ -786,73 +788,73 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case IPL_FIREDAM:
 		item._iFlags |= ItemSpecialEffect::FireDamage;
 		item._iFlags &= ~ItemSpecialEffect::LightningDamage;
-		item._iFMinDam = power.param1;
-		item._iFMaxDam = power.param2;
+		item._iFMinDam = power.param1 * diffMult;
+		item._iFMaxDam = power.param2 * diffMult;
 		item._iLMinDam = 0;
 		item._iLMaxDam = 0;
 		break;
 	case IPL_LIGHTDAM:
 		item._iFlags |= ItemSpecialEffect::LightningDamage;
 		item._iFlags &= ~ItemSpecialEffect::FireDamage;
-		item._iLMinDam = power.param1;
-		item._iLMaxDam = power.param2;
+		item._iLMinDam = power.param1 * diffMult;
+		item._iLMaxDam = power.param2 * diffMult;
 		item._iFMinDam = 0;
 		item._iFMaxDam = 0;
 		break;
 	case IPL_STR:
-		item._iPLStr += r;
+		item._iPLStr += r * diffMult;
 		break;
 	case IPL_STR_CURSE:
-		item._iPLStr -= r;
+		item._iPLStr -= r * diffMult;
 		break;
 	case IPL_MAG:
-		item._iPLMag += r;
+		item._iPLMag += r * diffMult;
 		break;
 	case IPL_MAG_CURSE:
-		item._iPLMag -= r;
+		item._iPLMag -= r * diffMult;
 		break;
 	case IPL_DEX:
-		item._iPLDex += r;
+		item._iPLDex += r * diffMult;
 		break;
 	case IPL_DEX_CURSE:
-		item._iPLDex -= r;
+		item._iPLDex -= r * diffMult;
 		break;
 	case IPL_VIT:
-		item._iPLVit += r;
+		item._iPLVit += r * diffMult;
 		break;
 	case IPL_VIT_CURSE:
-		item._iPLVit -= r;
+		item._iPLVit -= r * diffMult;
 		break;
 	case IPL_ATTRIBS:
-		item._iPLStr += r;
-		item._iPLMag += r;
-		item._iPLDex += r;
-		item._iPLVit += r;
+		item._iPLStr += r * diffMult;
+		item._iPLMag += r * diffMult;
+		item._iPLDex += r * diffMult;
+		item._iPLVit += r * diffMult;
 		break;
 	case IPL_ATTRIBS_CURSE:
-		item._iPLStr -= r;
-		item._iPLMag -= r;
-		item._iPLDex -= r;
-		item._iPLVit -= r;
+		item._iPLStr -= r * diffMult;
+		item._iPLMag -= r * diffMult;
+		item._iPLDex -= r * diffMult;
+		item._iPLVit -= r * diffMult;
 		break;
 	case IPL_GETHIT_CURSE:
-		item._iPLGetHit += r;
+		item._iPLGetHit += r * diffMult;
 		break;
 	case IPL_GETHIT:
-		item._iPLGetHit -= r;
+		item._iPLGetHit -= r * diffMult;
 		break;
 	case IPL_LIFE:
-		item._iPLHP += r << 6;
+		item._iPLHP += (r << 6) * diffMult;
 		break;
 	case IPL_LIFE_CURSE:
-		item._iPLHP -= r << 6;
+		item._iPLHP -= (r << 6) * diffMult;
 		break;
 	case IPL_MANA:
-		item._iPLMana += r << 6;
+		item._iPLMana += (r << 6) * diffMult;
 		RedrawComponent(PanelDrawComponent::Mana);
 		break;
 	case IPL_MANA_CURSE:
-		item._iPLMana -= r << 6;
+		item._iPLMana -= (r << 6) * diffMult;
 		RedrawComponent(PanelDrawComponent::Mana);
 		break;
 	case IPL_DUR: {
@@ -884,16 +886,16 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case IPL_FIRE_ARROWS:
 		item._iFlags |= ItemSpecialEffect::FireArrows;
 		item._iFlags &= ~ItemSpecialEffect::LightningArrows;
-		item._iFMinDam = power.param1;
-		item._iFMaxDam = power.param2;
+		item._iFMinDam = power.param1 * diffMult;
+		item._iFMaxDam = power.param2 * diffMult;
 		item._iLMinDam = 0;
 		item._iLMaxDam = 0;
 		break;
 	case IPL_LIGHT_ARROWS:
 		item._iFlags |= ItemSpecialEffect::LightningArrows;
 		item._iFlags &= ~ItemSpecialEffect::FireArrows;
-		item._iLMinDam = power.param1;
-		item._iLMaxDam = power.param2;
+		item._iLMinDam = power.param1 * diffMult;
+		item._iLMaxDam = power.param2 * diffMult;
 		item._iFMinDam = 0;
 		item._iFMaxDam = 0;
 		break;
@@ -941,7 +943,7 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		if (gbIsHellfire)
 			item._iPLEnAc = power.param1;
 		else
-			item._iPLEnAc += r;
+			item._iPLEnAc += r * diffMult;
 		break;
 	case IPL_FASTATTACK:
 		if (power.param1 == 1)
@@ -965,14 +967,14 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iFlags |= ItemSpecialEffect::FastBlock;
 		break;
 	case IPL_DAMMOD:
-		item._iPLDamMod += r;
+		item._iPLDamMod += r * diffMult;
 		break;
 	case IPL_RNDARROWVEL:
 		item._iFlags |= ItemSpecialEffect::RandomArrowVelocity;
 		break;
 	case IPL_SETDAM:
-		item._iMinDam = power.param1;
-		item._iMaxDam = power.param2;
+		item._iMinDam = power.param1 * diffMult;
+		item._iMaxDam = power.param2 * diffMult;
 		break;
 	case IPL_SETDUR:
 		item._iDurability = power.param1;
@@ -1008,13 +1010,13 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iLMaxDam = 0;
 		break;
 	case IPL_FIRERES_CURSE:
-		item._iPLFR -= r;
+		item._iPLFR -= r * diffMult;
 		break;
 	case IPL_LIGHTRES_CURSE:
-		item._iPLLR -= r;
+		item._iPLLR -= r * diffMult;
 		break;
 	case IPL_MAGICRES_CURSE:
-		item._iPLMR -= r;
+		item._iPLMR -= r * diffMult;
 		break;
 	case IPL_DEVASTATION:
 		item._iDamAcFlags |= ItemSpecialEffectHf::Devastation;
@@ -1066,10 +1068,10 @@ int PLVal(int pv, int p1, int p2, int minv, int maxv)
 	return minv + (maxv - minv) * (100 * (pv - p1) / (p2 - p1)) / 100;
 }
 
-void SaveItemAffix(const Player &player, Item &item, const PLStruct &affix)
+void SaveItemAffix(const Player &player, Item &item, const PLStruct &affix, const Difficulty diff)
 {
 	auto power = affix.power;
-	int value = SaveItemPower(player, item, power);
+	int value = SaveItemPower(player, item, power, diff);
 
 	value = PLVal(value, power.param1, power.param2, affix.minVal, affix.maxVal);
 	if (item._iVAdd1 != 0 || item._iVMult1 != 0) {
@@ -1134,12 +1136,12 @@ std::string GenerateStaffNameMagical(const ItemData &baseItemData, SpellID spell
 	return identifiedName;
 }
 
-void GetStaffPower(const Player &player, Item &item, int lvl, SpellID bs, bool onlygood)
+void GetStaffPower(const Player &player, Item &item, int lvl, SpellID bs, bool onlygood, const Difficulty diff)
 {
 	int preidx = GetStaffPrefixId(lvl, onlygood, gbIsHellfire);
 	if (preidx != -1) {
 		item._iMagical = ITEM_QUALITY_MAGIC;
-		SaveItemAffix(player, item, ItemPrefixes[preidx]);
+		SaveItemAffix(player, item, ItemPrefixes[preidx], diff);
 		item._iPrePower = ItemPrefixes[preidx].power.type;
 	}
 
@@ -1235,21 +1237,21 @@ void GetItemPowerPrefixAndSuffix(int minlvl, int maxlvl, AffixItemType flgs, boo
 	}
 }
 
-void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, AffixItemType flgs, bool onlygood)
+void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, AffixItemType flgs, bool onlygood, const Difficulty diff)
 {
 	const PLStruct *pPrefix = nullptr;
 	const PLStruct *pSufix = nullptr;
 	GetItemPowerPrefixAndSuffix(
 	    minlvl, maxlvl, flgs, onlygood, gbIsHellfire,
-	    [&item, &player, &pPrefix](const PLStruct &prefix) {
+	    [&item, &player, &pPrefix, &diff](const PLStruct &prefix) {
 		    item._iMagical = ITEM_QUALITY_MAGIC;
-		    SaveItemAffix(player, item, prefix);
+		    SaveItemAffix(player, item, prefix, diff);
 		    item._iPrePower = prefix.power.type;
 		    pPrefix = &prefix;
 	    },
-	    [&item, &player, &pSufix](const PLStruct &suffix) {
+	    [&item, &player, &pSufix, &diff](const PLStruct &suffix) {
 		    item._iMagical = ITEM_QUALITY_MAGIC;
-		    SaveItemAffix(player, item, suffix);
+		    SaveItemAffix(player, item, suffix, diff);
 		    item._iSufPower = suffix.power.type;
 		    pSufix = &suffix;
 	    });
@@ -1262,10 +1264,10 @@ void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, Affi
 		CalcItemValue(item);
 }
 
-void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood)
+void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood, const Difficulty diff)
 {
 	if (!gbIsHellfire && FlipCoin(4)) {
-		GetItemPower(player, item, lvl / 2, lvl, AffixItemType::Staff, onlygood);
+		GetItemPower(player, item, lvl / 2, lvl, AffixItemType::Staff, onlygood, diff);
 		return;
 	}
 
@@ -1305,7 +1307,7 @@ void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood)
 	int v = item._iCharges * GetSpellData(bs).staffCost() / 5;
 	item._ivalue += v;
 	item._iIvalue += v;
-	GetStaffPower(player, item, lvl, bs, onlygood);
+	GetStaffPower(player, item, lvl, bs, onlygood, diff);
 }
 
 void GetOilType(Item &item, int maxLvl)
@@ -1335,7 +1337,7 @@ void GetOilType(Item &item, int maxLvl)
 	item._iIvalue = OilValues[t];
 }
 
-void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool onlygood, bool allowspells)
+void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool onlygood, bool allowspells, Difficulty diff)
 {
 	if (minlvl > 25)
 		minlvl = 25;
@@ -1344,29 +1346,29 @@ void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool
 	case ItemType::Sword:
 	case ItemType::Axe:
 	case ItemType::Mace:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Weapon, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Weapon, onlygood, diff);
 		break;
 	case ItemType::Bow:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Bow, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Bow, onlygood, diff);
 		break;
 	case ItemType::Shield:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Shield, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Shield, onlygood, diff);
 		break;
 	case ItemType::LightArmor:
 	case ItemType::Helm:
 	case ItemType::MediumArmor:
 	case ItemType::HeavyArmor:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Armor, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Armor, onlygood, diff);
 		break;
 	case ItemType::Staff:
 		if (allowspells)
-			GetStaffSpell(player, item, maxlvl, onlygood);
+			GetStaffSpell(player, item, maxlvl, onlygood, diff);
 		else
-			GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Staff, onlygood);
+			GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Staff, onlygood, diff);
 		break;
 	case ItemType::Ring:
 	case ItemType::Amulet:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Misc, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Misc, onlygood, diff);
 		break;
 	case ItemType::None:
 	case ItemType::Misc:
@@ -1405,7 +1407,7 @@ _item_indexes RndUItem(Monster *monster)
 {
 	int itemMaxLevel = ItemsGetCurrlevel() * 2;
 	if (monster != nullptr)
-		itemMaxLevel = monster->level(sgGameInitInfo.nDifficulty);
+		itemMaxLevel = monster->data().level;
 	return GetItemIndexForDroppableItem(false, [&itemMaxLevel](const ItemData &item) {
 		if (item.itype == ItemType::Misc && item.iMiscId == IMISC_BOOK)
 			return true;
@@ -1478,14 +1480,14 @@ _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 	return (_unique_items)itemData;
 }
 
-void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
+void GetUniqueItem(const Player &player, Item &item, _unique_items uid, const Difficulty diff)
 {
 	UniqueItemFlags[uid] = true;
 
 	for (auto power : UniqueItems[uid].powers) {
 		if (power.type == IPL_INVALID)
 			break;
-		SaveItemPower(player, item, power);
+		SaveItemPower(player, item, power, diff);
 	}
 
 	CopyUtf8(item._iIName, UniqueItems[uid].UIName, sizeof(item._iIName));
@@ -1519,12 +1521,25 @@ int GetItemBLevel(int lvl, item_misc_id miscId, bool onlygood, bool uper15)
 	return iblvl;
 }
 
-void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t iseed, int lvl, int uper, bool onlygood, bool recreate, bool pregen)
+void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t iseed, int lvl, int uper, bool onlygood, bool recreate, bool pregen, uint32_t icreateinfo2)
 {
 	item._iSeed = iseed;
 	SetRndSeed(iseed);
-	GetItemAttrs(item, idx, lvl / 2);
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+	GetItemAttrs(item, idx, lvl / 2, diff);
 	item._iCreateInfo = lvl;
+	item._iCreateInfo2 = icreateinfo2;
 
 	if (pregen)
 		item._iCreateInfo |= CF_PREGEN;
@@ -1541,9 +1556,9 @@ void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t
 		if (iblvl != -1) {
 			_unique_items uid = CheckUnique(item, iblvl, uper, recreate);
 			if (uid == UITEM_INVALID) {
-				GetItemBonus(player, item, iblvl / 2, iblvl, onlygood, true);
+				GetItemBonus(player, item, iblvl / 2, iblvl, onlygood, true, diff);
 			} else {
-				GetUniqueItem(player, item, uid);
+				GetUniqueItem(player, item, uid, diff);
 			}
 		}
 		if (item._iMagical != ITEM_QUALITY_UNIQUE)
@@ -1555,13 +1570,13 @@ void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t
 				return;
 			}
 
-			GetUniqueItem(player, item, (_unique_items)iseed); // uid is stored in iseed for uniques
+			GetUniqueItem(player, item, (_unique_items)iseed, diff); // uid is stored in iseed for uniques
 		}
 	}
 	SetupItem(item);
 }
 
-void SetupBaseItem(Point position, _item_indexes idx, bool onlygood, bool sendmsg, bool delta, bool spawn = false)
+void SetupBaseItem(Point position, _item_indexes idx, bool onlygood, bool sendmsg, bool delta, uint32_t icreateinfo2, bool spawn = false)
 {
 	if (ActiveItemCount >= MAXITEMS)
 		return;
@@ -1571,7 +1586,7 @@ void SetupBaseItem(Point position, _item_indexes idx, bool onlygood, bool sendms
 	GetSuperItemSpace(position, ii);
 	int curlv = ItemsGetCurrlevel();
 
-	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * curlv, 1, onlygood, false, delta);
+	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * curlv, 1, onlygood, false, delta, icreateinfo2);
 
 	if (sendmsg)
 		NetSendCmdPItem(false, CMD_DROPITEM, item.position, item);
@@ -1581,7 +1596,7 @@ void SetupBaseItem(Point position, _item_indexes idx, bool onlygood, bool sendms
 		NetSendCmdPItem(false, CMD_SPAWNITEM, item.position, item);
 }
 
-void SetupAllUseful(Item &item, int iseed, int lvl)
+void SetupAllUseful(Item &item, int iseed, int lvl, uint32_t icreateinfo2)
 {
 	item._iSeed = iseed;
 	SetRndSeed(iseed);
@@ -1619,7 +1634,19 @@ void SetupAllUseful(Item &item, int iseed, int lvl)
 			idx = IDI_PORTAL;
 	}
 
-	GetItemAttrs(item, idx, lvl);
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+	GetItemAttrs(item, idx, lvl, diff);
 	item._iCreateInfo = lvl | CF_USEFUL;
 	SetupItem(item);
 }
@@ -1663,7 +1690,7 @@ void SpawnRock()
 	item.position = stand->position;
 	dItem[item.position.x][item.position.y] = ii + 1;
 	int curlv = ItemsGetCurrlevel();
-	GetItemAttrs(item, IDI_ROCK, curlv);
+	GetItemAttrs(item, IDI_ROCK, curlv, sgGameInitInfo.nDifficulty);
 	SetupItem(item);
 	item._iSelFlag = 2;
 	item._iPostDraw = true;
@@ -1917,9 +1944,9 @@ void PrintItemMisc(const Item &item)
 void PrintItemInfo(const Item &item)
 {
 	PrintItemMisc(item);
-	uint8_t str = item._iMinStr;
-	uint8_t dex = item._iMinDex;
-	uint8_t mag = item._iMinMag;
+	uint16_t str = item._iMinStr;
+	uint16_t dex = item._iMinDex;
+	uint16_t mag = item._iMinMag;
 	if (str != 0 || mag != 0 || dex != 0) {
 		std::string text = std::string(_("Required:"));
 		if (str != 0)
@@ -2006,16 +2033,40 @@ _item_indexes RndPremiumItem(const Player &player, int minlvl, int maxlvl)
 
 void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
 {
+	auto diff = sgGameInitInfo.nDifficulty;
+	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
+	switch (diff) {
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
+		diffFlag = CF_INFERNO;
+		plvl -= 39;
+		plvl *= 1.45F;
+		break;
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
+		diffFlag = CF_HELL;
+		plvl -= 29;
+		plvl *= 1.45F;
+		break;
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
+		diffFlag = CF_NIGHTMARE;
+		plvl -= 19;
+		plvl *= 1.45F;
+		break;
+	}
+	plvl = std::clamp(plvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
+
 	premiumItem = {};
 	premiumItem._iSeed = AdvanceRndSeed();
 	SetRndSeed(premiumItem._iSeed);
 	_item_indexes itemType = RndPremiumItem(player, plvl / 4, plvl);
-	GetItemAttrs(premiumItem, itemType, plvl);
-	GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire);
+	
+	GetItemAttrs(premiumItem, itemType, plvl, diff);
+	GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire, diff);
 
 	premiumItem._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumItem._iIdentified = true;
 	premiumItem._iStatFlag = player.CanUseItem(premiumItem);
+	premiumItem._iCreateInfo2 = diffFlag;
 }
 
 bool WitchItemOk(const Player &player, const ItemData &item)
@@ -2096,94 +2147,164 @@ _item_indexes RndHealerItem(const Player &player, int lvl)
 	return RndVendorItem<HealerItemOk>(player, 0, lvl);
 }
 
-void RecreateSmithItem(const Player &player, Item &item, int lvl, int iseed)
+void RecreateSmithItem(const Player &player, Item &item, int lvl, int iseed, uint32_t icreateinfo2)
 {
 	SetRndSeed(iseed);
 	_item_indexes itype = RndSmithItem(player, lvl);
-	GetItemAttrs(item, itype, lvl);
+
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+	GetItemAttrs(item, itype, lvl, diff);
 
 	item._iSeed = iseed;
 	item._iCreateInfo = lvl | CF_SMITH;
 	item._iIdentified = true;
+	item._iCreateInfo2 = icreateinfo2;
 }
 
-void RecreatePremiumItem(const Player &player, Item &item, int plvl, int iseed)
+void RecreatePremiumItem(const Player &player, Item &item, int plvl, int iseed, uint32_t icreateinfo2)
 {
 	SetRndSeed(iseed);
 	_item_indexes itype = RndPremiumItem(player, plvl / 4, plvl);
-	GetItemAttrs(item, itype, plvl);
-	GetItemBonus(player, item, plvl / 2, plvl, true, !gbIsHellfire);
+
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+	GetItemAttrs(item, itype, plvl, diff);
+	GetItemBonus(player, item, plvl / 2, plvl, true, !gbIsHellfire, diff);
 
 	item._iSeed = iseed;
 	item._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	item._iIdentified = true;
+	item._iCreateInfo2 = icreateinfo2;
 }
 
-void RecreateBoyItem(const Player &player, Item &item, int lvl, int iseed)
+void RecreateBoyItem(const Player &player, Item &item, int lvl, int iseed, uint32_t icreateinfo2)
 {
 	SetRndSeed(iseed);
 	_item_indexes itype = RndBoyItem(player, lvl);
-	GetItemAttrs(item, itype, lvl);
-	GetItemBonus(player, item, lvl, 2 * lvl, true, true);
+
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+	GetItemAttrs(item, itype, lvl, diff);
+	GetItemBonus(player, item, lvl, 2 * lvl, true, true, diff);
 
 	item._iSeed = iseed;
 	item._iCreateInfo = lvl | CF_BOY;
 	item._iIdentified = true;
+	item._iCreateInfo2 = icreateinfo2;
 }
 
-void RecreateWitchItem(const Player &player, Item &item, _item_indexes idx, int lvl, int iseed)
+void RecreateWitchItem(const Player &player, Item &item, _item_indexes idx, int lvl, int iseed, uint32_t icreateinfo2)
 {
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+
 	if (IsAnyOf(idx, IDI_MANA, IDI_FULLMANA, IDI_PORTAL)) {
-		GetItemAttrs(item, idx, lvl);
+		GetItemAttrs(item, idx, lvl, diff);
 	} else if (gbIsHellfire && idx >= 114 && idx <= 117) {
 		SetRndSeed(iseed);
 		DiscardRandomValues(1);
-		GetItemAttrs(item, idx, lvl);
+		GetItemAttrs(item, idx, lvl, diff);
 	} else {
 		SetRndSeed(iseed);
 		_item_indexes itype = RndWitchItem(player, lvl);
-		GetItemAttrs(item, itype, lvl);
+		GetItemAttrs(item, itype, lvl, diff);
 		int iblvl = -1;
 		if (GenerateRnd(100) <= 5)
 			iblvl = 2 * lvl;
 		if (iblvl == -1 && item._iMiscId == IMISC_STAFF)
 			iblvl = 2 * lvl;
 		if (iblvl != -1)
-			GetItemBonus(player, item, iblvl / 2, iblvl, true, true);
+			GetItemBonus(player, item, iblvl / 2, iblvl, true, true, diff);
 	}
 
 	item._iSeed = iseed;
 	item._iCreateInfo = lvl | CF_WITCH;
 	item._iIdentified = true;
+	item._iCreateInfo2 = icreateinfo2;
 }
 
-void RecreateHealerItem(const Player &player, Item &item, _item_indexes idx, int lvl, int iseed)
+void RecreateHealerItem(const Player &player, Item &item, _item_indexes idx, int lvl, int iseed, uint32_t icreateinfo2)
 {
+	Difficulty diff = Difficulty::Normal;
+	switch (icreateinfo2) {
+	case CF_INFERNO:
+		diff = Difficulty::Inferno;
+		break;
+	case CF_HELL:
+		diff = Difficulty::Hell;
+		break;
+	case CF_NIGHTMARE:
+		diff = Difficulty::Nightmare;
+		break;
+	}
+
 	if (IsAnyOf(idx, IDI_HEAL, IDI_FULLHEAL, IDI_RESURRECT)) {
-		GetItemAttrs(item, idx, lvl);
+		GetItemAttrs(item, idx, lvl, diff);
 	} else {
 		SetRndSeed(iseed);
 		_item_indexes itype = RndHealerItem(player, lvl);
-		GetItemAttrs(item, itype, lvl);
+		GetItemAttrs(item, itype, lvl, diff);
 	}
 
 	item._iSeed = iseed;
 	item._iCreateInfo = lvl | CF_HEALER;
 	item._iIdentified = true;
+	item._iCreateInfo2 = icreateinfo2;
 }
 
-void RecreateTownItem(const Player &player, Item &item, _item_indexes idx, uint16_t icreateinfo, int iseed)
+void RecreateTownItem(const Player &player, Item &item, _item_indexes idx, uint16_t icreateinfo, int iseed, uint32_t icreateinfo2)
 {
 	if ((icreateinfo & CF_SMITH) != 0)
-		RecreateSmithItem(player, item, icreateinfo & CF_LEVEL, iseed);
+		RecreateSmithItem(player, item, icreateinfo & CF_LEVEL, iseed, icreateinfo2);
 	else if ((icreateinfo & CF_SMITHPREMIUM) != 0)
-		RecreatePremiumItem(player, item, icreateinfo & CF_LEVEL, iseed);
+		RecreatePremiumItem(player, item, icreateinfo & CF_LEVEL, iseed, icreateinfo2);
 	else if ((icreateinfo & CF_BOY) != 0)
-		RecreateBoyItem(player, item, icreateinfo & CF_LEVEL, iseed);
+		RecreateBoyItem(player, item, icreateinfo & CF_LEVEL, iseed, icreateinfo2);
 	else if ((icreateinfo & CF_WITCH) != 0)
-		RecreateWitchItem(player, item, idx, icreateinfo & CF_LEVEL, iseed);
+		RecreateWitchItem(player, item, idx, icreateinfo & CF_LEVEL, iseed, icreateinfo2);
 	else if ((icreateinfo & CF_HEALER) != 0)
-		RecreateHealerItem(player, item, idx, icreateinfo & CF_LEVEL, iseed);
+		RecreateHealerItem(player, item, idx, icreateinfo & CF_LEVEL, iseed, icreateinfo2);
 }
 
 void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, int icurs, bool sendmsg, bool delta, bool spawn = false)
@@ -2195,9 +2316,22 @@ void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, int i
 	auto &item = Items[ii];
 	_item_indexes idx = RndTypeItems(itemType, imid, lvl);
 
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
+
 	while (true) {
 		item = {};
-		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * lvl, 1, true, false, delta);
+		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * lvl, 1, true, false, delta, diffFlag);
 		if (item._iCurs == icurs)
 			break;
 
@@ -2717,9 +2851,11 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 		lr = 0;
 	}
 
-	player._pMagResist = std::clamp(mr, 0, MaxResistance);
-	player._pFireResist = std::clamp(fr, 0, MaxResistance);
-	player._pLghtResist = std::clamp(lr, 0, MaxResistance);
+	int resistDiv = static_cast<int>(sgGameInitInfo.nDifficulty) + 1;
+
+	player._pMagResist = std::clamp(mr / resistDiv, 0, MaxResistance);
+	player._pFireResist = std::clamp(fr / resistDiv, 0, MaxResistance);
+	player._pLghtResist = std::clamp(lr / resistDiv, 0, MaxResistance);
 
 	const ClassAttributes &playerClassAttributes = player.getClassAttributes();
 	vadd = (vadd * playerClassAttributes.itmLife) >> 6;
@@ -3087,18 +3223,71 @@ Point GetSuperItemLoc(Point position)
 	return itemPosition.value_or(Point { 0, 0 }); // TODO handle no space for dropping items
 }
 
-void GetItemAttrs(Item &item, _item_indexes itemData, int lvl)
+void GetItemAttrs(Item &item, _item_indexes itemData, int lvl, Difficulty diff)
 {
 	auto &baseItemData = AllItemsList[static_cast<size_t>(itemData)];
+
+	int addAC = 0;
+	int addMinDam = 0;
+	int addMaxDam = 0;
+	int addMinStr = 0;
+	int addMinMag = 0;
+	int addMinDex = 0;
+
+	auto diffMult = static_cast<int>(diff);
+
+	switch (baseItemData.itype) {
+	case ItemType::LightArmor:
+	case ItemType::MediumArmor:
+	case ItemType::HeavyArmor:
+		addAC = 75 * diffMult;
+		addMinStr = 90 * diffMult;
+		break;
+	case ItemType::Shield:
+		addAC = 20 * diffMult;
+		addMinStr = 80 * diffMult;
+		break;
+	case ItemType::Helm:
+		addAC = 15 * diffMult;
+		addMinStr = 50 * diffMult;
+		break;
+	case ItemType::Axe:
+		addMinDam = 12 * diffMult;
+		addMaxDam = 30 * diffMult;
+		addMinStr = 80 * diffMult;
+		break;
+	case ItemType::Bow:
+		addMinDam = 1 * diffMult;
+		addMaxDam = 14 * diffMult;
+		addMinStr = 45 * diffMult;
+		addMinDex = 80 * diffMult;
+		break;
+	case ItemType::Mace:
+		addMinDam = 6 * diffMult;
+		addMaxDam = 20 * diffMult;
+		addMinStr = 55 * diffMult;
+		break;
+	case ItemType::Staff:
+		addMinDam = 8 * diffMult;
+		addMaxDam = 16 * diffMult;
+		addMinStr = 30 * diffMult;
+		break;
+	case ItemType::Sword:
+		addMinDam = 10 * diffMult;
+		addMaxDam = 20 * diffMult;
+		addMinStr = 75 * diffMult;
+		break;
+	}
+	
 	item._itype = baseItemData.itype;
 	item._iCurs = baseItemData.iCurs;
 	CopyUtf8(item._iName, baseItemData.iName, sizeof(item._iName));
 	CopyUtf8(item._iIName, baseItemData.iName, sizeof(item._iIName));
 	item._iLoc = baseItemData.iLoc;
 	item._iClass = baseItemData.iClass;
-	item._iMinDam = baseItemData.iMinDam;
-	item._iMaxDam = baseItemData.iMaxDam;
-	item._iAC = baseItemData.iMinAC + GenerateRnd(baseItemData.iMaxAC - baseItemData.iMinAC + 1);
+	item._iMinDam = baseItemData.iMinDam + addMinDam;
+	item._iMaxDam = baseItemData.iMaxDam + addMaxDam;
+	item._iAC = baseItemData.iMinAC + GenerateRnd(baseItemData.iMaxAC - baseItemData.iMinAC + 1) + addAC;
 	item._iFlags = baseItemData.iFlags;
 	item._iMiscId = baseItemData.iMiscId;
 	item._iSpell = baseItemData.iSpell;
@@ -3107,9 +3296,9 @@ void GetItemAttrs(Item &item, _item_indexes itemData, int lvl)
 	item._iIvalue = baseItemData.iValue;
 	item._iDurability = baseItemData.iDurability;
 	item._iMaxDur = baseItemData.iDurability;
-	item._iMinStr = baseItemData.iMinStr;
-	item._iMinMag = baseItemData.iMinMag;
-	item._iMinDex = baseItemData.iMinDex;
+	item._iMinStr = baseItemData.iMinStr + addMinStr;
+	item._iMinMag = baseItemData.iMinMag + addMinMag;
+	item._iMinDex = baseItemData.iMinDex + addMinDex;
 	item.IDidx = itemData;
 	if (gbIsHellfire)
 		item.dwBuff |= CF_HELLFIRE;
@@ -3129,16 +3318,16 @@ void GetItemAttrs(Item &item, _item_indexes itemData, int lvl)
 	int rndv;
 	int itemlevel = ItemsGetCurrlevel();
 	switch (sgGameInitInfo.nDifficulty) {
-	case DIFF_NORMAL:
+	case Difficulty::Normal:
 		rndv = 5 * itemlevel + GenerateRnd(10 * itemlevel);
 		break;
-	case DIFF_NIGHTMARE:
+	case Difficulty::Nightmare:
 		rndv = 5 * (itemlevel + 4) + GenerateRnd(10 * (itemlevel + 4));
 		break;
-	case DIFF_HELL:
+	case Difficulty::Hell:
 		rndv = 5 * (itemlevel + 8) + GenerateRnd(10 * (itemlevel + 8));
 		break;
-	case DIFF_INFERNO:
+	case Difficulty::Inferno:
 		rndv = 5 * (itemlevel + 12) + GenerateRnd(10 * (itemlevel + 12));
 		break;
 	}
@@ -3174,9 +3363,22 @@ Item *SpawnUnique(_unique_items uid, Point position, std::optional<int> level /*
 	while (AllItemsList[idx].iItemId != UniqueItems[uid].UIItemId)
 		idx++;
 
-	if (sgGameInitInfo.nDifficulty == DIFF_NORMAL) {
-		GetItemAttrs(item, static_cast<_item_indexes>(idx), curlv);
-		GetUniqueItem(*MyPlayer, item, uid);
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
+
+	if (sgGameInitInfo.nDifficulty == Difficulty::Normal) {
+		GetItemAttrs(item, static_cast<_item_indexes>(idx), curlv, sgGameInitInfo.nDifficulty);
+		GetUniqueItem(*MyPlayer, item, uid, Difficulty::Normal);
 		SetupItem(item);
 	} else {
 		if (level)
@@ -3185,7 +3387,7 @@ Item *SpawnUnique(_unique_items uid, Point position, std::optional<int> level /*
 		_item_indexes idx = GetItemIndexForDroppableItem(false, [&uniqueItemData](const ItemData &item) {
 			return item.itype == uniqueItemData.itype;
 		});
-		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), curlv * 2, 15, true, false, false);
+		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), curlv * 2, 15, true, false, false, diffFlag);
 	}
 
 	if (sendmsg)
@@ -3229,7 +3431,7 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 		if ((monster.data().treasure & T_NODROP) != 0)
 			return;
 		onlygood = false;
-		idx = RndItemForMonsterLevel(monster.level(sgGameInitInfo.nDifficulty));
+		idx = RndItemForMonsterLevel(monster.data().level);
 	}
 
 	if (idx == IDI_NONE)
@@ -3247,7 +3449,20 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 	if (!gbIsHellfire && monster.type().type == MT_DIABLO)
 		mLevel -= 15;
 
-	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), mLevel, uper, onlygood, false, false);
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
+
+	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), mLevel, uper, onlygood, false, false, diffFlag);
 
 	if (sendmsg)
 		NetSendCmdPItem(false, CMD_DROPITEM, item.position, item);
@@ -3259,7 +3474,20 @@ void CreateRndItem(Point position, bool onlygood, bool sendmsg, bool delta)
 {
 	_item_indexes idx = onlygood ? RndUItem(nullptr) : RndAllItems();
 
-	SetupBaseItem(position, idx, onlygood, sendmsg, delta);
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
+
+	SetupBaseItem(position, idx, onlygood, sendmsg, delta, diffFlag);
 }
 
 void CreateRndUseful(Point position, bool sendmsg)
@@ -3272,7 +3500,20 @@ void CreateRndUseful(Point position, bool sendmsg)
 	GetSuperItemSpace(position, ii);
 	int curlv = ItemsGetCurrlevel();
 
-	SetupAllUseful(item, AdvanceRndSeed(), curlv);
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
+
+	SetupAllUseful(item, AdvanceRndSeed(), curlv, diffFlag);
 	if (sendmsg)
 		NetSendCmdPItem(false, CMD_DROPITEM, item.position, item);
 }
@@ -3290,7 +3531,7 @@ void CreateTypeItem(Point position, bool onlygood, ItemType itemType, int imisc,
 	SetupBaseItem(position, idx, onlygood, sendmsg, delta, spawn);
 }
 
-void RecreateItem(const Player &player, Item &item, _item_indexes idx, uint16_t icreateinfo, uint32_t iseed, int ivalue, bool isHellfire)
+void RecreateItem(const Player &player, Item &item, _item_indexes idx, uint16_t icreateinfo, uint32_t icreateinfo2, uint32_t iseed, int ivalue, bool isHellfire)
 {
 	bool tmpIsHellfire = gbIsHellfire;
 	gbIsHellfire = isHellfire;
@@ -3299,6 +3540,7 @@ void RecreateItem(const Player &player, Item &item, _item_indexes idx, uint16_t 
 		InitializeItem(item, IDI_GOLD);
 		item._iSeed = iseed;
 		item._iCreateInfo = icreateinfo;
+		item._iCreateInfo2 = icreateinfo2;
 		item._ivalue = ivalue;
 		SetPlrHandGoldCurs(item);
 		gbIsHellfire = tmpIsHellfire;
@@ -3308,19 +3550,20 @@ void RecreateItem(const Player &player, Item &item, _item_indexes idx, uint16_t 
 	if (icreateinfo == 0) {
 		InitializeItem(item, idx);
 		item._iSeed = iseed;
+		item._iCreateInfo2 = icreateinfo2;
 		gbIsHellfire = tmpIsHellfire;
 		return;
 	}
 
 	if ((icreateinfo & CF_UNIQUE) == 0) {
 		if ((icreateinfo & CF_TOWN) != 0) {
-			RecreateTownItem(player, item, idx, icreateinfo, iseed);
+			RecreateTownItem(player, item, idx, icreateinfo, iseed, icreateinfo2);
 			gbIsHellfire = tmpIsHellfire;
 			return;
 		}
 
 		if ((icreateinfo & CF_USEFUL) == CF_USEFUL) {
-			SetupAllUseful(item, iseed, icreateinfo & CF_LEVEL);
+			SetupAllUseful(item, iseed, icreateinfo & CF_LEVEL, icreateinfo2);
 			gbIsHellfire = tmpIsHellfire;
 			return;
 		}
@@ -3338,7 +3581,7 @@ void RecreateItem(const Player &player, Item &item, _item_indexes idx, uint16_t 
 	bool recreate = (icreateinfo & CF_UNIQUE) != 0;
 	bool pregen = (icreateinfo & CF_PREGEN) != 0;
 
-	SetupAllItems(player, item, idx, iseed, level, uper, onlygood, recreate, pregen);
+	SetupAllItems(player, item, idx, iseed, level, uper, onlygood, recreate, pregen, icreateinfo2);
 	gbIsHellfire = tmpIsHellfire;
 }
 
@@ -3445,7 +3688,8 @@ void SpawnQuestItem(_item_indexes itemid, Point position, int randarea, int self
 	dItem[position.x][position.y] = ii + 1;
 
 	int curlv = ItemsGetCurrlevel();
-	GetItemAttrs(item, itemid, curlv);
+
+	GetItemAttrs(item, itemid, curlv, sgGameInitInfo.nDifficulty);
 
 	SetupItem(item);
 	item._iSeed = AdvanceRndSeed();
@@ -3476,7 +3720,7 @@ void SpawnRewardItem(_item_indexes itemid, Point position, bool sendmsg)
 	item.position = position;
 	dItem[position.x][position.y] = ii + 1;
 	int curlv = ItemsGetCurrlevel();
-	GetItemAttrs(item, itemid, curlv);
+	GetItemAttrs(item, itemid, curlv, sgGameInitInfo.nDifficulty);
 	item.setNewAnimation(true);
 	item._iSelFlag = 2;
 	item._iPostDraw = true;
@@ -3664,27 +3908,15 @@ bool DoOil(Player &player, int cii)
 		return fmt::format(fmt::runtime(_("armor class: {:d}")), item._iAC);
 	case IPL_FIRERES:
 	case IPL_FIRERES_CURSE:
-		if (item._iPLFR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist Fire: {:+d}%")), item._iPLFR);
-		else
-			return fmt::format(fmt::runtime(_("Resist Fire: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist Fire: {:+d}%")), item._iPLFR);
 	case IPL_LIGHTRES:
 	case IPL_LIGHTRES_CURSE:
-		if (item._iPLLR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist Lightning: {:+d}%")), item._iPLLR);
-		else
-			return fmt::format(fmt::runtime(_("Resist Lightning: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist Lightning: {:+d}%")), item._iPLLR);
 	case IPL_MAGICRES:
 	case IPL_MAGICRES_CURSE:
-		if (item._iPLMR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist Magic: {:+d}%")), item._iPLMR);
-		else
-			return fmt::format(fmt::runtime(_("Resist Magic: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist Magic: {:+d}%")), item._iPLMR);
 	case IPL_ALLRES:
-		if (item._iPLFR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist All: {:+d}%")), item._iPLFR);
-		else
-			return fmt::format(fmt::runtime(_("Resist All: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist All: {:+d}%")), item._iPLFR);
 	case IPL_SPLLVLADD:
 		if (item._iSplLvlAdd > 0)
 			return fmt::format(fmt::runtime(ngettext("spells are increased {:d} level", "spells are increased {:d} levels", item._iSplLvlAdd)), item._iSplLvlAdd);
@@ -4155,6 +4387,28 @@ void SpawnSmith(int lvl)
 		maxItems = 24;
 	}
 
+	auto diff = sgGameInitInfo.nDifficulty;
+	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
+	switch (diff) {
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
+		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
+		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
+		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
+		break;
+	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
+
 	int iCnt = RandomIntBetween(10, maxItems);
 	for (int i = 0; i < iCnt; i++) {
 		Item &newItem = smithitem[i];
@@ -4163,9 +4417,13 @@ void SpawnSmith(int lvl)
 		newItem._iSeed = AdvanceRndSeed();
 		SetRndSeed(newItem._iSeed);
 		_item_indexes itemData = RndSmithItem(*MyPlayer, lvl);
-		GetItemAttrs(newItem, itemData, lvl);
+
+
+
+		GetItemAttrs(newItem, itemData, lvl, diff);
 
 		newItem._iCreateInfo = lvl | CF_SMITH;
+		newItem._iCreateInfo2 = diffFlag;
 		newItem._iIdentified = true;
 	}
 	for (int i = iCnt; i < SMITH_ITEMS; i++)
@@ -4218,14 +4476,38 @@ void SpawnWitch(int lvl)
 	const int pinnedBookCount = gbIsHellfire ? RandomIntLessThan(MaxPinnedBookCount) : 0;
 	const int itemCount = RandomIntBetween(10, gbIsHellfire ? 24 : 17);
 
+	auto diff = sgGameInitInfo.nDifficulty;
+	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
+	switch (diff) {
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
+		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
+		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
+		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
+		break;
+	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
+
 	for (int i = 0; i < WITCH_ITEMS; i++) {
 		Item &item = witchitem[i];
 		item = {};
 
 		if (i < PinnedItemCount) {
 			item._iSeed = AdvanceRndSeed();
-			GetItemAttrs(item, PinnedItemTypes[i], 1);
+			
+			GetItemAttrs(item, PinnedItemTypes[i], 1, diff);
 			item._iCreateInfo = lvl;
+			item._iCreateInfo2 = diffFlag;
 			item._iStatFlag = true;
 			continue;
 		}
@@ -4237,8 +4519,9 @@ void SpawnWitch(int lvl)
 					item._iSeed = AdvanceRndSeed();
 					SetRndSeed(item._iSeed);
 					DiscardRandomValues(1);
-					GetItemAttrs(item, bookType, lvl);
+					GetItemAttrs(item, bookType, lvl, diff);
 					item._iCreateInfo = lvl | CF_WITCH;
+					item._iCreateInfo2 = diffFlag;
 					item._iIdentified = true;
 					bookCount++;
 					continue;
@@ -4255,16 +4538,17 @@ void SpawnWitch(int lvl)
 		item._iSeed = AdvanceRndSeed();
 		SetRndSeed(item._iSeed);
 		_item_indexes itemData = RndWitchItem(*MyPlayer, lvl);
-		GetItemAttrs(item, itemData, lvl);
+		GetItemAttrs(item, itemData, lvl, diff);
 		int maxlvl = -1;
 		if (GenerateRnd(100) <= 5)
 			maxlvl = 2 * lvl;
 		if (maxlvl == -1 && item._iMiscId == IMISC_STAFF)
 			maxlvl = 2 * lvl;
 		if (maxlvl != -1)
-			GetItemBonus(*MyPlayer, item, maxlvl / 2, maxlvl, true, true);
+			GetItemBonus(*MyPlayer, item, maxlvl / 2, maxlvl, true, true, diff);
 
 		item._iCreateInfo = lvl | CF_WITCH;
+		item._iCreateInfo2 = diffFlag;
 		item._iIdentified = true;
 	}
 
@@ -4281,10 +4565,34 @@ void SpawnBoy(int lvl)
 	boyitem._iSeed = AdvanceRndSeed();
 	SetRndSeed(boyitem._iSeed);
 	_item_indexes itype = RndBoyItem(*MyPlayer, lvl);
-	GetItemAttrs(boyitem, itype, lvl);
-	GetItemBonus(*MyPlayer, boyitem, lvl, 2 * lvl, true, true);
+
+	auto diff = sgGameInitInfo.nDifficulty;
+	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
+	switch (diff) {
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
+		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
+		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
+		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
+		break;
+	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
+
+	GetItemAttrs(boyitem, itype, lvl, diff);
+	GetItemBonus(*MyPlayer, boyitem, lvl, 2 * lvl, true, true, diff);
 
 	boyitem._iCreateInfo = lvl | CF_BOY;
+	boyitem._iCreateInfo2 = diffFlag;
 	boyitem._iIdentified = true;
 	boylevel = lvl / 2;
 }
@@ -4295,14 +4603,37 @@ void SpawnHealer(int lvl)
 	constexpr std::array<_item_indexes, PinnedItemCount + 1> PinnedItemTypes = { IDI_HEAL, IDI_FULLHEAL, IDI_RESURRECT };
 	const auto itemCount = static_cast<size_t>(RandomIntBetween(10, gbIsHellfire ? 19 : 17));
 
+	auto diff = sgGameInitInfo.nDifficulty;
+	uint8_t diffFlag = 0;
+	// Enforces item progression from vendor
+	switch (diff) {
+	case Difficulty::Inferno: // clvl 40-50 = normal clvl 1-15
+		diffFlag = CF_INFERNO;
+		lvl -= 39;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Hell: // clvl 30-50 = normal clvl 1-30
+		diffFlag = CF_HELL;
+		lvl -= 29;
+		lvl *= 1.45F;
+		break;
+	case Difficulty::Nightmare: // clvl 20-40 = normal clvl 1-30
+		diffFlag = CF_NIGHTMARE;
+		lvl -= 19;
+		lvl *= 1.45F;
+		break;
+	}
+	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
+
 	for (size_t i = 0; i < sizeof(healitem) / sizeof(healitem[0]); ++i) {
 		Item &item = healitem[i];
 		item = {};
 
 		if (i < PinnedItemCount || (gbIsMultiplayer && i == PinnedItemCount)) {
 			item._iSeed = AdvanceRndSeed();
-			GetItemAttrs(item, PinnedItemTypes[i], 1);
+			GetItemAttrs(item, PinnedItemTypes[i], 1, diff);
 			item._iCreateInfo = lvl;
+			item._iCreateInfo2 = diffFlag;
 			item._iStatFlag = true;
 			continue;
 		}
@@ -4315,7 +4646,7 @@ void SpawnHealer(int lvl)
 		item._iSeed = AdvanceRndSeed();
 		SetRndSeed(item._iSeed);
 		_item_indexes itype = RndHealerItem(*MyPlayer, lvl);
-		GetItemAttrs(item, itype, lvl);
+		GetItemAttrs(item, itype, lvl, sgGameInitInfo.nDifficulty);
 		item._iCreateInfo = lvl | CF_HEALER;
 		item._iIdentified = true;
 	}
@@ -4360,9 +4691,22 @@ void CreateSpellBook(Point position, SpellID ispell, bool sendmsg, bool delta)
 	int ii = AllocateItem();
 	auto &item = Items[ii];
 
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
+
 	while (true) {
 		item = {};
-		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * lvl, 1, true, false, delta);
+		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * lvl, 1, true, false, delta, diffFlag);
 		if (item._iMiscId == IMISC_BOOK && item._iSpell == ispell)
 			break;
 	}
@@ -4396,7 +4740,7 @@ void CreateMagicWeapon(Point position, ItemType itemType, int icurs, bool sendms
 	CreateMagicItem(position, curlv, itemType, imid, icurs, sendmsg, delta);
 }
 
-bool GetItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
+bool GetItemRecord(uint32_t nSeed, uint16_t wCI, uint32_t wCI2, int nIndex)
 {
 	uint32_t ticks = SDL_GetTicks();
 
@@ -4405,7 +4749,7 @@ bool GetItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
 			// BUGFIX: loot actions for multiple quest items with same seed (e.g. blood stone) performed within less than 6 seconds will be ignored.
 			NextItemRecord(i);
 			i--;
-		} else if (nSeed == itemrecord[i].nSeed && wCI == itemrecord[i].wCI && nIndex == itemrecord[i].nIndex) {
+		} else if (nSeed == itemrecord[i].nSeed && wCI == itemrecord[i].wCI && wCI2 == itemrecord[i].wCI2 && nIndex == itemrecord[i].nIndex) {
 			return false;
 		}
 	}
@@ -4413,7 +4757,7 @@ bool GetItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
 	return true;
 }
 
-void SetItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
+void SetItemRecord(uint32_t nSeed, uint16_t wCI, uint32_t wCI2, int nIndex)
 {
 	uint32_t ticks = SDL_GetTicks();
 
@@ -4424,11 +4768,12 @@ void SetItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
 	itemrecord[gnNumGetRecords].dwTimestamp = ticks;
 	itemrecord[gnNumGetRecords].nSeed = nSeed;
 	itemrecord[gnNumGetRecords].wCI = wCI;
+	itemrecord[gnNumGetRecords].wCI2 = wCI2;
 	itemrecord[gnNumGetRecords].nIndex = nIndex;
 	gnNumGetRecords++;
 }
 
-void PutItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
+void PutItemRecord(uint32_t nSeed, uint16_t wCI, uint32_t wCI2, int nIndex)
 {
 	uint32_t ticks = SDL_GetTicks();
 
@@ -4436,7 +4781,7 @@ void PutItemRecord(uint32_t nSeed, uint16_t wCI, int nIndex)
 		if (ticks - itemrecord[i].dwTimestamp > 6000) {
 			NextItemRecord(i);
 			i--;
-		} else if (nSeed == itemrecord[i].nSeed && wCI == itemrecord[i].wCI && nIndex == itemrecord[i].nIndex) {
+		} else if (nSeed == itemrecord[i].nSeed && wCI == itemrecord[i].wCI && wCI2 == itemrecord[i].wCI2 && nIndex == itemrecord[i].nIndex) {
 			NextItemRecord(i);
 			break;
 		}
@@ -4448,6 +4793,19 @@ std::mt19937 BetterRng;
 std::string DebugSpawnItem(std::string itemName)
 {
 	if (ActiveItemCount >= MAXITEMS) return "No space to generate the item!";
+
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
 
 	const int max_time = 3000;
 	const int max_iter = 1000000;
@@ -4474,7 +4832,7 @@ std::string DebugSpawnItem(std::string itemName)
 			continue;
 
 		testItem = {};
-		SetupAllItems(*MyPlayer, testItem, idx, AdvanceRndSeed(), monsterLevel, 1, false, false, false);
+		SetupAllItems(*MyPlayer, testItem, idx, AdvanceRndSeed(), monsterLevel, 1, false, false, false, diffFlag);
 
 		std::string tmp = AsciiStrToLower(testItem._iIName);
 		if (tmp.find(itemName) != std::string::npos)
@@ -4494,6 +4852,19 @@ std::string DebugSpawnItem(std::string itemName)
 std::string DebugSpawnUniqueItem(std::string itemName)
 {
 	if (ActiveItemCount >= MAXITEMS) return "No space to generate the item!";
+
+	uint8_t diffFlag = 0;
+	switch (sgGameInitInfo.nDifficulty) {
+	case Difficulty::Inferno:
+		diffFlag = CF_INFERNO;
+		break;
+	case Difficulty::Hell:
+		diffFlag = CF_HELL;
+		break;
+	case Difficulty::Nightmare:
+		diffFlag = CF_NIGHTMARE;
+		break;
+	}
 
 	AsciiStrToLower(itemName);
 	UniqueItem uniqueItem;
@@ -4547,7 +4918,7 @@ std::string DebugSpawnUniqueItem(std::string itemName)
 		for (auto &flag : UniqueItemFlags)
 			flag = true;
 		UniqueItemFlags[uniqueIndex] = false;
-		SetupAllItems(*MyPlayer, testItem, uniqueBaseIndex, testItem._iMiscId == IMISC_UNIQUE ? uniqueIndex : AdvanceRndSeed(), uniqueItem.UIMinLvl, 1, false, false, false);
+		SetupAllItems(*MyPlayer, testItem, uniqueBaseIndex, testItem._iMiscId == IMISC_UNIQUE ? uniqueIndex : AdvanceRndSeed(), uniqueItem.UIMinLvl, 1, false, false, false, diffFlag);
 		for (auto &flag : UniqueItemFlags)
 			flag = false;
 

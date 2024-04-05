@@ -4,7 +4,7 @@
 
 namespace devilution {
 
-extern _difficulty nDifficulty;
+extern Difficulty nDifficulty;
 
 void selgame_GameSelection_Init();
 void selgame_GameSelection_Focus(size_t value);

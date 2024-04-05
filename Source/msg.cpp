@@ -1057,6 +1057,7 @@ void PrepareItemForNetwork(const Item &item, TCmdGItem &message)
 {
 	message.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
 	message.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	message.def.wCI2 = SDL_SwapLE32(item._iCreateInfo2);
 	message.def.dwSeed = SDL_SwapLE32(item._iSeed);
 
 	if (item.IDidx == IDI_EAR)
@@ -1069,6 +1070,7 @@ void PrepareItemForNetwork(const Item &item, TCmdPItem &message)
 {
 	message.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
 	message.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	message.def.wCI2 = SDL_SwapLE32(item._iCreateInfo2);
 	message.def.dwSeed = SDL_SwapLE32(item._iSeed);
 
 	if (item.IDidx == IDI_EAR)
@@ -1081,6 +1083,7 @@ void PrepareItemForNetwork(const Item &item, TCmdChItem &message)
 {
 	message.def.wIndx = static_cast<_item_indexes>(SDL_SwapLE16(item.IDidx));
 	message.def.wCI = SDL_SwapLE16(item._iCreateInfo);
+	message.def.wCI2 = SDL_SwapLE32(item._iCreateInfo2);
 	message.def.dwSeed = SDL_SwapLE32(item._iSeed);
 
 	if (item.IDidx == IDI_EAR)
@@ -1111,6 +1114,7 @@ int SyncDropItem(Point position, const TItem &item)
 	    position,
 	    static_cast<_item_indexes>(SDL_SwapLE16(item.wIndx)),
 	    SDL_SwapLE16(item.wCI),
+	    SDL_SwapLE32(item.wCI2),
 	    SDL_SwapLE32(item.dwSeed),
 	    item.bId,
 	    item.bDur,
@@ -1169,19 +1173,20 @@ size_t OnRequestGetItem(const TCmd *pCmd, Player &player)
 		const Point position { message.x, message.y };
 		const uint32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
+		const uint16_t wCI2 = SDL_SwapLE16(message.def.wCI2);
 		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
-		if (GetItemRecord(dwSeed, wCI, wIndx)) {
+		if (GetItemRecord(dwSeed, wCI, wCI2, wIndx)) {
 			int ii = -1;
 			if (InDungeonBounds(position)) {
 				ii = std::abs(dItem[position.x][position.y]) - 1;
-				if (ii >= 0 && !Items[ii].keyAttributesMatch(dwSeed, wIndx, wCI)) {
+				if (ii >= 0 && !Items[ii].keyAttributesMatch(dwSeed, wIndx, wCI, wCI2)) {
 					ii = -1;
 				}
 			}
 
 			if (ii == -1) {
 				// No item at the target position or the key attributes don't match, so try find a matching item.
-				int activeItemIndex = FindGetItem(dwSeed, wIndx, wCI);
+				int activeItemIndex = FindGetItem(dwSeed, wIndx, wCI, wCI2);
 				if (activeItemIndex != -1) {
 					ii = ActiveItems[activeItemIndex];
 				}
@@ -1190,10 +1195,10 @@ size_t OnRequestGetItem(const TCmd *pCmd, Player &player)
 			if (ii != -1) {
 				NetSendCmdGItem2(false, CMD_GETITEM, MyPlayerId, message.bPnum, message);
 				if (message.bPnum != MyPlayerId)
-					SyncGetItem(position, dwSeed, wIndx, wCI);
+					SyncGetItem(position, dwSeed, wIndx, wCI, wCI2);
 				else
 					InvGetItem(*MyPlayer, ii);
-				SetItemRecord(dwSeed, wCI, wIndx);
+				SetItemRecord(dwSeed, wCI, wCI2, wIndx);
 			} else if (!NetSendCmdReq2(CMD_REQUESTGITEM, *MyPlayer, message.bPnum, message)) {
 				NetSendCmdExtra(message);
 			}
@@ -1213,6 +1218,7 @@ size_t OnGetItem(const TCmd *pCmd, Player &player)
 		const Point position { message.x, message.y };
 		const uint32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
+		const uint16_t wCI2 = SDL_SwapLE32(message.def.wCI2);
 		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 		if (DeltaGetItem(message, message.bLevel)) {
 			bool isOnActiveLevel = GetLevelForMultiplayer(*MyPlayer) == message.bLevel;
@@ -1223,11 +1229,11 @@ size_t OnGetItem(const TCmd *pCmd, Player &player)
 						if (ii != -1)
 							InvGetItem(*MyPlayer, ii);
 					} else {
-						int activeItemIndex = FindGetItem(dwSeed, wIndx, wCI);
+						int activeItemIndex = FindGetItem(dwSeed, wIndx, wCI, wCI2);
 						InvGetItem(*MyPlayer, ActiveItems[activeItemIndex]);
 					}
 				} else {
-					SyncGetItem(position, dwSeed, wIndx, wCI);
+					SyncGetItem(position, dwSeed, wIndx, wCI, wCI2);
 				}
 			}
 		} else {
@@ -1261,15 +1267,16 @@ size_t OnRequestAutoGetItem(const TCmd *pCmd, Player &player)
 		const Point position { message.x, message.y };
 		const uint32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
+		const uint16_t wCI2 = SDL_SwapLE32(message.def.wCI2);
 		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
-		if (GetItemRecord(dwSeed, wCI, wIndx)) {
-			if (FindGetItem(dwSeed, wIndx, wCI) != -1) {
+		if (GetItemRecord(dwSeed, wCI, wCI2, wIndx)) {
+			if (FindGetItem(dwSeed, wIndx, wCI, wCI2) != -1) {
 				NetSendCmdGItem2(false, CMD_AGETITEM, MyPlayerId, message.bPnum, message);
 				if (message.bPnum != MyPlayerId)
-					SyncGetItem(position, dwSeed, wIndx, wCI);
+					SyncGetItem(position, dwSeed, wIndx, wCI, wCI2);
 				else
 					AutoGetItem(*MyPlayer, &Items[message.bCursitem], message.bCursitem);
-				SetItemRecord(dwSeed, wCI, wIndx);
+				SetItemRecord(dwSeed, wCI, wCI2, wIndx);
 			} else if (!NetSendCmdReq2(CMD_REQUESTAGITEM, *MyPlayer, message.bPnum, message)) {
 				NetSendCmdExtra(message);
 			}
@@ -1299,7 +1306,7 @@ size_t OnAutoGetItem(const TCmd *pCmd, Player &player)
 						AutoGetItem(*MyPlayer, &Items[message.bCursitem], message.bCursitem);
 					}
 				} else {
-					SyncGetItem(position, SDL_SwapLE32(message.def.dwSeed), static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)), SDL_SwapLE16(message.def.wCI));
+					SyncGetItem(position, SDL_SwapLE32(message.def.dwSeed), static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)), SDL_SwapLE16(message.def.wCI), SDL_SwapLE32(message.def.wCI2));
 				}
 			}
 		} else {
@@ -1320,7 +1327,7 @@ size_t OnItemExtra(const TCmd *pCmd, Player &player)
 		DeltaGetItem(message, message.bLevel);
 		if (player.isOnActiveLevel()) {
 			const Point position { message.x, message.y };
-			SyncGetItem(position, SDL_SwapLE32(message.def.dwSeed), static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)), SDL_SwapLE16(message.def.wCI));
+			SyncGetItem(position, SDL_SwapLE32(message.def.dwSeed), static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)), SDL_SwapLE16(message.def.wCI), SDL_SwapLE32(message.def.wCI2));
 		}
 	}
 
@@ -1338,6 +1345,7 @@ size_t OnPutItem(const TCmd *pCmd, Player &player)
 		bool isSelf = &player == MyPlayer;
 		const int32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
+		const uint16_t wCI2 = SDL_SwapLE32(message.def.wCI2);
 		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 		if (player.isOnActiveLevel()) {
 			int ii;
@@ -1350,14 +1358,14 @@ size_t OnPutItem(const TCmd *pCmd, Player &player)
 			} else
 				ii = SyncDropItem(message);
 			if (ii != -1) {
-				PutItemRecord(dwSeed, wCI, wIndx);
+				PutItemRecord(dwSeed, wCI, wCI2, wIndx);
 				DeltaPutItem(message, Items[ii].position, player);
 				if (isSelf)
 					pfile_update(true);
 			}
 			return sizeof(message);
 		} else {
-			PutItemRecord(dwSeed, wCI, wIndx);
+			PutItemRecord(dwSeed, wCI, wCI2, wIndx);
 			DeltaPutItem(message, position, player);
 			if (isSelf)
 				pfile_update(true);
@@ -1376,18 +1384,19 @@ size_t OnSyncPutItem(const TCmd *pCmd, Player &player)
 	else if (IsPItemValid(message, player)) {
 		const int32_t dwSeed = SDL_SwapLE32(message.def.dwSeed);
 		const uint16_t wCI = SDL_SwapLE16(message.def.wCI);
+		const uint16_t wCI2 = SDL_SwapLE32(message.def.wCI2);
 		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 		if (player.isOnActiveLevel()) {
 			int ii = SyncDropItem(message);
 			if (ii != -1) {
-				PutItemRecord(dwSeed, wCI, wIndx);
+				PutItemRecord(dwSeed, wCI, wCI2, wIndx);
 				DeltaPutItem(message, Items[ii].position, player);
 				if (&player == MyPlayer)
 					pfile_update(true);
 			}
 			return sizeof(message);
 		} else {
-			PutItemRecord(dwSeed, wCI, wIndx);
+			PutItemRecord(dwSeed, wCI, wCI2, wIndx);
 			DeltaPutItem(message, { message.x, message.y }, player);
 			if (&player == MyPlayer)
 				pfile_update(true);
@@ -2046,7 +2055,7 @@ size_t OnSpawnItem(const TCmd *pCmd, Player &player)
 		if (player.isOnActiveLevel() && &player != MyPlayer) {
 			SyncDropItem(message);
 		}
-		PutItemRecord(SDL_SwapLE32(message.def.dwSeed), SDL_SwapLE16(message.def.wCI), static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
+		PutItemRecord(SDL_SwapLE32(message.def.dwSeed), SDL_SwapLE16(message.def.wCI), SDL_SwapLE32(message.def.wCI2), static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)));
 		DeltaPutItem(message, { message.x, message.y }, player);
 	}
 
@@ -2426,7 +2435,7 @@ void RecreateItem(const Player &player, const TItem &messageItem, Item &item)
 {
 	const uint32_t dwBuff = SDL_SwapLE32(messageItem.dwBuff);
 	RecreateItem(player, item,
-	    static_cast<_item_indexes>(SDL_SwapLE16(messageItem.wIndx)), SDL_SwapLE16(messageItem.wCI),
+	    static_cast<_item_indexes>(SDL_SwapLE16(messageItem.wIndx)), SDL_SwapLE16(messageItem.wCI), SDL_SwapLE32(messageItem.wCI2),
 	    SDL_SwapLE32(messageItem.dwSeed), SDL_SwapLE16(messageItem.wValue), (dwBuff & CF_HELLFIRE) != 0);
 	if (messageItem.bId != 0)
 		item._iIdentified = true;
@@ -2629,6 +2638,7 @@ void DeltaAddItem(int ii)
 		if (item.bCmd != CMD_INVALID
 		    && static_cast<_item_indexes>(SDL_SwapLE16(item.def.wIndx)) == Items[ii].IDidx
 		    && SDL_SwapLE16(item.def.wCI) == Items[ii]._iCreateInfo
+		    && SDL_SwapLE32(item.def.wCI2) == Items[ii]._iCreateInfo2
 		    && static_cast<uint32_t>(SDL_SwapLE32(item.def.dwSeed)) == Items[ii]._iSeed
 		    && IsAnyOf(item.bCmd, TCmdPItem::PickedUpItem, TCmdPItem::FloorItem)) {
 			return;
@@ -2789,7 +2799,8 @@ void DeltaLoadLevel()
 			int activeItemIndex = FindGetItem(
 			    SDL_SwapLE32(deltaLevel.item[i].def.dwSeed),
 			    static_cast<_item_indexes>(SDL_SwapLE16(deltaLevel.item[i].def.wIndx)),
-			    SDL_SwapLE16(deltaLevel.item[i].def.wCI));
+			    SDL_SwapLE16(deltaLevel.item[i].def.wCI),
+			    SDL_SwapLE32(deltaLevel.item[i].def.wCI2));
 			if (activeItemIndex != -1) {
 				const auto &position = Items[ActiveItems[activeItemIndex]].position;
 				if (dItem[position.x][position.y] == ActiveItems[activeItemIndex] + 1)

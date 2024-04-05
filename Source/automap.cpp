@@ -1452,16 +1452,16 @@ void DrawAutomapText(const Surface &out)
 	linePosition.y += 15;
 	std::string_view difficulty;
 	switch (sgGameInitInfo.nDifficulty) {
-	case DIFF_NORMAL:
+	case Difficulty::Normal:
 		difficulty = _("Normal");
 		break;
-	case DIFF_NIGHTMARE:
+	case Difficulty::Nightmare:
 		difficulty = _("Nightmare");
 		break;
-	case DIFF_HELL:
+	case Difficulty::Hell:
 		difficulty = _("Hell");
 		break;
-	case DIFF_INFERNO:
+	case Difficulty::Inferno:
 		difficulty = _("Inferno");
 		break;
 	}

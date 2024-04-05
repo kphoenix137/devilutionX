@@ -235,6 +235,7 @@ void LoadItemData(LoadHelper &file, Item &item)
 {
 	item._iSeed = file.NextLE<uint32_t>();
 	item._iCreateInfo = file.NextLE<uint16_t>();
+	item._iCreateInfo2 = file.NextLE<uint32_t>();
 	file.Skip(2); // Alignment
 	item._itype = static_cast<ItemType>(file.NextLE<uint32_t>());
 	item.position.x = file.NextLE<int32_t>();
@@ -550,7 +551,7 @@ void LoadPlayer(LoadHelper &file, Player &player)
 	file.Skip(14); // Available bytes
 
 	player.pDiabloKillLevel = file.NextLE<uint32_t>();
-	sgGameInitInfo.nDifficulty = static_cast<_difficulty>(file.NextLE<uint32_t>());
+	sgGameInitInfo.nDifficulty = static_cast<Difficulty>(file.NextLE<uint32_t>());
 	player.pDamAcFlags = static_cast<ItemSpecialEffectHf>(file.NextLE<uint32_t>());
 	file.Skip(20); // Available bytes
 	CalcPlrItemVals(player, false);
@@ -934,24 +935,6 @@ bool LevelFileExists(SaveWriter &archive)
 	return archive.HasFile(szName);
 }
 
-bool IsShopPriceValid(const Item &item)
-{
-	const int boyPriceLimit = 90000;
-	if (!gbIsHellfire && (item._iCreateInfo & CF_BOY) != 0 && item._iIvalue > boyPriceLimit)
-		return false;
-
-	const int premiumPriceLimit = 140000;
-	if (!gbIsHellfire && (item._iCreateInfo & CF_SMITHPREMIUM) != 0 && item._iIvalue > premiumPriceLimit)
-		return false;
-
-	const uint16_t smithOrWitch = CF_SMITH | CF_WITCH;
-	const int smithAndWitchPriceLimit = gbIsHellfire ? 200000 : 140000;
-	if ((item._iCreateInfo & smithOrWitch) != 0 && item._iIvalue > smithAndWitchPriceLimit)
-		return false;
-
-	return true;
-}
-
 void LoadMatchingItems(LoadHelper &file, const Player &player, const int n, Item *pItem)
 {
 	Item heroItem;
@@ -970,16 +953,12 @@ void LoadMatchingItems(LoadHelper &file, const Player &player, const int n, Item
 			// game's item generation logic before attempting to use it for validation
 			if ((heroItem.dwBuff & CF_HELLFIRE) != (unpackedItem.dwBuff & CF_HELLFIRE)) {
 				unpackedItem = {};
-				RecreateItem(player, unpackedItem, heroItem.IDidx, heroItem._iCreateInfo, heroItem._iSeed, heroItem._ivalue, (heroItem.dwBuff & CF_HELLFIRE) != 0);
+				RecreateItem(player, unpackedItem, heroItem.IDidx, heroItem._iCreateInfo, heroItem._iCreateInfo2, heroItem._iSeed, heroItem._ivalue, (heroItem.dwBuff & CF_HELLFIRE) != 0);
 				unpackedItem._iIdentified = heroItem._iIdentified;
 				unpackedItem._iMaxDur = heroItem._iMaxDur;
 				unpackedItem._iDurability = ClampDurability(unpackedItem, heroItem._iDurability);
 				unpackedItem._iMaxCharges = std::clamp<int>(heroItem._iMaxCharges, 0, unpackedItem._iMaxCharges);
 				unpackedItem._iCharges = std::clamp<int>(heroItem._iCharges, 0, unpackedItem._iMaxCharges);
-			}
-			if (!IsShopPriceValid(unpackedItem)) {
-				unpackedItem.clear();
-				continue;
 			}
 			if (gbIsHellfire) {
 				unpackedItem._iPLToHit = ClampToHit(unpackedItem, heroItem._iPLToHit); // Oil of Accuracy
@@ -1046,6 +1025,7 @@ void SaveItem(SaveHelper &file, const Item &item)
 
 	file.WriteLE<uint32_t>(item._iSeed);
 	file.WriteLE<int16_t>(item._iCreateInfo);
+	file.WriteLE<int32_t>(item._iCreateInfo2);
 	file.Skip(2); // Alignment
 	file.WriteLE<int32_t>(static_cast<int32_t>(iType));
 	file.WriteLE<int32_t>(item.position.x);
@@ -1358,7 +1338,7 @@ void SavePlayer(SaveHelper &file, const Player &player)
 	file.Skip(14); // Available bytes
 
 	file.WriteLE<uint32_t>(player.pDiabloKillLevel);
-	file.WriteLE<uint32_t>(sgGameInitInfo.nDifficulty);
+	file.WriteLE<uint32_t>(static_cast<uint32_t>(sgGameInitInfo.nDifficulty));
 	file.WriteLE<uint32_t>(static_cast<uint32_t>(player.pDamAcFlags));
 	file.Skip(20); // Available bytes
 
@@ -2173,8 +2153,8 @@ void LoadGame(bool firstflag)
 
 	LoadPlayer(file, myPlayer);
 
-	if (sgGameInitInfo.nDifficulty < DIFF_NORMAL || sgGameInitInfo.nDifficulty > DIFF_INFERNO)
-		sgGameInitInfo.nDifficulty = DIFF_NORMAL;
+	if (IsNoneOf(sgGameInitInfo.nDifficulty, Difficulty::Normal, Difficulty::Nightmare, Difficulty::Hell, Difficulty::Inferno))
+		sgGameInitInfo.nDifficulty = Difficulty::Normal;
 
 	for (int i = 0; i < giNumberQuests; i++)
 		LoadQuest(&file, i);
