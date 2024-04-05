@@ -1521,6 +1521,7 @@ void ValidatePlayer()
 
 void CheckCheatStats(Player &player)
 {
+	return;
 	if (player._pStrength > 750) {
 		player._pStrength = 750;
 	}

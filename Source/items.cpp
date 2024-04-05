@@ -709,8 +709,10 @@ int CalculateToHitBonus(int level)
 	}
 }
 
-int SaveItemPower(const Player &player, Item &item, ItemPower &power)
+int SaveItemPower(const Player &player, Item &item, ItemPower &power, const Difficulty diff)
 {
+	auto diffMult = static_cast<int>(diff) + 1;
+
 	if (!gbIsHellfire) {
 		if (power.type == IPL_TARGAC) {
 			power.param1 = 1 << power.param1;
@@ -722,10 +724,10 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 
 	switch (power.type) {
 	case IPL_TOHIT:
-		item._iPLToHit += r;
+		item._iPLToHit += r * diffMult;
 		break;
 	case IPL_TOHIT_CURSE:
-		item._iPLToHit -= r;
+		item._iPLToHit -= r * diffMult;
 		break;
 	case IPL_DAMP:
 		item._iPLDam += r;
@@ -739,11 +741,11 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case IPL_TOHIT_DAMP:
 		r = RndPL(power.param1, power.param2);
 		item._iPLDam += r;
-		item._iPLToHit += CalculateToHitBonus(power.param1);
+		item._iPLToHit += CalculateToHitBonus(power.param1) * diffMult;
 		break;
 	case IPL_TOHIT_DAMP_CURSE:
 		item._iPLDam -= r;
-		item._iPLToHit += CalculateToHitBonus(-power.param1);
+		item._iPLToHit += CalculateToHitBonus(-power.param1) * diffMult;
 		break;
 	case IPL_ACP:
 		item._iPLAC += r;
@@ -752,27 +754,27 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iPLAC -= r;
 		break;
 	case IPL_SETAC:
-		item._iAC = r;
+		item._iAC = r * diffMult;
 		break;
 	case IPL_AC_CURSE:
-		item._iAC -= r;
+		item._iAC -= r * diffMult;
 		break;
 	case IPL_FIRERES:
-		item._iPLFR += r;
+		item._iPLFR += r * diffMult;
 		break;
 	case IPL_LIGHTRES:
-		item._iPLLR += r;
+		item._iPLLR += r * diffMult;
 		break;
 	case IPL_MAGICRES:
-		item._iPLMR += r;
+		item._iPLMR += r * diffMult;
 		break;
 	case IPL_ALLRES:
-		item._iPLFR = std::max(item._iPLFR + r, 0);
-		item._iPLLR = std::max(item._iPLLR + r, 0);
-		item._iPLMR = std::max(item._iPLMR + r, 0);
+		item._iPLFR = std::max(item._iPLFR + r, 0) * diffMult;
+		item._iPLLR = std::max(item._iPLLR + r, 0) * diffMult;
+		item._iPLMR = std::max(item._iPLMR + r, 0) * diffMult;
 		break;
 	case IPL_SPLLVLADD:
-		item._iSplLvlAdd = r;
+		item._iSplLvlAdd = r * diffMult;
 		break;
 	case IPL_CHARGES:
 		item._iCharges *= power.param1;
@@ -786,73 +788,73 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case IPL_FIREDAM:
 		item._iFlags |= ItemSpecialEffect::FireDamage;
 		item._iFlags &= ~ItemSpecialEffect::LightningDamage;
-		item._iFMinDam = power.param1;
-		item._iFMaxDam = power.param2;
+		item._iFMinDam = power.param1 * diffMult;
+		item._iFMaxDam = power.param2 * diffMult;
 		item._iLMinDam = 0;
 		item._iLMaxDam = 0;
 		break;
 	case IPL_LIGHTDAM:
 		item._iFlags |= ItemSpecialEffect::LightningDamage;
 		item._iFlags &= ~ItemSpecialEffect::FireDamage;
-		item._iLMinDam = power.param1;
-		item._iLMaxDam = power.param2;
+		item._iLMinDam = power.param1 * diffMult;
+		item._iLMaxDam = power.param2 * diffMult;
 		item._iFMinDam = 0;
 		item._iFMaxDam = 0;
 		break;
 	case IPL_STR:
-		item._iPLStr += r;
+		item._iPLStr += r * diffMult;
 		break;
 	case IPL_STR_CURSE:
-		item._iPLStr -= r;
+		item._iPLStr -= r * diffMult;
 		break;
 	case IPL_MAG:
-		item._iPLMag += r;
+		item._iPLMag += r * diffMult;
 		break;
 	case IPL_MAG_CURSE:
-		item._iPLMag -= r;
+		item._iPLMag -= r * diffMult;
 		break;
 	case IPL_DEX:
-		item._iPLDex += r;
+		item._iPLDex += r * diffMult;
 		break;
 	case IPL_DEX_CURSE:
-		item._iPLDex -= r;
+		item._iPLDex -= r * diffMult;
 		break;
 	case IPL_VIT:
-		item._iPLVit += r;
+		item._iPLVit += r * diffMult;
 		break;
 	case IPL_VIT_CURSE:
-		item._iPLVit -= r;
+		item._iPLVit -= r * diffMult;
 		break;
 	case IPL_ATTRIBS:
-		item._iPLStr += r;
-		item._iPLMag += r;
-		item._iPLDex += r;
-		item._iPLVit += r;
+		item._iPLStr += r * diffMult;
+		item._iPLMag += r * diffMult;
+		item._iPLDex += r * diffMult;
+		item._iPLVit += r * diffMult;
 		break;
 	case IPL_ATTRIBS_CURSE:
-		item._iPLStr -= r;
-		item._iPLMag -= r;
-		item._iPLDex -= r;
-		item._iPLVit -= r;
+		item._iPLStr -= r * diffMult;
+		item._iPLMag -= r * diffMult;
+		item._iPLDex -= r * diffMult;
+		item._iPLVit -= r * diffMult;
 		break;
 	case IPL_GETHIT_CURSE:
-		item._iPLGetHit += r;
+		item._iPLGetHit += r * diffMult;
 		break;
 	case IPL_GETHIT:
-		item._iPLGetHit -= r;
+		item._iPLGetHit -= r * diffMult;
 		break;
 	case IPL_LIFE:
-		item._iPLHP += r << 6;
+		item._iPLHP += (r << 6) * diffMult;
 		break;
 	case IPL_LIFE_CURSE:
-		item._iPLHP -= r << 6;
+		item._iPLHP -= (r << 6) * diffMult;
 		break;
 	case IPL_MANA:
-		item._iPLMana += r << 6;
+		item._iPLMana += (r << 6) * diffMult;
 		RedrawComponent(PanelDrawComponent::Mana);
 		break;
 	case IPL_MANA_CURSE:
-		item._iPLMana -= r << 6;
+		item._iPLMana -= (r << 6) * diffMult;
 		RedrawComponent(PanelDrawComponent::Mana);
 		break;
 	case IPL_DUR: {
@@ -884,16 +886,16 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 	case IPL_FIRE_ARROWS:
 		item._iFlags |= ItemSpecialEffect::FireArrows;
 		item._iFlags &= ~ItemSpecialEffect::LightningArrows;
-		item._iFMinDam = power.param1;
-		item._iFMaxDam = power.param2;
+		item._iFMinDam = power.param1 * diffMult;
+		item._iFMaxDam = power.param2 * diffMult;
 		item._iLMinDam = 0;
 		item._iLMaxDam = 0;
 		break;
 	case IPL_LIGHT_ARROWS:
 		item._iFlags |= ItemSpecialEffect::LightningArrows;
 		item._iFlags &= ~ItemSpecialEffect::FireArrows;
-		item._iLMinDam = power.param1;
-		item._iLMaxDam = power.param2;
+		item._iLMinDam = power.param1 * diffMult;
+		item._iLMaxDam = power.param2 * diffMult;
 		item._iFMinDam = 0;
 		item._iFMaxDam = 0;
 		break;
@@ -941,7 +943,7 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		if (gbIsHellfire)
 			item._iPLEnAc = power.param1;
 		else
-			item._iPLEnAc += r;
+			item._iPLEnAc += r * diffMult;
 		break;
 	case IPL_FASTATTACK:
 		if (power.param1 == 1)
@@ -965,14 +967,14 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iFlags |= ItemSpecialEffect::FastBlock;
 		break;
 	case IPL_DAMMOD:
-		item._iPLDamMod += r;
+		item._iPLDamMod += r * diffMult;
 		break;
 	case IPL_RNDARROWVEL:
 		item._iFlags |= ItemSpecialEffect::RandomArrowVelocity;
 		break;
 	case IPL_SETDAM:
-		item._iMinDam = power.param1;
-		item._iMaxDam = power.param2;
+		item._iMinDam = power.param1 * diffMult;
+		item._iMaxDam = power.param2 * diffMult;
 		break;
 	case IPL_SETDUR:
 		item._iDurability = power.param1;
@@ -1008,13 +1010,13 @@ int SaveItemPower(const Player &player, Item &item, ItemPower &power)
 		item._iLMaxDam = 0;
 		break;
 	case IPL_FIRERES_CURSE:
-		item._iPLFR -= r;
+		item._iPLFR -= r * diffMult;
 		break;
 	case IPL_LIGHTRES_CURSE:
-		item._iPLLR -= r;
+		item._iPLLR -= r * diffMult;
 		break;
 	case IPL_MAGICRES_CURSE:
-		item._iPLMR -= r;
+		item._iPLMR -= r * diffMult;
 		break;
 	case IPL_DEVASTATION:
 		item._iDamAcFlags |= ItemSpecialEffectHf::Devastation;
@@ -1066,10 +1068,10 @@ int PLVal(int pv, int p1, int p2, int minv, int maxv)
 	return minv + (maxv - minv) * (100 * (pv - p1) / (p2 - p1)) / 100;
 }
 
-void SaveItemAffix(const Player &player, Item &item, const PLStruct &affix)
+void SaveItemAffix(const Player &player, Item &item, const PLStruct &affix, const Difficulty diff)
 {
 	auto power = affix.power;
-	int value = SaveItemPower(player, item, power);
+	int value = SaveItemPower(player, item, power, diff);
 
 	value = PLVal(value, power.param1, power.param2, affix.minVal, affix.maxVal);
 	if (item._iVAdd1 != 0 || item._iVMult1 != 0) {
@@ -1134,12 +1136,12 @@ std::string GenerateStaffNameMagical(const ItemData &baseItemData, SpellID spell
 	return identifiedName;
 }
 
-void GetStaffPower(const Player &player, Item &item, int lvl, SpellID bs, bool onlygood)
+void GetStaffPower(const Player &player, Item &item, int lvl, SpellID bs, bool onlygood, const Difficulty diff)
 {
 	int preidx = GetStaffPrefixId(lvl, onlygood, gbIsHellfire);
 	if (preidx != -1) {
 		item._iMagical = ITEM_QUALITY_MAGIC;
-		SaveItemAffix(player, item, ItemPrefixes[preidx]);
+		SaveItemAffix(player, item, ItemPrefixes[preidx], diff);
 		item._iPrePower = ItemPrefixes[preidx].power.type;
 	}
 
@@ -1235,21 +1237,21 @@ void GetItemPowerPrefixAndSuffix(int minlvl, int maxlvl, AffixItemType flgs, boo
 	}
 }
 
-void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, AffixItemType flgs, bool onlygood)
+void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, AffixItemType flgs, bool onlygood, const Difficulty diff)
 {
 	const PLStruct *pPrefix = nullptr;
 	const PLStruct *pSufix = nullptr;
 	GetItemPowerPrefixAndSuffix(
 	    minlvl, maxlvl, flgs, onlygood, gbIsHellfire,
-	    [&item, &player, &pPrefix](const PLStruct &prefix) {
+	    [&item, &player, &pPrefix, &diff](const PLStruct &prefix) {
 		    item._iMagical = ITEM_QUALITY_MAGIC;
-		    SaveItemAffix(player, item, prefix);
+		    SaveItemAffix(player, item, prefix, diff);
 		    item._iPrePower = prefix.power.type;
 		    pPrefix = &prefix;
 	    },
-	    [&item, &player, &pSufix](const PLStruct &suffix) {
+	    [&item, &player, &pSufix, &diff](const PLStruct &suffix) {
 		    item._iMagical = ITEM_QUALITY_MAGIC;
-		    SaveItemAffix(player, item, suffix);
+		    SaveItemAffix(player, item, suffix, diff);
 		    item._iSufPower = suffix.power.type;
 		    pSufix = &suffix;
 	    });
@@ -1262,10 +1264,10 @@ void GetItemPower(const Player &player, Item &item, int minlvl, int maxlvl, Affi
 		CalcItemValue(item);
 }
 
-void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood)
+void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood, const Difficulty diff)
 {
 	if (!gbIsHellfire && FlipCoin(4)) {
-		GetItemPower(player, item, lvl / 2, lvl, AffixItemType::Staff, onlygood);
+		GetItemPower(player, item, lvl / 2, lvl, AffixItemType::Staff, onlygood, diff);
 		return;
 	}
 
@@ -1305,7 +1307,7 @@ void GetStaffSpell(const Player &player, Item &item, int lvl, bool onlygood)
 	int v = item._iCharges * GetSpellData(bs).staffCost() / 5;
 	item._ivalue += v;
 	item._iIvalue += v;
-	GetStaffPower(player, item, lvl, bs, onlygood);
+	GetStaffPower(player, item, lvl, bs, onlygood, diff);
 }
 
 void GetOilType(Item &item, int maxLvl)
@@ -1335,7 +1337,7 @@ void GetOilType(Item &item, int maxLvl)
 	item._iIvalue = OilValues[t];
 }
 
-void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool onlygood, bool allowspells)
+void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool onlygood, bool allowspells, Difficulty diff)
 {
 	if (minlvl > 25)
 		minlvl = 25;
@@ -1344,29 +1346,29 @@ void GetItemBonus(const Player &player, Item &item, int minlvl, int maxlvl, bool
 	case ItemType::Sword:
 	case ItemType::Axe:
 	case ItemType::Mace:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Weapon, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Weapon, onlygood, diff);
 		break;
 	case ItemType::Bow:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Bow, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Bow, onlygood, diff);
 		break;
 	case ItemType::Shield:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Shield, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Shield, onlygood, diff);
 		break;
 	case ItemType::LightArmor:
 	case ItemType::Helm:
 	case ItemType::MediumArmor:
 	case ItemType::HeavyArmor:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Armor, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Armor, onlygood, diff);
 		break;
 	case ItemType::Staff:
 		if (allowspells)
-			GetStaffSpell(player, item, maxlvl, onlygood);
+			GetStaffSpell(player, item, maxlvl, onlygood, diff);
 		else
-			GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Staff, onlygood);
+			GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Staff, onlygood, diff);
 		break;
 	case ItemType::Ring:
 	case ItemType::Amulet:
-		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Misc, onlygood);
+		GetItemPower(player, item, minlvl, maxlvl, AffixItemType::Misc, onlygood, diff);
 		break;
 	case ItemType::None:
 	case ItemType::Misc:
@@ -1478,14 +1480,14 @@ _unique_items CheckUnique(Item &item, int lvl, int uper, bool recreate)
 	return (_unique_items)itemData;
 }
 
-void GetUniqueItem(const Player &player, Item &item, _unique_items uid)
+void GetUniqueItem(const Player &player, Item &item, _unique_items uid, const Difficulty diff)
 {
 	UniqueItemFlags[uid] = true;
 
 	for (auto power : UniqueItems[uid].powers) {
 		if (power.type == IPL_INVALID)
 			break;
-		SaveItemPower(player, item, power);
+		SaveItemPower(player, item, power, diff);
 	}
 
 	CopyUtf8(item._iIName, UniqueItems[uid].UIName, sizeof(item._iIName));
@@ -1554,9 +1556,9 @@ void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t
 		if (iblvl != -1) {
 			_unique_items uid = CheckUnique(item, iblvl, uper, recreate);
 			if (uid == UITEM_INVALID) {
-				GetItemBonus(player, item, iblvl / 2, iblvl, onlygood, true);
+				GetItemBonus(player, item, iblvl / 2, iblvl, onlygood, true, diff);
 			} else {
-				GetUniqueItem(player, item, uid);
+				GetUniqueItem(player, item, uid, diff);
 			}
 		}
 		if (item._iMagical != ITEM_QUALITY_UNIQUE)
@@ -1568,7 +1570,7 @@ void SetupAllItems(const Player &player, Item &item, _item_indexes idx, uint32_t
 				return;
 			}
 
-			GetUniqueItem(player, item, (_unique_items)iseed); // uid is stored in iseed for uniques
+			GetUniqueItem(player, item, (_unique_items)iseed, diff); // uid is stored in iseed for uniques
 		}
 	}
 	SetupItem(item);
@@ -2059,7 +2061,7 @@ void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
 	_item_indexes itemType = RndPremiumItem(player, plvl / 4, plvl);
 	
 	GetItemAttrs(premiumItem, itemType, plvl, diff);
-	GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire);
+	GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire, diff);
 
 	premiumItem._iCreateInfo = plvl | CF_SMITHPREMIUM;
 	premiumItem._iIdentified = true;
@@ -2188,7 +2190,7 @@ void RecreatePremiumItem(const Player &player, Item &item, int plvl, int iseed, 
 		break;
 	}
 	GetItemAttrs(item, itype, plvl, diff);
-	GetItemBonus(player, item, plvl / 2, plvl, true, !gbIsHellfire);
+	GetItemBonus(player, item, plvl / 2, plvl, true, !gbIsHellfire, diff);
 
 	item._iSeed = iseed;
 	item._iCreateInfo = plvl | CF_SMITHPREMIUM;
@@ -2214,7 +2216,7 @@ void RecreateBoyItem(const Player &player, Item &item, int lvl, int iseed, uint3
 		break;
 	}
 	GetItemAttrs(item, itype, lvl, diff);
-	GetItemBonus(player, item, lvl, 2 * lvl, true, true);
+	GetItemBonus(player, item, lvl, 2 * lvl, true, true, diff);
 
 	item._iSeed = iseed;
 	item._iCreateInfo = lvl | CF_BOY;
@@ -2253,7 +2255,7 @@ void RecreateWitchItem(const Player &player, Item &item, _item_indexes idx, int 
 		if (iblvl == -1 && item._iMiscId == IMISC_STAFF)
 			iblvl = 2 * lvl;
 		if (iblvl != -1)
-			GetItemBonus(player, item, iblvl / 2, iblvl, true, true);
+			GetItemBonus(player, item, iblvl / 2, iblvl, true, true, diff);
 	}
 
 	item._iSeed = iseed;
@@ -2849,9 +2851,11 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 		lr = 0;
 	}
 
-	player._pMagResist = std::clamp(mr, 0, MaxResistance);
-	player._pFireResist = std::clamp(fr, 0, MaxResistance);
-	player._pLghtResist = std::clamp(lr, 0, MaxResistance);
+	int resistDiv = static_cast<int>(sgGameInitInfo.nDifficulty) + 1;
+
+	player._pMagResist = std::clamp(mr / resistDiv, 0, MaxResistance);
+	player._pFireResist = std::clamp(fr / resistDiv, 0, MaxResistance);
+	player._pLghtResist = std::clamp(lr / resistDiv, 0, MaxResistance);
 
 	const ClassAttributes &playerClassAttributes = player.getClassAttributes();
 	vadd = (vadd * playerClassAttributes.itmLife) >> 6;
@@ -3374,7 +3378,7 @@ Item *SpawnUnique(_unique_items uid, Point position, std::optional<int> level /*
 
 	if (sgGameInitInfo.nDifficulty == Difficulty::Normal) {
 		GetItemAttrs(item, static_cast<_item_indexes>(idx), curlv, sgGameInitInfo.nDifficulty);
-		GetUniqueItem(*MyPlayer, item, uid);
+		GetUniqueItem(*MyPlayer, item, uid, Difficulty::Normal);
 		SetupItem(item);
 	} else {
 		if (level)
@@ -3904,27 +3908,15 @@ bool DoOil(Player &player, int cii)
 		return fmt::format(fmt::runtime(_("armor class: {:d}")), item._iAC);
 	case IPL_FIRERES:
 	case IPL_FIRERES_CURSE:
-		if (item._iPLFR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist Fire: {:+d}%")), item._iPLFR);
-		else
-			return fmt::format(fmt::runtime(_("Resist Fire: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist Fire: {:+d}%")), item._iPLFR);
 	case IPL_LIGHTRES:
 	case IPL_LIGHTRES_CURSE:
-		if (item._iPLLR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist Lightning: {:+d}%")), item._iPLLR);
-		else
-			return fmt::format(fmt::runtime(_("Resist Lightning: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist Lightning: {:+d}%")), item._iPLLR);
 	case IPL_MAGICRES:
 	case IPL_MAGICRES_CURSE:
-		if (item._iPLMR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist Magic: {:+d}%")), item._iPLMR);
-		else
-			return fmt::format(fmt::runtime(_("Resist Magic: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist Magic: {:+d}%")), item._iPLMR);
 	case IPL_ALLRES:
-		if (item._iPLFR < MaxResistance)
-			return fmt::format(fmt::runtime(_("Resist All: {:+d}%")), item._iPLFR);
-		else
-			return fmt::format(fmt::runtime(_("Resist All: {:+d}% MAX")), MaxResistance);
+		return fmt::format(fmt::runtime(_("Resist All: {:+d}%")), item._iPLFR);
 	case IPL_SPLLVLADD:
 		if (item._iSplLvlAdd > 0)
 			return fmt::format(fmt::runtime(ngettext("spells are increased {:d} level", "spells are increased {:d} levels", item._iSplLvlAdd)), item._iSplLvlAdd);
@@ -4553,7 +4545,7 @@ void SpawnWitch(int lvl)
 		if (maxlvl == -1 && item._iMiscId == IMISC_STAFF)
 			maxlvl = 2 * lvl;
 		if (maxlvl != -1)
-			GetItemBonus(*MyPlayer, item, maxlvl / 2, maxlvl, true, true);
+			GetItemBonus(*MyPlayer, item, maxlvl / 2, maxlvl, true, true, diff);
 
 		item._iCreateInfo = lvl | CF_WITCH;
 		item._iCreateInfo2 = diffFlag;
@@ -4597,7 +4589,7 @@ void SpawnBoy(int lvl)
 	lvl = std::clamp(lvl, 1, static_cast<int>(GetMaximumCharacterLevel()));
 
 	GetItemAttrs(boyitem, itype, lvl, diff);
-	GetItemBonus(*MyPlayer, boyitem, lvl, 2 * lvl, true, true);
+	GetItemBonus(*MyPlayer, boyitem, lvl, 2 * lvl, true, true, diff);
 
 	boyitem._iCreateInfo = lvl | CF_BOY;
 	boyitem._iCreateInfo2 = diffFlag;
