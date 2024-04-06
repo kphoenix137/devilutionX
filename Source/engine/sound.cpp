@@ -140,7 +140,7 @@ const char *const SpawnMusicTracks[NUM_MUSIC] = {
 };
 /** Maps from track ID to track name. */
 const char *const MusicTracks[NUM_MUSIC] = {
-	"music\\dtowne.wav",
+	"music\\dtownremix.wav",
 	"music\\dlvla.wav",
 	"music\\dlvlb.wav",
 	"music\\dlvlc.wav",
