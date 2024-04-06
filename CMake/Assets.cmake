@@ -144,6 +144,7 @@ set(devilutionx_assets
   lua/devilutionx/events.lua
   lua/inspect.lua
   lua/repl_prelude.lua
+  music/dtownremix.wav
   nlevels/cutl5w.clx
   nlevels/cutl6w.clx
   nlevels/l5data/cornerstone.dun
