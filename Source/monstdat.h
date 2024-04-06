@@ -112,15 +112,15 @@ struct MonsterData {
 	 */
 	uint16_t abilityFlags;
 	uint8_t intelligence;
-	uint8_t toHit;
+	uint16_t toHit;
 	int8_t animFrameNum;
-	uint8_t minDamage;
-	uint8_t maxDamage;
-	uint8_t toHitSpecial;
+	uint16_t minDamage;
+	uint16_t maxDamage;
+	uint16_t toHitSpecial;
 	int8_t animFrameNumSpecial;
-	uint8_t minDamageSpecial;
-	uint8_t maxDamageSpecial;
-	uint8_t armorClass;
+	uint16_t minDamageSpecial;
+	uint16_t maxDamageSpecial;
+	uint16_t armorClass;
 	MonsterClass monsterClass;
 	/** Using monster_resistance as bitflags */
 	uint8_t resistance;
