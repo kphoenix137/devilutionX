@@ -1710,16 +1710,33 @@ int Player::GetCurrentAttributeValue(CharacterAttribute attribute) const
 
 int Player::GetMaximumAttributeValue(CharacterAttribute attribute) const
 {
+	auto plrLevel = getCharacterLevel();
+	int cap = 0;
+
+	for (int i = 2; i <= plrLevel; i++) {
+		if (i > 1 && i <= 20) {
+			cap += 5;
+		} else if (i >= 21 && i <= 30) {
+			cap += 10;
+		} else if (i >= 31 && i <= 40) {
+			cap += 15;
+		} else if (i >= 41 && i <= 49) {
+			cap += 20;
+		} else if (i == 50) {
+			cap += 50;
+		}
+	}
+
 	const ClassAttributes &attr = getClassAttributes();
 	switch (attribute) {
 	case CharacterAttribute::Strength:
-		return attr.maxStr;
+		return std::min(static_cast<int>(attr.baseStr + cap), static_cast<int>(attr.maxStr));
 	case CharacterAttribute::Magic:
-		return attr.maxMag;
+		return std::min(static_cast<int>(attr.baseMag + cap), static_cast<int>(attr.maxMag));
 	case CharacterAttribute::Dexterity:
-		return attr.maxDex;
+		return std::min(static_cast<int>(attr.baseDex + cap), static_cast<int>(attr.maxDex));
 	case CharacterAttribute::Vitality:
-		return attr.maxVit;
+		return std::min(static_cast<int>(attr.baseVit + cap), static_cast<int>(attr.maxVit));
 	}
 	app_fatal("Unsupported attribute");
 }
@@ -2395,11 +2412,28 @@ void NextPlrLevel(Player &player)
 
 	CalcPlrInv(player, true);
 
-	if (CalcStatDiff(player) < 5) {
-		player._pStatPts = CalcStatDiff(player);
-	} else {
-		player._pStatPts += 5;
+	auto checkStatPoints = [&player](int points) {
+		if (CalcStatDiff(player) < points) {
+			player._pStatPts = CalcStatDiff(player);
+		} else {
+			player._pStatPts += points;
+		}
+	};
+
+	auto plrLevel = player.getCharacterLevel();
+
+	if (plrLevel > 1 && plrLevel <= 20) {
+		checkStatPoints(5);
+	} else if (plrLevel >= 21 && plrLevel <= 30) {
+		checkStatPoints(10);
+	} else if (plrLevel >= 31 && plrLevel <= 40) {
+		checkStatPoints(15);
+	} else if (plrLevel >= 41 && plrLevel <= 49) {
+		checkStatPoints(20);
+	} else if (plrLevel == 50) {
+		checkStatPoints(50);
 	}
+
 	int hp = player.getClassAttributes().lvlLife;
 
 	player._pMaxHP += hp;
