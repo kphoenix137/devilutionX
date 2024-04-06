@@ -466,13 +466,13 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 
 	InitPlayer(player, true);
 
-	player._pBaseStr = std::min<uint8_t>(packed.pBaseStr, player.GetMaximumAttributeValue(CharacterAttribute::Strength));
+	player._pBaseStr = std::min<uint16_t>(packed.pBaseStr, player.GetMaximumAttributeValue(CharacterAttribute::Strength));
 	player._pStrength = player._pBaseStr;
-	player._pBaseMag = std::min<uint8_t>(packed.pBaseMag, player.GetMaximumAttributeValue(CharacterAttribute::Magic));
+	player._pBaseMag = std::min<uint16_t>(packed.pBaseMag, player.GetMaximumAttributeValue(CharacterAttribute::Magic));
 	player._pMagic = player._pBaseMag;
-	player._pBaseDex = std::min<uint8_t>(packed.pBaseDex, player.GetMaximumAttributeValue(CharacterAttribute::Dexterity));
+	player._pBaseDex = std::min<uint16_t>(packed.pBaseDex, player.GetMaximumAttributeValue(CharacterAttribute::Dexterity));
 	player._pDexterity = player._pBaseDex;
-	player._pBaseVit = std::min<uint8_t>(packed.pBaseVit, player.GetMaximumAttributeValue(CharacterAttribute::Vitality));
+	player._pBaseVit = std::min<uint16_t>(packed.pBaseVit, player.GetMaximumAttributeValue(CharacterAttribute::Vitality));
 	player._pVitality = player._pBaseVit;
 	player._pStatPts = packed.pStatPts;
 

@@ -952,7 +952,7 @@ size_t OnAddStrength(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs == 1)
 		SendPacket(player, &message, sizeof(message));
-	else if (message.wParam1 <= 256)
+	else if (message.wParam1 <= 65536)
 		ModifyPlrStr(player, SDL_SwapLE16(message.wParam1));
 
 	return sizeof(message);
@@ -964,7 +964,7 @@ size_t OnAddMagic(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs == 1)
 		SendPacket(player, &message, sizeof(message));
-	else if (message.wParam1 <= 256)
+	else if (message.wParam1 <= 65535)
 		ModifyPlrMag(player, SDL_SwapLE16(message.wParam1));
 
 	return sizeof(message);
@@ -976,7 +976,7 @@ size_t OnAddDexterity(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs == 1)
 		SendPacket(player, &message, sizeof(message));
-	else if (message.wParam1 <= 256)
+	else if (message.wParam1 <= 65535)
 		ModifyPlrDex(player, SDL_SwapLE16(message.wParam1));
 
 	return sizeof(message);
@@ -988,7 +988,7 @@ size_t OnAddVitality(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs == 1)
 		SendPacket(player, &message, sizeof(message));
-	else if (message.wParam1 <= 256)
+	else if (message.wParam1 <= 65535)
 		ModifyPlrVit(player, SDL_SwapLE16(message.wParam1));
 
 	return sizeof(message);
