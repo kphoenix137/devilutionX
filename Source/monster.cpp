@@ -66,13 +66,25 @@ bool sgbSaveSoundOn;
 
 namespace {
 
-constexpr int NightmareToHitBonus = 85;
-constexpr int HellToHitBonus = 120;
-constexpr int InfernoToHitBonus = 190;
+constexpr int NightmareToHitBonus = 130;
+constexpr int HellToHitBonus = 130 * 2;
+constexpr int InfernoToHitBonus = 130 * 3;
 
-constexpr int NightmareAcBonus = 50;
-constexpr int HellAcBonus = 80;
-constexpr int InfernoAcBonus = 140;
+constexpr int NightmareAcBonus = 85;
+constexpr int HellAcBonus = 85 * 2;
+constexpr int InfernoAcBonus = 85 * 3;
+
+constexpr int NightmareLifeBonus = 500;
+constexpr int HellLifeBonus = 1000;
+constexpr int InfernoLifeBonus = 5000;
+
+constexpr int NightmareMinDamBonus = 40;
+constexpr int HellMinDamBonus = 40 * 2;
+constexpr int InfernoMinDamBonus = 40 * 3;
+
+constexpr int NightmareMaxDamBonus = 70;
+constexpr int HellMaxDamBonus = 70 * 2;
+constexpr int InfernoMaxDamBonus = 70 * 3;
 
 /** Tracks which missile files are already loaded */
 size_t totalmonsters;
@@ -195,46 +207,34 @@ void InitMonster(Monster &monster, Direction rd, size_t typeIndex, Point positio
 	}
 
 	if (sgGameInitInfo.nDifficulty == Difficulty::Nightmare) {
-		monster.maxHitPoints = 3 * monster.maxHitPoints;
-		if (gbIsHellfire)
-			monster.maxHitPoints += (gbIsMultiplayer ? 100 : 50) << 6;
-		else
-			monster.maxHitPoints += 100 << 6;
+		monster.maxHitPoints += NightmareLifeBonus;
 		monster.hitPoints = monster.maxHitPoints;
 		monster.toHit += NightmareToHitBonus;
-		monster.minDamage = 2 * (monster.minDamage + 2);
-		monster.maxDamage = 2 * (monster.maxDamage + 2);
-		monster.minDamageSpecial = 2 * (monster.minDamageSpecial + 2);
-		monster.maxDamageSpecial = 2 * (monster.maxDamageSpecial + 2);
+		monster.minDamage += NightmareMinDamBonus;
+		monster.maxDamage += NightmareMaxDamBonus;
+		monster.minDamageSpecial = 4 * (monster.minDamageSpecial + 4);
+		monster.maxDamageSpecial = 4 * (monster.maxDamageSpecial + 4);
 		monster.armorClass += NightmareAcBonus;
 	} else if (sgGameInitInfo.nDifficulty == Difficulty::Hell) {
-		monster.maxHitPoints = 4 * monster.maxHitPoints;
-		if (gbIsHellfire)
-			monster.maxHitPoints += (gbIsMultiplayer ? 200 : 100) << 6;
-		else
-			monster.maxHitPoints += 200 << 6;
+		monster.maxHitPoints += HellLifeBonus;
 		monster.hitPoints = monster.maxHitPoints;
 		monster.toHit += HellToHitBonus;
-		monster.minDamage = 4 * monster.minDamage + 6;
-		monster.maxDamage = 4 * monster.maxDamage + 6;
-		monster.minDamageSpecial = 4 * monster.minDamageSpecial + 6;
-		monster.maxDamageSpecial = 4 * monster.maxDamageSpecial + 6;
+		monster.minDamage += HellMinDamBonus;
+		monster.maxDamage += HellMaxDamBonus;
+		monster.minDamageSpecial = 8 * (monster.minDamageSpecial + 8);
+		monster.maxDamageSpecial = 8 * (monster.maxDamageSpecial + 8);
 		monster.armorClass += HellAcBonus;
 		monster.resistance = monster.data().resistanceHell;
 	} else if (sgGameInitInfo.nDifficulty == Difficulty::Inferno) {
-		monster.maxHitPoints = 8 * monster.maxHitPoints;
-		if (gbIsHellfire)
-			monster.maxHitPoints += (gbIsMultiplayer ? 400 : 200) << 6;
-		else
-			monster.maxHitPoints += 400 << 6;
+		monster.maxHitPoints += InfernoLifeBonus;
 		monster.hitPoints = monster.maxHitPoints;
 		monster.toHit += HellToHitBonus;
-		monster.minDamage = 8 * monster.minDamage + 12;
-		monster.maxDamage = 8 * monster.maxDamage + 12;
-		monster.minDamageSpecial = 8 * monster.minDamageSpecial + 12;
-		monster.maxDamageSpecial = 8 * monster.maxDamageSpecial + 12;
+		monster.minDamage += InfernoMinDamBonus;
+		monster.maxDamage += InfernoMaxDamBonus;
+		monster.minDamageSpecial = 16 * (monster.minDamageSpecial + 16);
+		monster.maxDamageSpecial = 16 * (monster.maxDamageSpecial + 16);
 		monster.armorClass += InfernoAcBonus;
-		monster.resistance = monster.data().resistanceInferno;
+		monster.resistance = monster.data().resistanceHell; // FIXME LATER
 	}
 }
 
