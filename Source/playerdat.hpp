@@ -41,13 +41,13 @@ struct ClassAttributes {
 	/* Class Starting Vitality Stat */
 	uint8_t baseVit;
 	/* Class Maximum Strength Stat */
-	uint8_t maxStr;
+	uint16_t maxStr;
 	/* Class Maximum Magic Stat */
-	uint8_t maxMag;
+	uint16_t maxMag;
 	/* Class Maximum Dexterity Stat */
-	uint8_t maxDex;
+	uint16_t maxDex;
 	/* Class Maximum Vitality Stat */
-	uint8_t maxVit;
+	uint16_t maxVit;
 	/* Class Life Adjustment */
 	int16_t adjLife;
 	/* Class Mana Adjustment */
