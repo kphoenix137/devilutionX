@@ -314,8 +314,8 @@ struct UniqueMonsterData {
 	uint16_t mmaxhp;
 	MonsterAIID mAi;
 	uint8_t mint;
-	uint8_t mMinDamage;
-	uint8_t mMaxDamage;
+	uint16_t mMinDamage;
+	uint16_t mMaxDamage;
 	/** Using monster_resistance as bitflags */
 	uint16_t mMagicRes;
 	/**
@@ -323,8 +323,8 @@ struct UniqueMonsterData {
 	 */
 
 	UniqueMonsterPack monsterPack;
-	uint8_t customToHit;
-	uint8_t customArmorClass;
+	uint16_t customToHit;
+	uint16_t customArmorClass;
 	_speech_id mtalkmsg;
 };
 
