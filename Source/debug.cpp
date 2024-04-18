@@ -181,31 +181,31 @@ bool GetDebugGridText(Point dungeonCoords, char *debugGridTextBuffer)
 		info = static_cast<int>(dFlags[dungeonCoords.x][dungeonCoords.y]);
 		break;
 	case DebugGridTextItem::dPlayer:
-		info = dPlayer[dungeonCoords.x][dungeonCoords.y];
+		info = static_cast<int>(dPlayer[dungeonCoords.x][dungeonCoords.y]);
 		break;
 	case DebugGridTextItem::dMonster:
 		info = dMonster[dungeonCoords.x][dungeonCoords.y];
 		break;
 	case DebugGridTextItem::dCorpse:
-		info = dCorpse[dungeonCoords.x][dungeonCoords.y];
+		info = static_cast<int>(dCorpse[dungeonCoords.x][dungeonCoords.y]);
 		break;
 	case DebugGridTextItem::dItem:
-		info = dItem[dungeonCoords.x][dungeonCoords.y];
+		info = static_cast<int>(dItem[dungeonCoords.x][dungeonCoords.y]);
 		break;
 	case DebugGridTextItem::dSpecial:
-		info = dSpecial[dungeonCoords.x][dungeonCoords.y];
+		info = static_cast<int>(dSpecial[dungeonCoords.x][dungeonCoords.y]);
 		break;
 	case DebugGridTextItem::dObject:
-		info = dObject[dungeonCoords.x][dungeonCoords.y];
+		info = static_cast<int>(dObject[dungeonCoords.x][dungeonCoords.y]);
 		break;
 	case DebugGridTextItem::Solid:
-		info = TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::Solid) << 0 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::BlockLight) << 1 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::BlockMissile) << 2;
+		info = static_cast<int>(TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::Solid) << 0 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::BlockLight) << 1 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::BlockMissile) << 2);
 		break;
 	case DebugGridTextItem::Transparent:
-		info = TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::Transparent) << 0 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::TransparentLeft) << 1 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::TransparentRight) << 2;
+		info = static_cast<int>(TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::Transparent) << 0 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::TransparentLeft) << 1 | TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::TransparentRight) << 2);
 		break;
 	case DebugGridTextItem::Trap:
-		info = TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::Trap);
+		info = static_cast<int>(TileHasAny(dPiece[dungeonCoords.x][dungeonCoords.y], TileProperties::Trap));
 		break;
 	case DebugGridTextItem::AutomapView:
 		info = AutomapView[megaCoords.x][megaCoords.y];
@@ -217,7 +217,7 @@ bool GetDebugGridText(Point dungeonCoords, char *debugGridTextBuffer)
 		info = pdungeon[megaCoords.x][megaCoords.y];
 		break;
 	case DebugGridTextItem::Protected:
-		info = Protected.test(megaCoords.x, megaCoords.y);
+		info = static_cast<int>(Protected.test(megaCoords.x, megaCoords.y));
 		break;
 	case DebugGridTextItem::None:
 		return false;
