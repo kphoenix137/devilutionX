@@ -2005,7 +2005,7 @@ void Player::UpdatePreviewCelSprite(_cmd_id cmdId, Point point, uint16_t wParam1
 
 void Player::setCharacterLevel(uint8_t level)
 {
-	this->_pLevel = std::clamp<uint8_t>(level, 1U, getMaxCharacterLevel());
+	this->characterLevel = std::clamp<uint8_t>(level, 1U, getMaxCharacterLevel());
 }
 
 uint8_t Player::getMaxCharacterLevel() const

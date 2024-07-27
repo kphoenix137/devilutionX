@@ -306,7 +306,7 @@ struct Player {
 	HeroClass _pClass;
 
 private:
-	uint8_t _pLevel = 1; // Use get/setCharacterLevel to ensure this attribute stays within the accepted range
+	uint8_t characterLevel = 1; // Use get/setCharacterLevel to ensure this attribute stays within the accepted range (_pLevel)
 
 public:
 	uint8_t _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. The 3 lower bits define weapon (PlayerWeaponGraphic) and the higher bits define armour (starting with PlayerArmorGraphic)
@@ -803,7 +803,7 @@ public:
 
 	[[nodiscard]] uint8_t getCharacterLevel() const
 	{
-		return _pLevel;
+		return characterLevel;
 	}
 
 	/**

@@ -458,7 +458,7 @@ void LoadPlayer(LoadHelper &file, Player &player)
 	file.Skip(2);         // Alignment
 	player._pExperience = file.NextLE<uint32_t>();
 	file.Skip<uint32_t>(); // Skip _pMaxExp - unused
-	file.Skip<uint32_t>(); // Skip _pNextExper, we retrieve it when needed based on _pLevel
+	file.Skip<uint32_t>(); // Skip _pNextExper, we retrieve it when needed based on characterLevel
 	player._pArmorClass = file.NextLE<int8_t>();
 	player._pMagResist = file.NextLE<int8_t>();
 	player._pFireResist = file.NextLE<int8_t>();

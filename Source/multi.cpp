@@ -160,7 +160,7 @@ void NetReceivePlayerData(TPkt *pkt)
 bool IsNetPlayerValid(const Player &player)
 {
 	// we no longer check character level here, players with out-of-range clevels are not allowed to join the game and we don't observe change clevel messages that would set it out of range
-	// (there's no code path that would result in _pLevel containing an out of range value in the DevilutionX code)
+	// (there's no code path that would result in characterLevel containing an out of range value in the DevilutionX code)
 	return static_cast<uint8_t>(player._pClass) < enum_size<HeroClass>::value
 	    && player.plrlevel < NUMLEVELS
 	    && InDungeonBounds(player.position.tile)
