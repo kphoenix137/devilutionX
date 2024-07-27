@@ -326,8 +326,8 @@ public:
 	SpellType _pRSplType;
 	SpellID _pSBkSpell;
 	uint8_t _pSplLvl[64];
-	/** @brief Bitmask of staff spell */
-	uint64_t staffSpells; // _pISpells
+	/** @brief Bitmask of staff spell (_pISpells) */
+	uint64_t staffSpells;
 	/** @brief Bitmask of learned spells */
 	uint64_t _pMemSpells;
 	/** @brief Bitmask of abilities */
