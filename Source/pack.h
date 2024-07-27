@@ -31,7 +31,7 @@ struct ItemPack {
 struct PlayerPack {
 	uint32_t dwLowDateTime;
 	uint32_t dwHighDateTime;
-	int8_t destAction;
+	int8_t destinationAction;
 	int8_t destParam1;
 	int8_t destParam2;
 	uint8_t plrlevel;

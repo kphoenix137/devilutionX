@@ -2,7 +2,7 @@ R 32 _pmode
 M 25 8 walkpath
 R 8 plractive
 R 16 alignment
-R 32 destAction
+R 32 destinationAction
 R 32 destParam1
 R 32 destParam2
 R 32 destParam3

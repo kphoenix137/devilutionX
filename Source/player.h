@@ -263,7 +263,7 @@ struct Player {
 	PLR_MODE _pmode;
 	int8_t walkpath[MaxPathLength];
 	bool plractive;
-	action_id destAction;
+	action_id destinationAction; // destAction
 	int destParam1;
 	int destParam2;
 	int destParam3;

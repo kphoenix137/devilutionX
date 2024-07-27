@@ -392,7 +392,7 @@ void InitLevelChange(Player &player)
 	}
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_NONE;
+	player.destinationAction = ACTION_NONE;
 	player._pLvlChanging = true;
 
 	if (&player == MyPlayer) {
@@ -1101,7 +1101,7 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 
 	int targetId = player.destParam1;
 
-	switch (player.destAction) {
+	switch (player.destinationAction) {
 	case ACTION_ATTACKMON:
 	case ACTION_RATTACKMON:
 	case ACTION_SPELLMON:
@@ -1110,7 +1110,7 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 			player.Stop();
 			return;
 		}
-		if (player.destAction == ACTION_ATTACKMON)
+		if (player.destinationAction == ACTION_ATTACKMON)
 			MakePlrPath(player, monster->position.future, false);
 		break;
 	case ACTION_ATTACKPLR:
@@ -1121,7 +1121,7 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 			player.Stop();
 			return;
 		}
-		if (player.destAction == ACTION_ATTACKPLR)
+		if (player.destinationAction == ACTION_ATTACKPLR)
 			MakePlrPath(player, target->position.future, false);
 		break;
 	case ACTION_OPERATE:
@@ -1141,8 +1141,8 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 	if (player.walkpath[0] != WALK_NONE) {
 		if (player._pmode == PM_STAND) {
 			if (&player == MyPlayer) {
-				if (player.destAction == ACTION_ATTACKMON || player.destAction == ACTION_ATTACKPLR) {
-					if (player.destAction == ACTION_ATTACKMON) {
+				if (player.destinationAction == ACTION_ATTACKMON || player.destinationAction == ACTION_ATTACKPLR) {
+					if (player.destinationAction == ACTION_ATTACKMON) {
 						x = std::abs(player.position.future.x - monster->position.future.x);
 						y = std::abs(player.position.future.y - monster->position.future.y);
 						d = GetDirection(player.position.future, monster->position.future);
@@ -1154,12 +1154,12 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 
 					if (x < 2 && y < 2) {
 						ClrPlrPath(player);
-						if (player.destAction == ACTION_ATTACKMON && monster->talkMsg != TEXT_NONE && monster->talkMsg != TEXT_VILE14) {
+						if (player.destinationAction == ACTION_ATTACKMON && monster->talkMsg != TEXT_NONE && monster->talkMsg != TEXT_VILE14) {
 							TalktoMonster(player, *monster);
 						} else {
 							StartAttack(player, d, pmWillBeCalled);
 						}
-						player.destAction = ACTION_NONE;
+						player.destinationAction = ACTION_NONE;
 					}
 				}
 			}
@@ -1199,18 +1199,18 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 
 			if (player._pmode == PM_STAND) {
 				StartStand(player, player._pdir);
-				player.destAction = ACTION_NONE;
+				player.destinationAction = ACTION_NONE;
 			}
 		}
 
 		return;
 	}
-	if (player.destAction == ACTION_NONE) {
+	if (player.destinationAction == ACTION_NONE) {
 		return;
 	}
 
 	if (player._pmode == PM_STAND) {
-		switch (player.destAction) {
+		switch (player.destinationAction) {
 		case ACTION_ATTACK:
 			d = GetDirection(player.position.tile, { player.destParam1, player.destParam2 });
 			StartAttack(player, d, pmWillBeCalled);
@@ -1327,33 +1327,33 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 		}
 
 		FixPlayerLocation(player, player._pdir);
-		player.destAction = ACTION_NONE;
+		player.destinationAction = ACTION_NONE;
 
 		return;
 	}
 
 	if (player._pmode == PM_ATTACK && player.AnimInfo.currentFrame >= player._pAFNum) {
-		if (player.destAction == ACTION_ATTACK) {
+		if (player.destinationAction == ACTION_ATTACK) {
 			d = GetDirection(player.position.future, { player.destParam1, player.destParam2 });
 			StartAttack(player, d, pmWillBeCalled);
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_ATTACKMON) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_ATTACKMON) {
 			x = std::abs(player.position.tile.x - monster->position.future.x);
 			y = std::abs(player.position.tile.y - monster->position.future.y);
 			if (x <= 1 && y <= 1) {
 				d = GetDirection(player.position.future, monster->position.future);
 				StartAttack(player, d, pmWillBeCalled);
 			}
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_ATTACKPLR) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_ATTACKPLR) {
 			x = std::abs(player.position.tile.x - target->position.future.x);
 			y = std::abs(player.position.tile.y - target->position.future.y);
 			if (x <= 1 && y <= 1) {
 				d = GetDirection(player.position.future, target->position.future);
 				StartAttack(player, d, pmWillBeCalled);
 			}
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_OPERATE) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_OPERATE) {
 			if (IsPlayerAdjacentToObject(player, *object)) {
 				if (object->_oBreak == 1) {
 					d = GetDirection(player.position.tile, object->position);
@@ -1364,34 +1364,34 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 	}
 
 	if (player._pmode == PM_RATTACK && player.AnimInfo.currentFrame >= player._pAFNum) {
-		if (player.destAction == ACTION_RATTACK) {
+		if (player.destinationAction == ACTION_RATTACK) {
 			d = GetDirection(player.position.tile, { player.destParam1, player.destParam2 });
 			StartRangeAttack(player, d, player.destParam1, player.destParam2, pmWillBeCalled);
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_RATTACKMON) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_RATTACKMON) {
 			d = GetDirection(player.position.tile, monster->position.future);
 			StartRangeAttack(player, d, monster->position.future.x, monster->position.future.y, pmWillBeCalled);
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_RATTACKPLR) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_RATTACKPLR) {
 			d = GetDirection(player.position.tile, target->position.future);
 			StartRangeAttack(player, d, target->position.future.x, target->position.future.y, pmWillBeCalled);
-			player.destAction = ACTION_NONE;
+			player.destinationAction = ACTION_NONE;
 		}
 	}
 
 	if (player._pmode == PM_SPELL && player.AnimInfo.currentFrame >= player._pSFNum) {
-		if (player.destAction == ACTION_SPELL) {
+		if (player.destinationAction == ACTION_SPELL) {
 			d = GetDirection(player.position.tile, { player.destParam1, player.destParam2 });
 			StartSpell(player, d, player.destParam1, player.destParam2);
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_SPELLMON) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_SPELLMON) {
 			d = GetDirection(player.position.tile, monster->position.future);
 			StartSpell(player, d, monster->position.future.x, monster->position.future.y);
-			player.destAction = ACTION_NONE;
-		} else if (player.destAction == ACTION_SPELLPLR) {
+			player.destinationAction = ACTION_NONE;
+		} else if (player.destinationAction == ACTION_SPELLPLR) {
 			d = GetDirection(player.position.tile, target->position.future);
 			StartSpell(player, d, target->position.future.x, target->position.future.y);
-			player.destAction = ACTION_NONE;
+			player.destinationAction = ACTION_NONE;
 		}
 	}
 }
@@ -1739,7 +1739,7 @@ void Player::Say(HeroSpeech speechId, int delay) const
 void Player::Stop()
 {
 	ClrPlrPath(*this);
-	destAction = ACTION_NONE;
+	destinationAction = ACTION_NONE;
 }
 
 bool Player::isWalking() const
@@ -2481,7 +2481,7 @@ void InitPlayer(Player &player, bool firstTime)
 
 		SetPlayerOld(player);
 		player.walkpath[0] = WALK_NONE;
-		player.destAction = ACTION_NONE;
+		player.destinationAction = ACTION_NONE;
 
 		if (&player == MyPlayer) {
 			player.lightId = AddLight(player.position.tile, player._pLightRad);

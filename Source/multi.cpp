@@ -375,7 +375,7 @@ void SetupLocalPositions()
 	myPlayer._pLvlChanging = true;
 	myPlayer.pLvlLoad = 0;
 	myPlayer._pmode = PM_NEWLVL;
-	myPlayer.destAction = ACTION_NONE;
+	myPlayer.destinationAction = ACTION_NONE;
 }
 
 void HandleEvents(_SNETEVENT *pEvt)

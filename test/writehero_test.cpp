@@ -203,7 +203,7 @@ int PrepareInvSlot(PlayerPack *pPack, int pos, int size, int start = 0)
 void PackPlayerTest(PlayerPack *pPack)
 {
 	memset(pPack, 0, 0x4F2);
-	pPack->destAction = -1;
+	pPack->destinationAction = -1;
 	pPack->destParam1 = 0;
 	pPack->destParam2 = 0;
 	pPack->plrlevel = 0;
@@ -270,7 +270,7 @@ void AssertPlayer(Player &player)
 	ASSERT_EQ(player.position.future.x, 75);
 	ASSERT_EQ(player.position.future.y, 68);
 	ASSERT_EQ(player.plrlevel, 0);
-	ASSERT_EQ(player.destAction, -1);
+	ASSERT_EQ(player.destinationAction, -1);
 	ASSERT_STREQ(player._pName, "TestPlayer");
 	ASSERT_EQ(player._pClass, HeroClass::Rogue);
 	ASSERT_EQ(player._pBaseStr, 55);

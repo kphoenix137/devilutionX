@@ -73,7 +73,7 @@ void RepeatMouseAction()
 		return;
 
 	Player &myPlayer = *MyPlayer;
-	if (myPlayer.destAction != ACTION_NONE)
+	if (myPlayer.destinationAction != ACTION_NONE)
 		return;
 	if (myPlayer._pInvincible)
 		return;

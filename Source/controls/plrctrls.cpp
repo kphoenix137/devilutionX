@@ -1279,7 +1279,7 @@ bool IsPathBlocked(Point position, Direction dir)
 void WalkInDir(Player &player, AxisDirection dir)
 {
 	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE) {
-		if (ControlMode != ControlTypes::KeyboardAndMouse && player.walkpath[0] != WALK_NONE && player.destAction == ACTION_NONE)
+		if (ControlMode != ControlTypes::KeyboardAndMouse && player.walkpath[0] != WALK_NONE && player.destinationAction == ACTION_NONE)
 			NetSendCmdLoc(player.getId(), true, CMD_WALKXY, player.position.future); // Stop walking
 		return;
 	}
@@ -2101,13 +2101,13 @@ void PerformSecondaryAction()
 	} else {
 		if (pcursmissile != nullptr) {
 			MakePlrPath(myPlayer, pcursmissile->position.tile, true);
-			myPlayer.destAction = ACTION_WALK;
+			myPlayer.destinationAction = ACTION_WALK;
 		} else if (pcurstrig != -1) {
 			MakePlrPath(myPlayer, trigs[pcurstrig].position, true);
-			myPlayer.destAction = ACTION_WALK;
+			myPlayer.destinationAction = ACTION_WALK;
 		} else if (pcursquest != Q_INVALID) {
 			MakePlrPath(myPlayer, Quests[pcursquest].position, true);
-			myPlayer.destAction = ACTION_WALK;
+			myPlayer.destinationAction = ACTION_WALK;
 		}
 	}
 }

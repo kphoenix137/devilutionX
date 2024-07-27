@@ -248,7 +248,7 @@ void DoResurrect(Player &player, Player &target)
 	}
 
 	ClrPlrPath(target);
-	target.destAction = ACTION_NONE;
+	target.destinationAction = ACTION_NONE;
 	target._pInvincible = false;
 	SyncInitPlrPos(target);
 

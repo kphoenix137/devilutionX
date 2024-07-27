@@ -329,7 +329,7 @@ Point GetItemPosition(Point position)
 bool WasPlayerCmdAlreadyRequested(_cmd_id bCmd, Point position = {}, uint16_t wParam1 = 0, uint16_t wParam2 = 0, uint16_t wParam3 = 0, uint16_t wParam4 = 0, uint16_t wParam5 = 0)
 {
 	switch (bCmd) {
-	// All known commands that result in a changed player action (player.destAction)
+	// All known commands that result in a changed player action (player.destinationAction)
 	case _cmd_id::CMD_RATTACKID:
 	case _cmd_id::CMD_SPELLID:
 	case _cmd_id::CMD_ATTACKID:
@@ -940,7 +940,7 @@ size_t OnWalk(const TCmd *pCmd, Player &player)
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position)) {
 		ClrPlrPath(player);
 		MakePlrPath(player, position, true);
-		player.destAction = ACTION_NONE;
+		player.destinationAction = ACTION_NONE;
 	}
 
 	return sizeof(message);
@@ -1001,7 +1001,7 @@ size_t OnGotoGetItem(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && SDL_SwapLE16(message.wParam1) < MAXITEMS + 1) {
 		MakePlrPath(player, position, false);
-		player.destAction = ACTION_PICKUPITEM;
+		player.destinationAction = ACTION_PICKUPITEM;
 		player.destParam1 = SDL_SwapLE16(message.wParam1);
 	}
 
@@ -1249,7 +1249,7 @@ size_t OnGotoAutoGetItem(const TCmd *pCmd, Player &player)
 	const uint16_t itemIdx = SDL_SwapLE16(message.wParam1);
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && itemIdx < MAXITEMS + 1) {
 		MakePlrPath(player, position, false);
-		player.destAction = ACTION_PICKUPAITEM;
+		player.destinationAction = ACTION_PICKUPAITEM;
 		player.destParam1 = itemIdx;
 	}
 
@@ -1407,7 +1407,7 @@ size_t OnAttackTile(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position)) {
 		MakePlrPath(player, position, false);
-		player.destAction = ACTION_ATTACK;
+		player.destinationAction = ACTION_ATTACK;
 		player.destParam1 = position.x;
 		player.destParam2 = position.y;
 	}
@@ -1422,7 +1422,7 @@ size_t OnStandingAttackTile(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position)) {
 		ClrPlrPath(player);
-		player.destAction = ACTION_ATTACK;
+		player.destinationAction = ACTION_ATTACK;
 		player.destParam1 = position.x;
 		player.destParam2 = position.y;
 	}
@@ -1437,7 +1437,7 @@ size_t OnRangedAttackTile(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position)) {
 		ClrPlrPath(player);
-		player.destAction = ACTION_RATTACK;
+		player.destinationAction = ACTION_RATTACK;
 		player.destParam1 = position.x;
 		player.destParam2 = position.y;
 	}
@@ -1498,7 +1498,7 @@ size_t OnSpellWall(const TCmd *pCmd, Player &player)
 		return sizeof(message);
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_SPELLWALL;
+	player.destinationAction = ACTION_SPELLWALL;
 	player.destParam1 = position.x;
 	player.destParam2 = position.y;
 	player.destParam3 = wParamDirection;
@@ -1523,7 +1523,7 @@ size_t OnSpellTile(const TCmd *pCmd, Player &player)
 		return sizeof(message);
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_SPELL;
+	player.destinationAction = ACTION_SPELL;
 	player.destParam1 = position.x;
 	player.destParam2 = position.y;
 	player.destParam3 = SDL_SwapLE16(message.wParam3); // Spell Level
@@ -1541,7 +1541,7 @@ size_t OnObjectTileAction(const TCmd &cmd, Player &player, action_id action, boo
 		if (pathToObject)
 			MakePlrPath(player, position, !object->_oSolidFlag && !object->_oDoorFlag);
 
-		player.destAction = action;
+		player.destinationAction = action;
 		player.destParam1 = object->GetId();
 	}
 
@@ -1557,7 +1557,7 @@ size_t OnAttackMonster(const TCmd *pCmd, Player &player)
 		Point position = Monsters[monsterIdx].position.future;
 		if (player.position.tile.WalkingDistance(position) > 1)
 			MakePlrPath(player, position, false);
-		player.destAction = ACTION_ATTACKMON;
+		player.destinationAction = ACTION_ATTACKMON;
 		player.destParam1 = monsterIdx;
 	}
 
@@ -1571,7 +1571,7 @@ size_t OnAttackPlayer(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && playerIdx < Players.size()) {
 		MakePlrPath(player, Players[playerIdx].position.future, false);
-		player.destAction = ACTION_ATTACKPLR;
+		player.destinationAction = ACTION_ATTACKPLR;
 		player.destParam1 = playerIdx;
 	}
 
@@ -1585,7 +1585,7 @@ size_t OnRangedAttackMonster(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && monsterIdx < MaxMonsters) {
 		ClrPlrPath(player);
-		player.destAction = ACTION_RATTACKMON;
+		player.destinationAction = ACTION_RATTACKMON;
 		player.destParam1 = monsterIdx;
 	}
 
@@ -1599,7 +1599,7 @@ size_t OnRangedAttackPlayer(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && playerIdx < Players.size()) {
 		ClrPlrPath(player);
-		player.destAction = ACTION_RATTACKPLR;
+		player.destinationAction = ACTION_RATTACKPLR;
 		player.destParam1 = playerIdx;
 	}
 
@@ -1622,7 +1622,7 @@ size_t OnSpellMonster(const TCmd *pCmd, Player &player)
 		return sizeof(message);
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_SPELLMON;
+	player.destinationAction = ACTION_SPELLMON;
 	player.destParam1 = monsterIdx;
 	player.destParam2 = SDL_SwapLE16(message.wParam4); // Spell Level
 
@@ -1645,7 +1645,7 @@ size_t OnSpellPlayer(const TCmd *pCmd, Player &player)
 		return sizeof(message);
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_SPELLPLR;
+	player.destinationAction = ACTION_SPELLPLR;
 	player.destParam1 = playerIdx;
 	player.destParam2 = SDL_SwapLE16(message.wParam4); // Spell Level
 
@@ -1704,7 +1704,7 @@ size_t OnTalkXY(const TCmd *pCmd, Player &player)
 
 	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && townerIdx < NUM_TOWNERS) {
 		MakePlrPath(player, position, false);
-		player.destAction = ACTION_TALK;
+		player.destinationAction = ACTION_TALK;
 		player.destParam1 = townerIdx;
 	}
 

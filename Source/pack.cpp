@@ -249,7 +249,7 @@ void PackItem(ItemPack &packedItem, const Item &item, bool isHellfire)
 void PackPlayer(PlayerPack &packed, const Player &player)
 {
 	memset(&packed, 0, sizeof(packed));
-	packed.destAction = player.destAction;
+	packed.destinationAction = player.destinationAction;
 	packed.destParam1 = player.destParam1;
 	packed.destParam2 = player.destParam2;
 	packed.plrlevel = player.plrlevel;
@@ -459,7 +459,7 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 	player._pClass = static_cast<HeroClass>(std::clamp<uint8_t>(packed.pClass, 0, enum_size<HeroClass>::value - 1));
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_NONE;
+	player.destinationAction = ACTION_NONE;
 
 	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
 
@@ -596,7 +596,7 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 	player._pHitPoints = baseHp;
 
 	ClrPlrPath(player);
-	player.destAction = ACTION_NONE;
+	player.destinationAction = ACTION_NONE;
 
 	InitPlayer(player, true);
 
