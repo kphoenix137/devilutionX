@@ -802,7 +802,7 @@ void DrawPanelBox(const Surface &out, SDL_Rect srcRect, Point targetPosition)
 void DrawLifeFlaskUpper(const Surface &out)
 {
 	constexpr int LifeFlaskUpperOffset = 109;
-	DrawFlaskUpper(out, *pLifeBuff, LifeFlaskUpperOffset, MyPlayer->_pHPPer);
+	DrawFlaskUpper(out, *pLifeBuff, LifeFlaskUpperOffset, MyPlayer->lifePercentage);
 }
 
 void DrawManaFlaskUpper(const Surface &out)
@@ -814,7 +814,7 @@ void DrawManaFlaskUpper(const Surface &out)
 void DrawLifeFlaskLower(const Surface &out)
 {
 	constexpr int LifeFlaskLowerOffset = 96;
-	DrawFlaskLower(out, *pLifeBuff, LifeFlaskLowerOffset, MyPlayer->_pHPPer);
+	DrawFlaskLower(out, *pLifeBuff, LifeFlaskLowerOffset, MyPlayer->lifePercentage);
 }
 
 void DrawManaFlaskLower(const Surface &out)

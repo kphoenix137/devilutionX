@@ -447,7 +447,7 @@ void LoadPlayer(LoadHelper &file, Player &player)
 	player._pMaxHPBase = file.NextLE<int32_t>();
 	player._pHitPoints = file.NextLE<int32_t>();
 	player._pMaxHP = file.NextLE<int32_t>();
-	file.Skip<int32_t>(); // Skip _pHPPer - always derived from hp and maxHP.
+	file.Skip<int32_t>(); // Skip lifePercentage - always derived from hp and maxHP.
 	player._pManaBase = file.NextLE<int32_t>();
 	player._pMaxManaBase = file.NextLE<int32_t>();
 	player._pMana = file.NextLE<int32_t>();
@@ -1271,7 +1271,7 @@ void SavePlayer(SaveHelper &file, const Player &player)
 	file.WriteLE<int32_t>(player._pMaxHPBase);
 	file.WriteLE<int32_t>(player._pHitPoints);
 	file.WriteLE<int32_t>(player._pMaxHP);
-	file.Skip<int32_t>(); // Skip _pHPPer
+	file.Skip<int32_t>(); // Skip lifePercentage
 	file.WriteLE<int32_t>(player._pManaBase);
 	file.WriteLE<int32_t>(player._pMaxManaBase);
 	file.WriteLE<int32_t>(player._pMana);
