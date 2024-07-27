@@ -89,7 +89,7 @@ SpellType GetSBookTrans(SpellID ii, bool townok)
 	if ((player._pClass == HeroClass::Monk) && (ii == SpellID::Search))
 		return SpellType::Skill;
 	SpellType st = SpellType::Spell;
-	if ((player._pISpells & GetSpellBitmask(ii)) != 0) {
+	if ((player.staffSpells & GetSpellBitmask(ii)) != 0) {
 		st = SpellType::Charges;
 	}
 	if ((player._pAblSpells & GetSpellBitmask(ii)) != 0) {
@@ -157,7 +157,7 @@ void DrawSpellBook(const Surface &out)
 
 	ClxDraw(out, GetPanelPosition(UiPanels::Spell, { SpellBookButtonX + buttonX, SpellBookButtonY }), (*spellBookButtons)[sbooktab]);
 	Player &player = *InspectPlayer;
-	uint64_t spl = player._pMemSpells | player._pISpells | player._pAblSpells;
+	uint64_t spl = player._pMemSpells | player.staffSpells | player._pAblSpells;
 
 	const int lineHeight = 18;
 
@@ -211,10 +211,10 @@ void CheckSBook()
 	if (iconArea.contains(MousePosition) && !IsInspectingPlayer()) {
 		SpellID sn = GetSpellFromSpellPage(sbooktab, (MousePosition.y - iconArea.position.y) / SpellBookDescription.height);
 		Player &player = *InspectPlayer;
-		uint64_t spl = player._pMemSpells | player._pISpells | player._pAblSpells;
+		uint64_t spl = player._pMemSpells | player.staffSpells | player._pAblSpells;
 		if (IsValidSpell(sn) && (spl & GetSpellBitmask(sn)) != 0) {
 			SpellType st = SpellType::Spell;
-			if ((player._pISpells & GetSpellBitmask(sn)) != 0) {
+			if ((player.staffSpells & GetSpellBitmask(sn)) != 0) {
 				st = SpellType::Charges;
 			}
 			if ((player._pAblSpells & GetSpellBitmask(sn)) != 0) {

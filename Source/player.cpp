@@ -3105,11 +3105,11 @@ void MakePlrPath(Player &player, Point targetPosition, bool endspace)
 
 void CalcPlrStaff(Player &player)
 {
-	player._pISpells = 0;
+	player.staffSpells = 0;
 	if (!player.InvBody[INVLOC_HAND_LEFT].isEmpty()
 	    && player.InvBody[INVLOC_HAND_LEFT]._iStatFlag
 	    && player.InvBody[INVLOC_HAND_LEFT]._iCharges > 0) {
-		player._pISpells |= GetSpellBitmask(player.InvBody[INVLOC_HAND_LEFT]._iSpell);
+		player.staffSpells |= GetSpellBitmask(player.InvBody[INVLOC_HAND_LEFT]._iSpell);
 	}
 }
 

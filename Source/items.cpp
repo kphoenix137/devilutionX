@@ -2925,7 +2925,7 @@ void CalcPlrItemVals(Player &player, bool loadgfx)
 	player._pIGetHit = getHit;
 	CalcPlrLightRadius(player, lightRadius);
 	CalcPlrDamageMod(player);
-	player._pISpells = spells;
+	player.staffSpells = spells;
 	EnsureValidReadiedSpell(player);
 	player._pISplLvlAdd = splLvlAdd;
 	player._pIEnAc = targetAc;
