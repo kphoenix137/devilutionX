@@ -198,7 +198,6 @@ bool RecreateHellfireSpellBook(const Player &player, const TItem &packedItem, It
 		return true;
 	}
 
-	ValidateFields(spellBook._iCreateInfo, spellBook.dwBuff, IsDungeonItemValid(spellBook._iCreateInfo, spellBook.dwBuff));
 	if (item != nullptr)
 		*item = spellBook;
 	return true;
@@ -446,7 +445,7 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 	Point position { packed.px, packed.py };
 
 	player = {};
-	player._pLevel = clamp<int8_t>(packed.pLevel, 1, MaxCharacterLevel);
+	player._pLevel = packed.pLevel;
 	player._pMaxHPBase = SDL_SwapLE32(packed.pMaxHPBase);
 	player._pHPBase = SDL_SwapLE32(packed.pHPBase);
 	player._pHPBase = clamp<int32_t>(player._pHPBase, 0, player._pMaxHPBase);
@@ -465,13 +464,13 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 
 	InitPlayer(player, true);
 
-	player._pBaseStr = std::min<uint8_t>(packed.pBaseStr, player.GetMaximumAttributeValue(CharacterAttribute::Strength));
+	player._pBaseStr = packed.pBaseStr;
 	player._pStrength = player._pBaseStr;
-	player._pBaseMag = std::min<uint8_t>(packed.pBaseMag, player.GetMaximumAttributeValue(CharacterAttribute::Magic));
+	player._pBaseMag = packed.pBaseMag;
 	player._pMagic = player._pBaseMag;
-	player._pBaseDex = std::min<uint8_t>(packed.pBaseDex, player.GetMaximumAttributeValue(CharacterAttribute::Dexterity));
+	player._pBaseDex = packed.pBaseDex;
 	player._pDexterity = player._pBaseDex;
-	player._pBaseVit = std::min<uint8_t>(packed.pBaseVit, player.GetMaximumAttributeValue(CharacterAttribute::Vitality));
+	player._pBaseVit = packed.pBaseVit;
 	player._pVitality = player._pBaseVit;
 	player._pStatPts = packed.pStatPts;
 
@@ -526,16 +525,6 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 
 	uint16_t creationFlags = SDL_SwapLE16(packedItem.item.wCI);
 	uint32_t dwBuff = SDL_SwapLE16(packedItem.item.dwBuff);
-	if (idx != IDI_GOLD)
-		ValidateField(creationFlags, IsCreationFlagComboValid(creationFlags));
-	if ((creationFlags & CF_TOWN) != 0)
-		ValidateField(creationFlags, IsTownItemValid(creationFlags));
-	else if ((creationFlags & CF_USEFUL) == CF_UPER15)
-		ValidateFields(creationFlags, dwBuff, IsUniqueMonsterItemValid(creationFlags, dwBuff));
-	else if ((dwBuff & CF_HELLFIRE) != 0 && AllItemsList[idx].iMiscId == IMISC_BOOK)
-		return RecreateHellfireSpellBook(player, packedItem.item, &item);
-	else
-		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
 
 	RecreateItem(player, packedItem.item, item);
 	return true;
@@ -545,29 +534,16 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 {
 	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
 
-	ValidateField(packed.pClass, packed.pClass < enum_size<HeroClass>::value);
 	player._pClass = static_cast<HeroClass>(packed.pClass);
 
 	Point position { packed.px, packed.py };
-	ValidateFields(position.x, position.y, InDungeonBounds(position));
-	ValidateField(packed.plrlevel, packed.plrlevel < NUMLEVELS);
-	ValidateField(packed.pLevel, packed.pLevel >= 1 && packed.pLevel <= MaxCharacterLevel);
 
 	int32_t baseHpMax = SDL_SwapLE32(packed.pMaxHPBase);
 	int32_t baseHp = SDL_SwapLE32(packed.pHPBase);
 	int32_t hpMax = SDL_SwapLE32(packed.pMaxHP);
-	ValidateFields(baseHp, baseHpMax, baseHp >= (baseHpMax - hpMax) && baseHp <= baseHpMax);
 
 	int32_t baseManaMax = SDL_SwapLE32(packed.pMaxManaBase);
 	int32_t baseMana = SDL_SwapLE32(packed.pManaBase);
-	ValidateFields(baseMana, baseManaMax, baseMana <= baseManaMax);
-
-	ValidateFields(packed.pClass, packed.pBaseStr, packed.pBaseStr <= player.GetMaximumAttributeValue(CharacterAttribute::Strength));
-	ValidateFields(packed.pClass, packed.pBaseMag, packed.pBaseMag <= player.GetMaximumAttributeValue(CharacterAttribute::Magic));
-	ValidateFields(packed.pClass, packed.pBaseDex, packed.pBaseDex <= player.GetMaximumAttributeValue(CharacterAttribute::Dexterity));
-	ValidateFields(packed.pClass, packed.pBaseVit, packed.pBaseVit <= player.GetMaximumAttributeValue(CharacterAttribute::Vitality));
-
-	ValidateField(packed._pNumInv, packed._pNumInv <= InventoryGridCells);
 
 	player._pLevel = packed.pLevel;
 	player.position.tile = position;
@@ -613,25 +589,6 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 		if (player.InvBody[i].isEmpty())
 			continue;
 		auto loc = static_cast<int8_t>(player.GetItemLocation(player.InvBody[i]));
-		switch (i) {
-		case INVLOC_HEAD:
-			ValidateField(loc, loc == ILOC_HELM);
-			break;
-		case INVLOC_RING_LEFT:
-		case INVLOC_RING_RIGHT:
-			ValidateField(loc, loc == ILOC_RING);
-			break;
-		case INVLOC_AMULET:
-			ValidateField(loc, loc == ILOC_AMULET);
-			break;
-		case INVLOC_HAND_LEFT:
-		case INVLOC_HAND_RIGHT:
-			ValidateField(loc, IsAnyOf(loc, ILOC_ONEHAND, ILOC_TWOHAND));
-			break;
-		case INVLOC_CHEST:
-			ValidateField(loc, loc == ILOC_ARMOR);
-			break;
-		}
 	}
 
 	player._pNumInv = packed._pNumInv;
@@ -652,39 +609,10 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 		Size beltItemSize = GetInventorySize(item);
 		int8_t beltItemType = static_cast<int8_t>(item._itype);
 		bool beltItemUsable = item.isUsable();
-		ValidateFields(beltItemSize.width, beltItemSize.height, (beltItemSize == Size { 1, 1 }));
-		ValidateField(beltItemType, item._itype != ItemType::Gold);
-		ValidateField(beltItemUsable, beltItemUsable);
 	}
 
 	CalcPlrInv(player, false);
 	player._pGold = CalculateGold(player);
-
-	ValidateFields(player._pStrength, SDL_SwapLE32(packed.pStrength), player._pStrength == SDL_SwapLE32(packed.pStrength));
-	ValidateFields(player._pMagic, SDL_SwapLE32(packed.pMagic), player._pMagic == SDL_SwapLE32(packed.pMagic));
-	ValidateFields(player._pDexterity, SDL_SwapLE32(packed.pDexterity), player._pDexterity == SDL_SwapLE32(packed.pDexterity));
-	ValidateFields(player._pVitality, SDL_SwapLE32(packed.pVitality), player._pVitality == SDL_SwapLE32(packed.pVitality));
-	ValidateFields(player._pHitPoints, SDL_SwapLE32(packed.pHitPoints), player._pHitPoints == SDL_SwapLE32(packed.pHitPoints));
-	ValidateFields(player._pMaxHP, SDL_SwapLE32(packed.pMaxHP), player._pMaxHP == SDL_SwapLE32(packed.pMaxHP));
-	ValidateFields(player._pMana, SDL_SwapLE32(packed.pMana), player._pMana == SDL_SwapLE32(packed.pMana));
-	ValidateFields(player._pMaxMana, SDL_SwapLE32(packed.pMaxMana), player._pMaxMana == SDL_SwapLE32(packed.pMaxMana));
-	ValidateFields(player._pDamageMod, SDL_SwapLE32(packed.pDamageMod), player._pDamageMod == SDL_SwapLE32(packed.pDamageMod));
-	ValidateFields(player._pBaseToBlk, SDL_SwapLE32(packed.pBaseToBlk), player._pBaseToBlk == SDL_SwapLE32(packed.pBaseToBlk));
-	ValidateFields(player._pIMinDam, SDL_SwapLE32(packed.pIMinDam), player._pIMinDam == SDL_SwapLE32(packed.pIMinDam));
-	ValidateFields(player._pIMaxDam, SDL_SwapLE32(packed.pIMaxDam), player._pIMaxDam == SDL_SwapLE32(packed.pIMaxDam));
-	ValidateFields(player._pIAC, SDL_SwapLE32(packed.pIAC), player._pIAC == SDL_SwapLE32(packed.pIAC));
-	ValidateFields(player._pIBonusDam, SDL_SwapLE32(packed.pIBonusDam), player._pIBonusDam == SDL_SwapLE32(packed.pIBonusDam));
-	ValidateFields(player._pIBonusToHit, SDL_SwapLE32(packed.pIBonusToHit), player._pIBonusToHit == SDL_SwapLE32(packed.pIBonusToHit));
-	ValidateFields(player._pIBonusAC, SDL_SwapLE32(packed.pIBonusAC), player._pIBonusAC == SDL_SwapLE32(packed.pIBonusAC));
-	ValidateFields(player._pIBonusDamMod, SDL_SwapLE32(packed.pIBonusDamMod), player._pIBonusDamMod == SDL_SwapLE32(packed.pIBonusDamMod));
-	ValidateFields(player._pIGetHit, SDL_SwapLE32(packed.pIGetHit), player._pIGetHit == SDL_SwapLE32(packed.pIGetHit));
-	ValidateFields(player._pIEnAc, SDL_SwapLE32(packed.pIEnAc), player._pIEnAc == SDL_SwapLE32(packed.pIEnAc));
-	ValidateFields(player._pIFMinDam, SDL_SwapLE32(packed.pIFMinDam), player._pIFMinDam == SDL_SwapLE32(packed.pIFMinDam));
-	ValidateFields(player._pIFMaxDam, SDL_SwapLE32(packed.pIFMaxDam), player._pIFMaxDam == SDL_SwapLE32(packed.pIFMaxDam));
-	ValidateFields(player._pILMinDam, SDL_SwapLE32(packed.pILMinDam), player._pILMinDam == SDL_SwapLE32(packed.pILMinDam));
-	ValidateFields(player._pILMaxDam, SDL_SwapLE32(packed.pILMaxDam), player._pILMaxDam == SDL_SwapLE32(packed.pILMaxDam));
-	ValidateFields(player._pMaxHPBase, player.calculateBaseLife(), player._pMaxHPBase <= player.calculateBaseLife());
-	ValidateFields(player._pMaxManaBase, player.calculateBaseMana(), player._pMaxManaBase <= player.calculateBaseMana());
 
 	return true;
 }

@@ -569,7 +569,9 @@ bool DamageWeapon(Player &player, unsigned damageFrequency)
 	return false;
 }
 
-bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
+} // namespace
+
+bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage)
 {
 	int hper = 0;
 
@@ -739,6 +741,8 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 	}
 	return true;
 }
+
+namespace {
 
 bool PlrHitPlr(Player &attacker, Player &target)
 {
@@ -1473,15 +1477,6 @@ void ValidatePlayer()
 	assert(MyPlayer != nullptr);
 	Player &myPlayer = *MyPlayer;
 
-	if (myPlayer._pLevel > MaxCharacterLevel)
-		myPlayer._pLevel = MaxCharacterLevel;
-	if (myPlayer._pExperience > myPlayer._pNextExper) {
-		myPlayer._pExperience = myPlayer._pNextExper;
-		if (*sgOptions.Gameplay.experienceBar) {
-			RedrawEverything();
-		}
-	}
-
 	int gt = 0;
 	for (int i = 0; i < myPlayer._pNumInv; i++) {
 		if (myPlayer.InvList[i]._itype == ItemType::Gold) {
@@ -1498,25 +1493,10 @@ void ValidatePlayer()
 	if (gt != myPlayer._pGold)
 		myPlayer._pGold = gt;
 
-	if (myPlayer._pBaseStr > myPlayer.GetMaximumAttributeValue(CharacterAttribute::Strength)) {
-		myPlayer._pBaseStr = myPlayer.GetMaximumAttributeValue(CharacterAttribute::Strength);
-	}
-	if (myPlayer._pBaseMag > myPlayer.GetMaximumAttributeValue(CharacterAttribute::Magic)) {
-		myPlayer._pBaseMag = myPlayer.GetMaximumAttributeValue(CharacterAttribute::Magic);
-	}
-	if (myPlayer._pBaseDex > myPlayer.GetMaximumAttributeValue(CharacterAttribute::Dexterity)) {
-		myPlayer._pBaseDex = myPlayer.GetMaximumAttributeValue(CharacterAttribute::Dexterity);
-	}
-	if (myPlayer._pBaseVit > myPlayer.GetMaximumAttributeValue(CharacterAttribute::Vitality)) {
-		myPlayer._pBaseVit = myPlayer.GetMaximumAttributeValue(CharacterAttribute::Vitality);
-	}
-
 	uint64_t msk = 0;
 	for (int b = static_cast<int8_t>(SpellID::Firebolt); b < MAX_SPELLS; b++) {
 		if (GetSpellBookLevel((SpellID)b) != -1) {
 			msk |= GetSpellBitmask(static_cast<SpellID>(b));
-			if (myPlayer._pSplLvl[b] > MaxSpellLevel)
-				myPlayer._pSplLvl[b] = MaxSpellLevel;
 		}
 	}
 
@@ -1561,19 +1541,19 @@ HeroClass GetPlayerSpriteClass(HeroClass cls)
 
 PlayerWeaponGraphic GetPlayerWeaponGraphic(player_graphic graphic, PlayerWeaponGraphic weaponGraphic)
 {
-	if (leveltype == DTYPE_TOWN && IsAnyOf(graphic, player_graphic::Lightning, player_graphic::Fire, player_graphic::Magic)) {
-		// If the hero doesn't hold the weapon in town then we should use the unarmed animation for casting
-		switch (weaponGraphic) {
-		case PlayerWeaponGraphic::Mace:
-		case PlayerWeaponGraphic::Sword:
-			return PlayerWeaponGraphic::Unarmed;
-		case PlayerWeaponGraphic::SwordShield:
-		case PlayerWeaponGraphic::MaceShield:
-			return PlayerWeaponGraphic::UnarmedShield;
-		default:
-			break;
-		}
-	}
+	/* if (leveltype == DTYPE_TOWN && IsAnyOf(graphic, player_graphic::Lightning, player_graphic::Fire, player_graphic::Magic)) {
+	    // If the hero doesn't hold the weapon in town then we should use the unarmed animation for casting
+	    switch (weaponGraphic) {
+	    case PlayerWeaponGraphic::Mace:
+	    case PlayerWeaponGraphic::Sword:
+	        return PlayerWeaponGraphic::Unarmed;
+	    case PlayerWeaponGraphic::SwordShield:
+	    case PlayerWeaponGraphic::MaceShield:
+	        return PlayerWeaponGraphic::UnarmedShield;
+	    default:
+	        break;
+	    }
+	}*/
 	return weaponGraphic;
 }
 
@@ -2097,22 +2077,22 @@ void LoadPlrGFX(Player &player, player_graphic graphic)
 	switch (graphic) {
 	case player_graphic::Stand:
 		szCel = "as";
-		if (leveltype == DTYPE_TOWN)
-			szCel = "st";
+		// if (leveltype == DTYPE_TOWN)
+		//	szCel = "st";
 		break;
 	case player_graphic::Walk:
 		szCel = "aw";
-		if (leveltype == DTYPE_TOWN)
-			szCel = "wl";
+		// if (leveltype == DTYPE_TOWN)
+		//	szCel = "wl";
 		break;
 	case player_graphic::Attack:
-		if (leveltype == DTYPE_TOWN)
-			return;
+		// if (leveltype == DTYPE_TOWN)
+		//	return;
 		szCel = "at";
 		break;
 	case player_graphic::Hit:
-		if (leveltype == DTYPE_TOWN)
-			return;
+		// if (leveltype == DTYPE_TOWN)
+		//	return;
 		szCel = "ht";
 		break;
 	case player_graphic::Lightning:
@@ -2130,8 +2110,8 @@ void LoadPlrGFX(Player &player, player_graphic graphic)
 		szCel = "dt";
 		break;
 	case player_graphic::Block:
-		if (leveltype == DTYPE_TOWN)
-			return;
+		// if (leveltype == DTYPE_TOWN)
+		//	return;
 		if (!player._pBlockFlag)
 			return;
 		szCel = "bl";
@@ -2208,60 +2188,60 @@ void SetPlrAnims(Player &player)
 	PlayerAnimData plrAtkAnimData = PlayersAnimData[static_cast<uint8_t>(pc)];
 	auto gn = static_cast<PlayerWeaponGraphic>(player._pgfxnum & 0xFU);
 
-	if (leveltype == DTYPE_TOWN) {
-		player._pNFrames = plrAtkAnimData.townIdleFrames;
-		player._pWFrames = plrAtkAnimData.townWalkingFrames;
-	} else {
-		player._pNFrames = plrAtkAnimData.idleFrames;
-		player._pWFrames = plrAtkAnimData.walkingFrames;
-		player._pHFrames = plrAtkAnimData.recoveryFrames;
-		player._pBFrames = plrAtkAnimData.blockingFrames;
-		switch (gn) {
-		case PlayerWeaponGraphic::Unarmed:
-			player._pAFrames = plrAtkAnimData.unarmedFrames;
-			player._pAFNum = plrAtkAnimData.unarmedActionFrame;
-			break;
-		case PlayerWeaponGraphic::UnarmedShield:
-			player._pAFrames = plrAtkAnimData.unarmedShieldFrames;
-			player._pAFNum = plrAtkAnimData.unarmedShieldActionFrame;
-			break;
-		case PlayerWeaponGraphic::Sword:
-			player._pAFrames = plrAtkAnimData.swordFrames;
-			player._pAFNum = plrAtkAnimData.swordActionFrame;
-			break;
-		case PlayerWeaponGraphic::SwordShield:
-			player._pAFrames = plrAtkAnimData.swordShieldFrames;
-			player._pAFNum = plrAtkAnimData.swordShieldActionFrame;
-			break;
-		case PlayerWeaponGraphic::Bow:
-			player._pAFrames = plrAtkAnimData.bowFrames;
-			player._pAFNum = plrAtkAnimData.bowActionFrame;
-			break;
-		case PlayerWeaponGraphic::Axe:
-			player._pAFrames = plrAtkAnimData.axeFrames;
-			player._pAFNum = plrAtkAnimData.axeActionFrame;
-			break;
-		case PlayerWeaponGraphic::Mace:
-			player._pAFrames = plrAtkAnimData.maceFrames;
-			player._pAFNum = plrAtkAnimData.maceActionFrame;
-			break;
-		case PlayerWeaponGraphic::MaceShield:
-			player._pAFrames = plrAtkAnimData.maceShieldFrames;
-			player._pAFNum = plrAtkAnimData.maceShieldActionFrame;
-			break;
-		case PlayerWeaponGraphic::Staff:
-			player._pAFrames = plrAtkAnimData.staffFrames;
-			player._pAFNum = plrAtkAnimData.staffActionFrame;
-			break;
-		}
+	// if (leveltype == DTYPE_TOWN) {
+	//	player._pNFrames = plrAtkAnimData.townIdleFrames;
+	//	player._pWFrames = plrAtkAnimData.townWalkingFrames;
+	// } else {
+	player._pNFrames = plrAtkAnimData.idleFrames;
+	player._pWFrames = plrAtkAnimData.walkingFrames;
+	player._pHFrames = plrAtkAnimData.recoveryFrames;
+	player._pBFrames = plrAtkAnimData.blockingFrames;
+	switch (gn) {
+	case PlayerWeaponGraphic::Unarmed:
+		player._pAFrames = plrAtkAnimData.unarmedFrames;
+		player._pAFNum = plrAtkAnimData.unarmedActionFrame;
+		break;
+	case PlayerWeaponGraphic::UnarmedShield:
+		player._pAFrames = plrAtkAnimData.unarmedShieldFrames;
+		player._pAFNum = plrAtkAnimData.unarmedShieldActionFrame;
+		break;
+	case PlayerWeaponGraphic::Sword:
+		player._pAFrames = plrAtkAnimData.swordFrames;
+		player._pAFNum = plrAtkAnimData.swordActionFrame;
+		break;
+	case PlayerWeaponGraphic::SwordShield:
+		player._pAFrames = plrAtkAnimData.swordShieldFrames;
+		player._pAFNum = plrAtkAnimData.swordShieldActionFrame;
+		break;
+	case PlayerWeaponGraphic::Bow:
+		player._pAFrames = plrAtkAnimData.bowFrames;
+		player._pAFNum = plrAtkAnimData.bowActionFrame;
+		break;
+	case PlayerWeaponGraphic::Axe:
+		player._pAFrames = plrAtkAnimData.axeFrames;
+		player._pAFNum = plrAtkAnimData.axeActionFrame;
+		break;
+	case PlayerWeaponGraphic::Mace:
+		player._pAFrames = plrAtkAnimData.maceFrames;
+		player._pAFNum = plrAtkAnimData.maceActionFrame;
+		break;
+	case PlayerWeaponGraphic::MaceShield:
+		player._pAFrames = plrAtkAnimData.maceShieldFrames;
+		player._pAFNum = plrAtkAnimData.maceShieldActionFrame;
+		break;
+	case PlayerWeaponGraphic::Staff:
+		player._pAFrames = plrAtkAnimData.staffFrames;
+		player._pAFNum = plrAtkAnimData.staffActionFrame;
+		break;
 	}
+	//}
 
 	player._pDFrames = plrAtkAnimData.deathFrames;
 	player._pSFrames = plrAtkAnimData.castingFrames;
 	player._pSFNum = plrAtkAnimData.castingActionFrame;
 	int armorGraphicIndex = player._pgfxnum & ~0xFU;
 	if (IsAnyOf(pc, HeroClass::Warrior, HeroClass::Barbarian)) {
-		if (gn == PlayerWeaponGraphic::Bow && leveltype != DTYPE_TOWN)
+		if (gn == PlayerWeaponGraphic::Bow /* && leveltype != DTYPE_TOWN*/)
 			player._pNFrames = 8;
 		if (armorGraphicIndex > 0)
 			player._pDFrames = 15;
@@ -3024,8 +3004,6 @@ void ProcessPlayers()
 	for (size_t pnum = 0; pnum < Players.size(); pnum++) {
 		Player &player = Players[pnum];
 		if (player.plractive && player.isOnActiveLevel() && (&player == MyPlayer || !player._pLvlChanging)) {
-			CheckCheatStats(player);
-
 			if (!PlrDeathModeOK(player) && (player._pHitPoints >> 6) <= 0) {
 				SyncPlrKill(player, DeathReason::Unknown);
 			}
@@ -3183,11 +3161,6 @@ void CheckPlrSpell(bool isShiftHeld, SpellID spellID, SpellType spellType)
 			    && spellID != SpellID::StaffRecharge)
 				return;
 		}
-	}
-
-	if (leveltype == DTYPE_TOWN && !GetSpellData(spellID).isAllowedInTown()) {
-		myPlayer.Say(HeroSpeech::ICantCastThatHere);
-		return;
 	}
 
 	SpellCheckResult spellcheck = SpellCheckResult::Success;
