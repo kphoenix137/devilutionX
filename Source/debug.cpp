@@ -18,6 +18,7 @@
 #include "engine/events.hpp"
 #include "engine/load_cel.hpp"
 #include "engine/point.hpp"
+// #include "engine/random.cpp"
 #include "error.h"
 #include "inv.h"
 #include "levels/setmaps.h"
@@ -515,10 +516,10 @@ std::string DebugCmdLevelUp(const string_view parameter)
 std::string DebugCmdMaxStats(const string_view parameter)
 {
 	Player &myPlayer = *MyPlayer;
-	ModifyPlrStr(myPlayer, myPlayer.GetMaximumAttributeValue(CharacterAttribute::Strength) - myPlayer._pBaseStr);
-	ModifyPlrMag(myPlayer, myPlayer.GetMaximumAttributeValue(CharacterAttribute::Magic) - myPlayer._pBaseMag);
-	ModifyPlrDex(myPlayer, myPlayer.GetMaximumAttributeValue(CharacterAttribute::Dexterity) - myPlayer._pBaseDex);
-	ModifyPlrVit(myPlayer, myPlayer.GetMaximumAttributeValue(CharacterAttribute::Vitality) - myPlayer._pBaseVit);
+	ModifyPlrStr(myPlayer, 255);
+	ModifyPlrMag(myPlayer, 255);
+	ModifyPlrDex(myPlayer, 255);
+	ModifyPlrVit(myPlayer, 255);
 	return "Who needs elixirs anyway?";
 }
 
@@ -1066,7 +1067,7 @@ std::string DebugCmdSetLevel(const string_view parameter)
 		change = atoi(parameter.data());
 
 	myPlayer._pLevel = change;
-	NetSendCmd(true, CMD_PLRLEVEL);
+	NetSendCmdParam1(false, CMD_PLRLEVEL, change);
 
 	return "Are you pleased with yourself?";
 }
@@ -1143,12 +1144,52 @@ std::string DebugCmdKillAllMonsters(const string_view parameter)
 	Player &myPlayer = *MyPlayer;
 
 	for (Monster &monster : Monsters) {
-		delta_kill_monster(monster, monster.position.tile, *MyPlayer);
-		NetSendCmdLocParam1(true, CMD_MONSTDEATH, monster.position.tile, monster.getId());
-		M_StartKill(monster, myPlayer);
+		if (monster.hitPoints > 0) {
+			PlrHitMonst(myPlayer, monster, false);
+		}
 	}
 
-	return "I've had enough of these foul beasts.";
+	return "Another one bites the dust!";
+}
+
+std::string DebugCmdNazi(const string_view parameter)
+{
+	Point currentPosition = MyPlayer->position.tile;
+
+	Point position[17] = {
+		{ currentPosition.x - 2, currentPosition.y - 2 },
+		{ currentPosition.x - 2, currentPosition.y - 1 },
+		{ currentPosition.x - 2, currentPosition.y },
+		{ currentPosition.x - 1, currentPosition.y },
+		{ currentPosition.x, currentPosition.y },
+		{ currentPosition.x + 1, currentPosition.y },
+		{ currentPosition.x + 2, currentPosition.y },
+		{ currentPosition.x + 2, currentPosition.y + 1 },
+		{ currentPosition.x + 2, currentPosition.y + 2 },
+		{ currentPosition.x - 2, currentPosition.y + 2 },
+		{ currentPosition.x - 1, currentPosition.y + 2 },
+		{ currentPosition.x, currentPosition.y + 2 },
+		{ currentPosition.x, currentPosition.y + 1 },
+		{ currentPosition.x, currentPosition.y - 1 },
+		{ currentPosition.x, currentPosition.y - 2 },
+		{ currentPosition.x + 1, currentPosition.y - 2 },
+		{ currentPosition.x + 2, currentPosition.y - 2 },
+	};
+
+	for (int i = 0; i < 17; i++) {
+		if (CanPut(position[i]))
+			continue;
+
+		Item gold;
+		gold._ivalue = 1000000000;
+		gold._itype = ItemType::Gold;
+		gold._iCurs = ICURS_GOLD_SMALL;
+		gold.IDidx = IDI_GOLD;
+
+		NetSendCmdPItem(true, CMD_PUTITEM, position[i], gold);
+	}
+
+	return "Heil Hitler!";
 }
 
 std::string DebugCmdSetName(const std::string_view parameter)
@@ -1226,7 +1267,8 @@ std::vector<DebugCmdItem> DebugCmdList = {
 	{ "bbq", "Spawns Fire Walls at every player location", "", &DebugCmdBBQ },
 	{ "resall", "Resurrects all players", "", &DebugCmdResAll },
 	{ "killallmonsters", "Kills all monsters", "", &DebugCmdKillAllMonsters },
-	{ "setname", "Sets name to {name}", "{name}", &DebugCmdSetName }
+	{ "setname", "Sets name to {name}", "{name}", &DebugCmdSetName },
+	{ "nazi", "Creates a swastika using gold pieces", "", &DebugCmdNazi }
 };
 
 } // namespace

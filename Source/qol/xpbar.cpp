@@ -90,7 +90,8 @@ void DrawXPBar(const Surface &out)
 		return;
 
 	uint64_t prevXpDelta1 = player._pExperience - prevXp;
-	uint64_t prevXpDelta = ExpLvlsTbl[charLevel] - prevXp;
+	uint64_t minLvl = 1;
+	uint64_t prevXpDelta = std::max(minLvl, ExpLvlsTbl[charLevel] - prevXp);
 	uint64_t fullBar = BarWidth * prevXpDelta1 / prevXpDelta;
 
 	// Figure out how much to fill the last pixel of the XP bar, to make it gradually appear with gained XP

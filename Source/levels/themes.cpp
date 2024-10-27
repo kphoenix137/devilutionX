@@ -358,12 +358,14 @@ void PlaceThemeMonsts(int t, int f)
 			numscattypes++;
 		}
 	}
-	int mtype = scattertypes[GenerateRnd(numscattypes)];
-	for (int yp = 0; yp < MAXDUNY; yp++) {
-		for (int xp = 0; xp < MAXDUNX; xp++) {
-			if (dTransVal[xp][yp] == themes[t].ttval && IsTileNotSolid({ xp, yp }) && dItem[xp][yp] == 0 && !IsObjectAtPosition({ xp, yp })) {
-				if (FlipCoin(f)) {
-					AddMonster({ xp, yp }, static_cast<Direction>(GenerateRnd(8)), mtype, true);
+	if (numscattypes > 0) {
+		int mtype = scattertypes[GenerateRnd(numscattypes)];
+		for (int yp = 0; yp < MAXDUNY; yp++) {
+			for (int xp = 0; xp < MAXDUNX; xp++) {
+				if (dTransVal[xp][yp] == themes[t].ttval && IsTileNotSolid({ xp, yp }) && dItem[xp][yp] == 0 && !IsObjectAtPosition({ xp, yp })) {
+					if (FlipCoin(f)) {
+						AddMonster({ xp, yp }, static_cast<Direction>(GenerateRnd(8)), mtype, true);
+					}
 				}
 			}
 		}

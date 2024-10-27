@@ -1010,17 +1010,6 @@ bool IsPItemValid(const TCmdPItem &message, const Player &player)
 	if (idx != IDI_EAR) {
 		uint16_t creationFlags = SDL_SwapLE16(message.item.wCI);
 		uint32_t dwBuff = SDL_SwapLE16(message.item.dwBuff);
-
-		if (idx != IDI_GOLD)
-			ValidateField(creationFlags, IsCreationFlagComboValid(creationFlags));
-		if ((creationFlags & CF_TOWN) != 0)
-			ValidateField(creationFlags, IsTownItemValid(creationFlags));
-		else if ((creationFlags & CF_USEFUL) == CF_UPER15)
-			ValidateFields(creationFlags, dwBuff, IsUniqueMonsterItemValid(creationFlags, dwBuff));
-		else if ((dwBuff & CF_HELLFIRE) != 0 && AllItemsList[idx].iMiscId == IMISC_BOOK)
-			return RecreateHellfireSpellBook(player, message.item);
-		else
-			ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
 	}
 
 	return IsItemAvailable(idx);
@@ -1316,14 +1305,8 @@ size_t OnPutItem(const TCmd *pCmd, size_t pnum)
 		const _item_indexes wIndx = static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx));
 		if (player.isOnActiveLevel()) {
 			int ii;
-			if (isSelf) {
-				std::optional<Point> itemTile = FindAdjacentPositionForItem(player.position.tile, GetDirection(player.position.tile, position));
-				if (itemTile)
-					ii = PlaceItemInWorld(std::move(ItemLimbo), *itemTile);
-				else
-					ii = -1;
-			} else
-				ii = SyncDropItem(message);
+
+			ii = SyncDropItem(message);
 			if (ii != -1) {
 				PutItemRecord(dwSeed, wCI, wIndx);
 				DeltaPutItem(message, Items[ii].position, player);
@@ -1430,10 +1413,6 @@ bool InitNewSpell(Player &player, uint16_t wParamSpellID, uint16_t wParamSpellTy
 	auto spellID = static_cast<SpellID>(wParamSpellID);
 	if (!IsValidSpell(spellID)) {
 		LogError(_("{:s} has cast an invalid spell."), player._pName);
-		return false;
-	}
-	if (leveltype == DTYPE_TOWN && !GetSpellData(spellID).isAllowedInTown()) {
-		LogError(_("{:s} has cast an illegal spell."), player._pName);
 		return false;
 	}
 

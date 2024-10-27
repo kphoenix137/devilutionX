@@ -262,6 +262,23 @@ void selgame_GameSelection_Focus(int value)
 				infoString.append(playerName);
 				infoString += ' ';
 			}
+			string_view gameMode;
+			switch (gameInfo.gameData.programid) {
+			case GameIdDiabloFull:
+				AppendStrView(infoString, _("Mode: Diablo"));
+				break;
+			case GameIdDiabloSpawn:
+				AppendStrView(infoString, _("Mode: Diablo Shareware"));
+				break;
+			case GameIdHellfireFull:
+				AppendStrView(infoString, _("Mode: Hellfire"));
+				break;
+			case GameIdHellfireSpawn:
+				AppendStrView(infoString, _("Mode: Hellfire Shareware"));
+				break;
+			default:
+				AppendStrView(infoString, _("The host is running a different game than you."));
+			}
 		} else {
 			infoString.append(GetErrorMessageIncompatibility(gameInfo.gameData));
 		}
