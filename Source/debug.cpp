@@ -1101,7 +1101,7 @@ std::string DebugCmdKill(const string_view parameter)
 		}
 	}
 
-	return fmt::format(_("I smite thee, {:s}!"), name);
+	return "I smite thee!";
 }
 
 std::string DebugCmdKillAll(const string_view parameter)
