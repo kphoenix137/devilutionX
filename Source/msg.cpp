@@ -21,6 +21,7 @@
 #include "config.h"
 #include "control.h"
 #include "dead.h"
+#include "debug.h"
 #include "engine/backbuffer_state.hpp"
 #include "engine/random.hpp"
 #include "engine/world_tile.hpp"
@@ -1842,6 +1843,8 @@ size_t OnPlayerDamage(const TCmd *pCmd, Player &player)
 
 	Player &target = Players[message.bPlr];
 	if (&target == MyPlayer && leveltype != DTYPE_TOWN && gbBufferMsgs != 1) {
+		if (DebugGodMode)
+			return sizeof(message);
 		if (player.isOnActiveLevel() && damage <= 192000 && target._pHitPoints >> 6 > 0) {
 			ApplyPlrDamage(message.damageType, target, 0, 0, damage, DeathReason::Player);
 		}
