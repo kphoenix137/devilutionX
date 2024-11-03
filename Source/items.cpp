@@ -4915,66 +4915,28 @@ bool ApplyOilToItem(Item &item, Player &player)
 
 	switch (player._pOilType) {
 	case IMISC_OILACC:
-		if (item._iPLToHit < 50) {
-			item._iPLToHit += GenerateRnd(2) + 1;
-		}
-		break;
 	case IMISC_OILMAST:
-		if (item._iPLToHit < 100) {
-			item._iPLToHit += GenerateRnd(3) + 3;
-		}
+		item._iPLToHit = 255;
 		break;
 	case IMISC_OILSHARP:
-		if (item._iMaxDam - item._iMinDam < 30 && item._iMaxDam < 255) {
-			item._iMaxDam = item._iMaxDam + 1;
-		}
-		break;
 	case IMISC_OILDEATH:
-		if (item._iMaxDam - item._iMinDam < 30 && item._iMaxDam < 254) {
-			item._iMinDam = item._iMinDam + 1;
-			item._iMaxDam = item._iMaxDam + 2;
-		}
+		item._iMinDam = 255;
+		item._iMaxDam = 255;
 		break;
 	case IMISC_OILSKILL:
-		r = GenerateRnd(6) + 5;
-		item._iMinStr = std::max(0, item._iMinStr - r);
-		item._iMinMag = std::max(0, item._iMinMag - r);
-		item._iMinDex = std::max(0, item._iMinDex - r);
+		item._iMinStr = 0;
+		item._iMinMag = 0;
+		item._iMinDex = 0;
 		break;
 	case IMISC_OILBSMTH:
-		if (item._iMaxDur == DUR_INDESTRUCTIBLE)
-			return true;
-		if (item._iDurability < item._iMaxDur) {
-			item._iDurability = (item._iMaxDur + 4) / 5 + item._iDurability;
-			item._iDurability = std::min<int>(item._iDurability, item._iMaxDur);
-		} else {
-			if (item._iMaxDur >= 100) {
-				return true;
-			}
-			item._iMaxDur++;
-			item._iDurability = item._iMaxDur;
-		}
-		break;
 	case IMISC_OILFORT:
-		if (item._iMaxDur != DUR_INDESTRUCTIBLE && item._iMaxDur < 200) {
-			r = GenerateRnd(41) + 10;
-			item._iMaxDur += r;
-			item._iDurability += r;
-		}
-		break;
 	case IMISC_OILPERM:
 		item._iDurability = DUR_INDESTRUCTIBLE;
 		item._iMaxDur = DUR_INDESTRUCTIBLE;
 		break;
 	case IMISC_OILHARD:
-		if (item._iAC < 60) {
-			item._iAC += GenerateRnd(2) + 1;
-		}
-		break;
 	case IMISC_OILIMP:
-		if (item._iAC < 120) {
-			item._iAC += GenerateRnd(3) + 3;
-		}
+		item._iAC = 255;
 		break;
 	default:
 		return false;

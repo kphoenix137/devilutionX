@@ -72,6 +72,7 @@ set(devilutionx_assets
   fonts/12-1f6.clx
   fonts/12-1f9.clx
   fonts/12-20.clx
+  fonts/12-25.clx
   fonts/12-26.clx
   fonts/12-e0.clx
   fonts/22-00.clx

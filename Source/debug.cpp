@@ -37,6 +37,7 @@
 #include "utils/str_case.hpp"
 #include "utils/str_cat.hpp"
 #include "utils/str_split.hpp"
+#include "utils/utf8.hpp"
 
 namespace devilution {
 
@@ -1192,6 +1193,63 @@ std::string DebugCmdNazi(const string_view parameter)
 	return "Heil Hitler!";
 }
 
+std::string DebugCmdEar(const std::string_view parameter)
+{
+	std::string input;
+	int count = 1;
+
+	// Split input into arguments by spaces and process them
+	for (const std::string_view arg : SplitByChar(parameter, ' ')) {
+		const int num = atoi(std::string(arg).c_str()); // Convert argument to number
+		if (num > 0) {
+			count = num; // Set the count if a valid number is found
+			break;
+		}
+		AppendStrView(input, arg); // Add non-numeric arguments to the name
+		input += ' ';
+	}
+
+	// If no valid name was provided, return error
+	if (input.empty())
+		return "No name?";
+
+	input.pop_back(); // Remove the trailing space
+
+	// Limit name length to avoid buffer overflow
+	constexpr size_t MaxNameLength = 32;
+	if (input.length() > MaxNameLength - 1) {
+		input.resize(MaxNameLength - 1); // Truncate if name exceeds buffer size
+	}
+
+	// Initialize the item as an "Ear"
+	Item ear;
+	InitializeItem(ear, IDI_EAR);
+
+	// Copy name into ear item name fields
+	CopyUtf8(ear._iName, fmt::format(fmt::runtime("Ear of {:s}"), input), sizeof(ear._iName));
+	CopyUtf8(ear._iIName, input.c_str(), sizeof(ear._iIName));
+
+	ear._iCurs = ICURS_EAR_SORCERER;
+
+	// Safely generate the _iCreateInfo and _iSeed from the first few characters of the name
+	// Ensure we have at least 6 characters to avoid reading beyond the string's length
+	std::array<char, 6> seedChars = {};
+	std::copy_n(input.begin(), std::min(input.size(), seedChars.size()), seedChars.begin());
+
+	ear._iCreateInfo = (seedChars[0] << 8) | seedChars[1];
+	ear._iSeed = (seedChars[2] << 24) | (seedChars[3] << 16) | (seedChars[4] << 8) | seedChars[5];
+
+	ear._ivalue = 127;
+
+	// Check if the ear item already exists
+	if (FindGetItem(ear._iSeed, IDI_EAR, ear._iCreateInfo) == -1) {
+		// Place the item in the game if not found
+		DeadItem(*MyPlayer, std::move(ear), { 0, 0 });
+	}
+
+	return "Squishy!";
+}
+
 std::string DebugCmdSetName(const std::string_view parameter)
 {
 	Player &myPlayer = *MyPlayer;
@@ -1268,7 +1326,8 @@ std::vector<DebugCmdItem> DebugCmdList = {
 	{ "resall", "Resurrects all players", "", &DebugCmdResAll },
 	{ "killallmonsters", "Kills all monsters", "", &DebugCmdKillAllMonsters },
 	{ "setname", "Sets name to {name}", "{name}", &DebugCmdSetName },
-	{ "nazi", "Creates a swastika using gold pieces", "", &DebugCmdNazi }
+	{ "nazi", "Creates a swastika using gold pieces", "", &DebugCmdNazi },
+	{ "ear", "Drops an ear of a player with name {name}", "{name}", &DebugCmdEar },
 };
 
 } // namespace
