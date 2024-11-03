@@ -333,6 +333,8 @@ void RespawnDeadItem(Item &&itm, Point target)
 	NetSendCmdPItem(false, CMD_SPAWNITEM, target, Items[ii]);
 }
 
+} // namespace
+
 void DeadItem(Player &player, Item &&itm, Displacement direction)
 {
 	if (itm.isEmpty())
@@ -356,6 +358,8 @@ void DeadItem(Player &player, Item &&itm, Displacement direction)
 		}
 	}
 }
+
+namespace {
 
 int DropGold(Player &player, int amount, bool skipFullStacks)
 {

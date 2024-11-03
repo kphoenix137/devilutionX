@@ -857,5 +857,6 @@ void SetPlrVit(Player &player, int v);
 void InitDungMsgs(Player &player);
 void PlayDungMsgs();
 bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false);
+void DeadItem(Player &player, Item &&itm, Displacement direction);
 
 } // namespace devilution
