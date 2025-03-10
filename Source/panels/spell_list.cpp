@@ -111,6 +111,11 @@ void DrawSpell(const Surface &out)
 	std::optional<std::string_view> hotkeyName = GetHotkeyName(spl, myPlayer._pRSplType, true);
 	if (hotkeyName)
 		PrintSBookHotkey(out, position, *hotkeyName);
+
+	if (*GetOptions().Gameplay.showRemainingCharges && myPlayer._pRSplType == SpellType::Charges) {
+		Item &staff = myPlayer.InvBody[INVLOC_HAND_LEFT];
+		DrawPanelValueRange(out, { position.x + (SPLICONLENGTH / 2) - 2, position.y - 12 }, staff._iCharges, staff._iMaxCharges);
+	}
 }
 
 void DrawSpellList(const Surface &out)

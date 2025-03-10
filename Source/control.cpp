@@ -856,7 +856,7 @@ void DrawManaFlaskLower(const Surface &out)
 	DrawFlaskLower(out, *pManaBuff, ManaFlaskLowerOffeset, MyPlayer->_pManaPer);
 }
 
-void DrawFlaskValues(const Surface &out, Point pos, int currValue, int maxValue)
+void DrawPanelValueRange(const Surface &out, Point pos, int currValue, int maxValue)
 {
 	UiFlags color = (currValue > 0 ? (currValue == maxValue ? UiFlags::ColorGold : UiFlags::ColorWhite) : UiFlags::ColorRed);
 
