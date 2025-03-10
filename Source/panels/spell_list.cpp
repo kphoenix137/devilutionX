@@ -89,7 +89,7 @@ void DrawRemainingCharges(const Surface &out, Point pos)
 
 	Item &staff = myPlayer.InvBody[INVLOC_HAND_LEFT];
 
-	UiFlags color = (staff._iCharges == staff._iMaxCharges ? UiFlags::ColorGold : UiFlags::ColorWhite);
+	UiFlags color = (staff._iCharges == staff._iMaxCharges ? UiFlags::ColorGold : UiFlags::ColorBlue);
 
 	auto drawStringWithShadow = [out, color](std::string_view text, Point pos) {
 		DrawString(out, text, pos + Displacement { -1, -1 },
