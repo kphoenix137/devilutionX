@@ -115,9 +115,9 @@ void DrawManaFlaskUpper(const Surface &out);
 void DrawManaFlaskLower(const Surface &out);
 
 /**
- * Controls drawing of current / max values within the control panel, used by QOL toggles.
+ * Controls drawing of current / max values (health, mana) within the control panel.
  */
-void DrawPanelValueRange(const Surface &out, Point pos, int currValue, int maxValue);
+void DrawFlaskValues(const Surface &out, Point pos, int currValue, int maxValue);
 
 /**
  * @brief calls on the active player object to update HP/Mana percentage variables

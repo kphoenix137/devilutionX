@@ -80,6 +80,28 @@ std::optional<std::string_view> GetHotkeyName(SpellID spellId, SpellType spellTy
 	return {};
 }
 
+void DrawRemainingCharges(const Surface &out, Point pos)
+{
+	auto &myPlayer = *MyPlayer;
+
+	if (myPlayer._pRSplType != SpellType::Charges)
+		return;
+
+	Item &staff = myPlayer.InvBody[INVLOC_HAND_LEFT];
+
+	UiFlags color = (staff._iCharges == staff._iMaxCharges ? UiFlags::ColorGold : UiFlags::ColorWhite);
+
+	auto drawStringWithShadow = [out, color](std::string_view text, Point pos) {
+		DrawString(out, text, pos + Displacement { -1, -1 },
+		    { .flags = UiFlags::ColorBlack | UiFlags::KerningFitSpacing, .spacing = 0 });
+		DrawString(out, text, pos,
+		    { .flags = color | UiFlags::KerningFitSpacing, .spacing = 0 });
+	};
+
+	std::string currText = StrCat(staff._iCharges);
+	drawStringWithShadow(currText, pos + Displacement { 2, -12 });
+}
+
 } // namespace
 
 void DrawSpell(const Surface &out)
@@ -112,9 +134,8 @@ void DrawSpell(const Surface &out)
 	if (hotkeyName)
 		PrintSBookHotkey(out, position, *hotkeyName);
 
-	if (*GetOptions().Gameplay.showRemainingCharges && myPlayer._pRSplType == SpellType::Charges) {
-		Item &staff = myPlayer.InvBody[INVLOC_HAND_LEFT];
-		DrawPanelValueRange(out, { position.x + (SPLICONLENGTH / 2) - 2, position.y - 12 }, staff._iCharges, staff._iMaxCharges);
+	if (*GetOptions().Gameplay.showRemainingCharges) {
+		DrawRemainingCharges(out, position);
 	}
 }
 
