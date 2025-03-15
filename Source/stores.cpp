@@ -1242,7 +1242,6 @@ void SellEnter()
 	}
 
 	// Store the item to be sold temporarily
-	// FIXME: Clean up call chain flow, so we no longer need TempItem global
 	TempItem = *playerItems[idx].itemPtr;
 
 	// Proceed to the confirmation store screen
