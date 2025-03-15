@@ -80,7 +80,7 @@ std::optional<std::string_view> GetHotkeyName(SpellID spellId, SpellType spellTy
 	return {};
 }
 
-void DrawRemainingCharges(const Surface &out, Point pos)
+void PrintSBookRemainingCharges(const Surface &out, Point pos)
 {
 	auto &myPlayer = *MyPlayer;
 
@@ -135,7 +135,7 @@ void DrawSpell(const Surface &out)
 		PrintSBookHotkey(out, position, *hotkeyName);
 
 	if (*GetOptions().Gameplay.showRemainingCharges) {
-		DrawRemainingCharges(out, position);
+		PrintSBookRemainingCharges(out, position);
 	}
 }
 
