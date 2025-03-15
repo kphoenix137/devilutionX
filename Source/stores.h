@@ -70,10 +70,10 @@ struct StoreMenuOption {
 	std::string text;
 };
 
-struct TownerLine {
-	const std::string menuHeader;
-	const StoreMenuOption *menuOptions;
-	size_t numOptions;
+struct StoreData {
+	std::string_view name;
+	std::string_view welcomeMessage;
+	std::vector<StoreMenuOption> menuOptions;
 };
 
 struct IndexedItem {
@@ -98,9 +98,8 @@ extern DVL_API_FOR_TEST std::vector<IndexedItem> playerItems;
 
 class TownerStore {
 public:
-	TownerStore(std::string name, TalkID buyBasic, TalkID buy, TalkID sell, TalkID special, ResourceType resource)
-	    : name(name)
-	    , buyBasic(buyBasic)
+	TownerStore(TalkID buyBasic, TalkID buy, TalkID sell, TalkID special, ResourceType resource)
+	    : buyBasic(buyBasic)
 	    , buy(buy)
 	    , sell(sell)
 	    , special(special)

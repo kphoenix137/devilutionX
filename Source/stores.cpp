@@ -33,16 +33,16 @@
 
 namespace devilution {
 
-TownerStore Blacksmith("Griswold", TalkID::BasicBuy, TalkID::Buy, TalkID::Sell, TalkID::Repair, ResourceType::Invalid);
-TownerStore Healer("Pepin", TalkID::Invalid, TalkID::Buy, TalkID::Invalid, TalkID::Invalid, ResourceType::Life);
-TownerStore Witch("Adria", TalkID::Invalid, TalkID::Buy, TalkID::Sell, TalkID::Recharge, ResourceType::Mana);
-TownerStore Boy("Wirt", TalkID::Invalid, TalkID::Buy, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
-TownerStore Storyteller("Cain", TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Identify, ResourceType::Invalid);
-TownerStore Barmaid("Gillian", TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Stash, ResourceType::Invalid);
-TownerStore Tavern("Ogden", TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
-TownerStore Drunk("Farnham", TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
-TownerStore CowFarmer("Cow Farmer", TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
-TownerStore Farmer("Lester", TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
+TownerStore Blacksmith(TalkID::BasicBuy, TalkID::Buy, TalkID::Sell, TalkID::Repair, ResourceType::Invalid);
+TownerStore Healer(TalkID::Invalid, TalkID::Buy, TalkID::Invalid, TalkID::Invalid, ResourceType::Life);
+TownerStore Witch(TalkID::Invalid, TalkID::Buy, TalkID::Sell, TalkID::Recharge, ResourceType::Mana);
+TownerStore Boy(TalkID::Invalid, TalkID::Buy, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
+TownerStore Storyteller(TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Identify, ResourceType::Invalid);
+TownerStore Barmaid(TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Stash, ResourceType::Invalid);
+TownerStore Tavern(TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
+TownerStore Drunk(TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
+TownerStore CowFarmer(TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
+TownerStore Farmer(TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, TalkID::Invalid, ResourceType::Invalid);
 
 TalkID ActiveStore;  // The current store screen
 _talker_id TownerId; // The current towner being interacted with
@@ -129,83 +129,16 @@ Item TempItem; // Temporary item used to hold the item being traded
 std::vector<std::pair<int, TalkID>> LineActionMappings;
 int CurrentMenuDrawLine;
 
-const std::string SmithMenuHeader = "Welcome to the\n\nBlacksmith's shop";
-
-const StoreMenuOption SmithMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Blacksmith.name) },
-	{ TalkID::BasicBuy, "Buy basic items" },
-	{ TalkID::Buy, "Buy premium items" },
-	{ TalkID::Sell, "Sell items" },
-	{ TalkID::Repair, "Repair items" },
-	{ TalkID::Exit, "Leave the shop" }
-};
-
-const std::string HealerMenuHeader = "Welcome to the\n\nHealer's home";
-
-const StoreMenuOption HealerMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Healer.name) },
-	{ TalkID::Buy, "Buy items" },
-	{ TalkID::Exit, "Leave Healer's home" }
-};
-
-const std::string BoyMenuHeader = "Wirt the Peg-legged boy";
-
-const StoreMenuOption BoyMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Boy.name) },
-	{ TalkID::Buy, "What have you got?" },
-	{ TalkID::Exit, "Say goodbye" }
-};
-
-const std::string WitchMenuHeader = "Welcome to the\n\nWitch's shack";
-
-const StoreMenuOption WitchMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Witch.name) },
-	{ TalkID::Buy, "Buy items" },
-	{ TalkID::Sell, "Sell items" },
-	{ TalkID::Recharge, "Recharge staves" },
-	{ TalkID::Exit, "Leave the shack" }
-};
-
-const std::string TavernMenuHeader = "Welcome to the\n\nRising Sun";
-
-const StoreMenuOption TavernMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Tavern.name) },
-	{ TalkID::Exit, "Leave the tavern" }
-};
-
-const std::string BarmaidMenuHeader = "Gillian";
-
-const StoreMenuOption BarmaidMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Barmaid.name) },
-	{ TalkID::Stash, "Access Stash" },
-	{ TalkID::Exit, "Say goodbye" }
-};
-
-const std::string DrunkMenuHeader = "Farnham the Drunk";
-
-const StoreMenuOption DrunkMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Drunk.name) },
-	{ TalkID::Exit, "Say goodbye" }
-};
-
-const std::string StorytellerMenuHeader = "The Town Elder";
-
-const StoreMenuOption StorytellerMenuOptions[] = {
-	{ TalkID::Gossip, fmt::format("Talk to {:s}", Storyteller.name) },
-	{ TalkID::Identify, "Identify an item" },
-	{ TalkID::Exit, "Say goodbye" }
-};
-
-const TownerLine TownerLines[] = {
-	{ SmithMenuHeader, SmithMenuOptions, sizeof(SmithMenuOptions) / sizeof(StoreMenuOption) },
-	{ HealerMenuHeader, HealerMenuOptions, sizeof(HealerMenuOptions) / sizeof(StoreMenuOption) },
+std::vector<StoreData> Stores = {
+	{ N_("Blacksmith"), N_("Welcome to the\n\nBlacksmith's shop"), { { TalkID::Gossip, N_("Talk to Griswold") }, { TalkID::BasicBuy, N_("Buy basic items") }, { TalkID::Buy, N_("Buy premium items") }, { TalkID::Sell, N_("Sell items") }, { TalkID::Repair, N_("Repair items") }, { TalkID::Exit, N_("Leave the shop") } } },
+	{ N_("Healer"), N_("Welcome to the\n\nHealer's home"), { { TalkID::Gossip, N_("Talk to Pepin") }, { TalkID::Buy, N_("Buy items") }, { TalkID::Exit, N_("Leave Healer's home") } } },
 	{},
-	{ TavernMenuHeader, TavernMenuOptions, sizeof(TavernMenuOptions) / sizeof(StoreMenuOption) },
-	{ StorytellerMenuHeader, StorytellerMenuOptions, sizeof(StorytellerMenuOptions) / sizeof(StoreMenuOption) },
-	{ DrunkMenuHeader, DrunkMenuOptions, sizeof(DrunkMenuOptions) / sizeof(StoreMenuOption) },
-	{ WitchMenuHeader, WitchMenuOptions, sizeof(WitchMenuOptions) / sizeof(StoreMenuOption) },
-	{ BarmaidMenuHeader, BarmaidMenuOptions, sizeof(BarmaidMenuOptions) / sizeof(StoreMenuOption) },
-	{ BoyMenuHeader, BoyMenuOptions, sizeof(BoyMenuOptions) / sizeof(StoreMenuOption) },
+	{ N_("Tavern"), N_("Welcome to the\n\nRising Sun"), { { TalkID::Gossip, N_("Talk to the Ogden") }, { TalkID::Exit, N_("Leave the tavern") } } },
+	{ N_("Storyteller"), N_("The Town Elder"), { { TalkID::Gossip, N_("Talk to Cain") }, { TalkID::Identify, N_("Identify an item") }, { TalkID::Exit, N_("Say goodbye") } } },
+	{ N_("Drunk"), N_("Farnham the Drunk"), { { TalkID::Gossip, N_("Talk to Farnham") }, { TalkID::Exit, N_("Say goodbye") } } },
+	{ N_("Witch"), N_("Welcome to the\n\nWitch's shack"), { { TalkID::Gossip, N_("Talk to Adria") }, { TalkID::Buy, N_("Buy items") }, { TalkID::Sell, N_("Sell items") }, { TalkID::Recharge, N_("Recharge staves") }, { TalkID::Exit, N_("Leave the shack") } } },
+	{ N_("Barmaid"), N_("Gillian"), { { TalkID::Gossip, N_("Talk to Gillian") }, { TalkID::Stash, N_("Access Stash") }, { TalkID::Exit, N_("Say goodbye") } } },
+	{ N_("Boy"), N_("Wirt the Peg-legged boy"), { { TalkID::Gossip, N_("Talk to Wirt") }, { TalkID::Buy, N_("What have you got?") }, { TalkID::Exit, N_("Say goodbye") } } },
 	{},
 	{},
 	{},
@@ -252,16 +185,14 @@ int GetItemCount(TalkID talkId)
 {
 	TownerStore *towner = townerStores[TownerId];
 
-	if (towner != nullptr) {
-		switch (talkId) {
-		case TalkID::BasicBuy:
-			return towner->basicItems.size();
-		case TalkID::Buy:
-			return towner->items.size();
-		}
+	switch (talkId) {
+	case TalkID::BasicBuy:
+		return towner->basicItems.size();
+	case TalkID::Buy:
+		return towner->items.size();
+	default:
+		return playerItems.size();
 	}
-
-	return playerItems.size();
 }
 
 bool HasScrollbar()
@@ -708,33 +639,35 @@ void SetupGossipScreen()
 	SetLineAsOptionsBackButton();
 }
 
-void SetMenuHeader(const std::string &header)
+void SetMenuHeader(const StoreData &store)
 {
-	// Check if the header contains "\n\n", which indicates a two-line header
-	std::string::size_type pos = header.find("\n\n");
+	// Translate and convert store.welcomeMessage properly
+	std::string translatedHeader = fmt::format(fmt::runtime(_("{:s}")), store.welcomeMessage);
+
+	// Check if the translated header contains "\n\n", which indicates a two-line header
+	std::string::size_type pos = translatedHeader.find("\n\n");
 
 	if (pos != std::string::npos) {
 		// Split the header into two parts for a two-line header
-		std::string header1 = header.substr(0, pos);
-		std::string header2 = header.substr(pos + 2);
+		std::string header1 = translatedHeader.substr(0, pos);
+		std::string header2 = translatedHeader.substr(pos + 2);
 
 		// Set the headers on lines 1 and 3
 		SetLineText(0, 1, header1, UiFlags::ColorWhitegold | UiFlags::AlignCenter, false);
 		SetLineText(0, 3, header2, UiFlags::ColorWhitegold | UiFlags::AlignCenter, false);
 	} else {
 		// If there's no "\n\n", treat it as a single-line header
-		SetLineText(0, 2, header, UiFlags::ColorWhitegold | UiFlags::AlignCenter, false);
+		SetLineText(0, 2, translatedHeader, UiFlags::ColorWhitegold | UiFlags::AlignCenter, false);
 	}
 }
 
-void SetMenuText(const TownerLine &townerInfo)
+void SetMenuText(const StoreData &store)
 {
 	const UiFlags flags = UiFlags::ColorWhitegold | UiFlags::AlignCenter;
-
 	int startLine = MainMenuDividerLine + SingleLineSpace;
 
 	if (TownerId != TOWN_PEGBOY) {
-		CurrentMenuDrawLine = townerInfo.numOptions > 5 ? startLine + SingleLineSpace : startLine + TripleLineSpace;
+		CurrentMenuDrawLine = store.menuOptions.size() > 5 ? startLine + SingleLineSpace : startLine + TripleLineSpace;
 		SetLineText(0, CurrentMenuDrawLine, _("Would you like to:"), flags, false);
 		CurrentMenuDrawLine += TripleLineSpace;
 	} else if (!Boy.items.empty()) {
@@ -744,7 +677,7 @@ void SetMenuText(const TownerLine &townerInfo)
 		SetLineText(0, CurrentMenuDrawLine, _("but it will cost 50 gold"), flags, false);
 		CurrentMenuDrawLine += DoubleLineSpace;
 		SetLineText(0, CurrentMenuDrawLine, _("just to take a look. "), flags, false);
-		CurrentMenuDrawLine = WirtDialogueDrawLine - (DoubleLineSpace * 2); // Needed to draw first Wirt menu option far away enough from dialogue lines.
+		CurrentMenuDrawLine = WirtDialogueDrawLine - (DoubleLineSpace * 2);
 	} else {
 		CurrentMenuDrawLine = startLine + (TripleLineSpace * 2);
 	}
@@ -813,22 +746,22 @@ void RestoreResource()
 void SetupMainMenuScreen()
 {
 	RestoreResource();
-
 	IsTextFullSize = false;
 
-	const TownerLine &lines = TownerLines[TownerId];
+	const StoreData &store = Stores[TownerId]; // Fetch store data dynamically
 
-	SetMenuHeader(lines.menuHeader);
+	SetMenuHeader(store); // Translate on display
 	SetLineAsDivider(MainMenuDividerLine);
-	SetMenuText(lines);
+	SetMenuText(store);
 
 	LineActionMappings.clear();
 
-	for (size_t i = 0; i < lines.numOptions; i++) {
-		const StoreMenuOption &option = lines.menuOptions[i];
+	for (const StoreMenuOption &option : store.menuOptions) {
+		// Special case for Wirt: If buying and Wirt has no items, skip option
 		if (TownerId == TOWN_PEGBOY && option.action == TalkID::Buy && Boy.items.empty())
 			continue;
-		SetMenuOption(option.action, option.text);
+
+		SetMenuOption(option.action, _(option.text)); // Translate menu text dynamically
 	}
 }
 
@@ -1733,8 +1666,8 @@ void StartStore(TalkID store /*= TalkID::MainMenu*/)
 	case TalkID::Repair:
 	case TalkID::Recharge:
 	case TalkID::Identify:
-		SetupScreenElements(store);
 		FilterPlayerItemsForAction(store);
+		SetupScreenElements(store);
 		SetupItemList(store);
 		break;
 	case TalkID::IdentifyShow:
