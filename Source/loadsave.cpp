@@ -889,18 +889,23 @@ void LoadItem(LoadHelper &file, Item &item)
 
 void LoadPremiumItems(LoadHelper &file)
 {
-	// Resize the vector to the expected number of items in the save file
-	Blacksmith.items.resize(giNumberOfSmithPremiumItems);
+	// Number of expected items based on game mode
+	uint8_t numSmithItems = gbIsHellfireSaveGame ? NumSmithItemsHf : NumSmithItems;
 
-	for (int i = 0; i < giNumberOfSmithPremiumItems; ++i) {
+	// Whatever is smaller between expected number of items and actual number of items
+	int itemsToLoad = std::min(giNumberOfSmithPremiumItems, numSmithItems);
+
+	Blacksmith.items.resize(itemsToLoad);
+
+	for (int i = 0; i < itemsToLoad; ++i) {
 		LoadAndValidateItemData(file, Blacksmith.items[i]);
 	}
 
-	// Remove any empty/null items from the vector after loading
-	Blacksmith.items.erase(std::remove_if(Blacksmith.items.begin(), Blacksmith.items.end(), [](const Item &item) {
-		return item._itype == ItemType::None;
-	}),
-	    Blacksmith.items.end());
+	// Skip the rest of the items beyond the expected number of items based on game mode
+	int itemsToSkip = giNumberOfSmithPremiumItems - itemsToLoad;
+	if (itemsToSkip > 0) {
+		file.Skip(itemsToSkip * sizeof(Item));
+	}
 }
 
 void LoadQuest(LoadHelper *file, int i)
