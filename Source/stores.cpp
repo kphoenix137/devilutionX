@@ -202,10 +202,7 @@ bool HasScrollbar()
 
 	int itemCount = GetItemCount(ActiveStore);
 
-	if (itemCount <= ItemLineSpace)
-		return false;
-
-	return true;
+	return itemCount > ItemLineSpace;
 }
 
 /**
