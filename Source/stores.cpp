@@ -1215,7 +1215,7 @@ void SellItem()
 		MyPlayer->RemoveSpdBarItem(itemToSell.index);
 	}
 
-	int price = GetItemSellValue(*itemToSell.itemPtr);
+	int price = GetItemSellValue(TempItem);
 
 	// Remove the sold item from the playerItems vector
 	playerItems.erase(playerItems.begin() + idx);
