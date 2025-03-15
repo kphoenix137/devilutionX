@@ -4487,7 +4487,7 @@ void SpawnWitch(int lvl)
 
 	int bookCount = 0;
 	const int pinnedBookCount = gbIsHellfire ? RandomIntLessThan(MaxPinnedBookCount) : 0;
-const int itemCount = RandomIntBetween(10, gbIsHellfire ? NumWitchItemsHf : NumWitchItems);
+	const int itemCount = RandomIntBetween(10, gbIsHellfire ? NumWitchItemsHf : NumWitchItems);
 	const int maxValue = gbIsHellfire ? MaxVendorValueHf : MaxVendorValue;
 
 	// Ensure the vector has enough space for the new items
