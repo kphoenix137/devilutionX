@@ -1907,7 +1907,9 @@ _item_indexes RndSmithItem(const Player &player, int lvl)
 	return RndVendorItem<SmithItemOk, true>(player, 0, lvl);
 }
 
-// FIXME: Move to stores.cpp
+/**
+ * @brief Sort the vendor's inventory, keeping pinned items in place
+ */
 void SortVendor(std::vector<Item> &itemList, size_t startIndex = 0)
 {
 	// Boundary check
@@ -4548,7 +4550,7 @@ const int itemCount = RandomIntBetween(10, gbIsHellfire ? NumWitchItemsHf : NumW
 		Witch.items.erase(Witch.items.begin() + itemCount, Witch.items.end());
 	}
 
-	// Sort the vendor's inventory, keeping pinned items in place
+	// Sort the items in the vector
 	SortVendor(Witch.items, PinnedItemCount);
 }
 

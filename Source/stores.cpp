@@ -498,7 +498,7 @@ void SetupScreenElements(TalkID talkId)
 		}
 
 		ScrollPos = 0;
-		NumTextLines = std::max(itemCount - ItemLineSpace, 0); // FIXME: Why is this different??
+		NumTextLines = std::max(itemCount - ItemLineSpace, 0);
 
 		if (itemCount == 1) {
 			SetLineText(20, 1, _("I have this item for sale:"), flags, false);
@@ -771,7 +771,6 @@ void SetMenuOption(TalkID action, const std::string_view &text)
 	}
 }
 
-// FIXME: Put in anonymous namespace
 void RestoreResource()
 {
 	int *resource = nullptr;
@@ -1042,7 +1041,6 @@ void UpdateBookMinMagic(Item &bookItem)
 	}
 }
 
-// FIXME: Move to anonymous namespace
 static void UpdateItemStatFlag(Item &item)
 {
 	item._iStatFlag = MyPlayer->CanUseItem(item);
@@ -1349,7 +1347,7 @@ void BuyItem(Item &item)
 	// Boy returns to main menu instead of item list
 	if (TownerId == TOWN_PEGBOY) {
 		OldActiveStore = TalkID::MainMenu;
-		OldTextLine = CurrentTextLine; // FIXME: May need to adjust this!
+		OldTextLine = CurrentTextLine;
 	}
 
 	// Recalculate the player's inventory
@@ -1776,7 +1774,7 @@ void DrawStore(const Surface &out)
 		DrawQTextBack(out);
 
 	if (GetItemCount(ActiveStore) > 0) {
-		SetupItemList(ActiveStore); // FIXME: Can't figure out why this needs to be done here, yet in other places?
+		SetupItemList(ActiveStore);
 	}
 
 	CalculateLineHeights();
@@ -1828,8 +1826,6 @@ void StoreESC()
 		StartStore(OldActiveStore);
 		CurrentTextLine = OldTextLine;
 		ScrollPos = OldScrollPos;
-		return;
-	case TalkID::Exit: // FIXME: This should never happen!!! Right??
 		return;
 	}
 }
@@ -1994,8 +1990,6 @@ void StoreEnter()
 		break;
 	case TalkID::IdentifyShow:
 		StartStore(TalkID::Identify);
-		break;
-	case TalkID::Exit: // FIXME: Do we even need this?
 		break;
 	}
 }
