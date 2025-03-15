@@ -82,12 +82,12 @@ std::optional<std::string_view> GetHotkeyName(SpellID spellId, SpellType spellTy
 
 void PrintSBookRemainingCharges(const Surface &out, Point pos)
 {
-	auto &myPlayer = *MyPlayer;
+	const Player &myPlayer = *MyPlayer;
 
 	if (myPlayer._pRSplType != SpellType::Charges)
 		return;
 
-	Item &staff = myPlayer.InvBody[INVLOC_HAND_LEFT];
+	const Item &staff = myPlayer.InvBody[INVLOC_HAND_LEFT];
 
 	UiFlags color = (staff._iCharges == staff._iMaxCharges ? UiFlags::ColorGold : UiFlags::ColorBlue);
 
