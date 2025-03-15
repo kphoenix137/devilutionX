@@ -77,9 +77,12 @@ struct TownerLine {
 };
 
 struct IndexedItem {
-	Item *itemPtr;         // Pointer to the original item
-	ItemLocation location; // Location in the player's inventory (Inventory, Belt, or Body)
-	int index;             // Index in the corresponding array
+	/** Pointer to the original item */
+	Item *itemPtr;
+	/** Location in the player's inventory (Inventory, Belt, or Body) */
+	ItemLocation location;
+	/** Index in the corresponding array */
+	int index;
 };
 
 enum class ResourceType {
@@ -88,8 +91,10 @@ enum class ResourceType {
 	Invalid,
 };
 
-extern TalkID ActiveStore;                                    // Currently active store
-extern DVL_API_FOR_TEST std::vector<IndexedItem> playerItems; // Pointers to player items, coupled with necessary information
+/** Currently active store */
+extern TalkID ActiveStore;
+/** Pointers to player items, coupled with necessary information */
+extern DVL_API_FOR_TEST std::vector<IndexedItem> playerItems;
 
 class TownerStore {
 public:
@@ -104,7 +109,8 @@ public:
 	}
 
 	std::string name;
-	std::vector<Item> basicItems; // Used for the blacksmith store that only displays non-magical items
+	/** Used for the blacksmith store that only displays non-magical items */
+	std::vector<Item> basicItems;
 	std::vector<Item> items;
 	uint8_t itemLevel;
 
@@ -112,7 +118,8 @@ public:
 	TalkID buy;
 	TalkID sell;
 	TalkID special;
-	ResourceType resourceType; // Resource type to restore for stores that restore player's resources
+	/** Resource type to restore for stores that restore player's resources */
+	ResourceType resourceType;
 };
 
 extern TownerStore Blacksmith;
