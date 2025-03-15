@@ -20,7 +20,7 @@ TEST(Stores, FilterRepairableItems_magic)
 	ResetPlayerItems();
 
 	// Create a magic item with durability and add it to the player's inventory
-	Item magicItem;
+	devilution::Item magicItem;
 	magicItem._iMaxDur = 60;
 	magicItem._iDurability = magicItem._iMaxDur - 1;
 	magicItem._iMagical = ITEM_QUALITY_MAGIC;
@@ -29,7 +29,7 @@ TEST(Stores, FilterRepairableItems_magic)
 	magicItem._iIvalue = 19000;
 
 	// Add the item to the player's inventory
-	playerItems.push_back({ &magicItem, ItemLocation::Inventory, 0 });
+	playerItems.emplace_back(&magicItem, ItemLocation::Inventory, 0);
 
 	// Call the filtering function to remove non-repairable items
 	FilterRepairableItems();
@@ -46,7 +46,7 @@ TEST(Stores, FilterRepairableItems_normal)
 	ResetPlayerItems();
 
 	// Create a normal item with durability and add it to the player's inventory
-	Item normalItem;
+	devilution::Item normalItem;
 	normalItem._iMaxDur = 20;
 	normalItem._iDurability = normalItem._iMaxDur - 1;
 	normalItem._iMagical = ITEM_QUALITY_NORMAL;
@@ -54,7 +54,7 @@ TEST(Stores, FilterRepairableItems_normal)
 	normalItem._ivalue = 2000;
 
 	// Add the item to the player's inventory
-	playerItems.push_back({ &normalItem, ItemLocation::Inventory, 0 });
+	playerItems.emplace_back(&normalItem, ItemLocation::Inventory, 0);
 
 	// Call the filtering function to remove non-repairable items
 	FilterRepairableItems();
@@ -71,7 +71,7 @@ TEST(Stores, FilterRepairableItems_no_repair)
 	ResetPlayerItems();
 
 	// Create an item that cannot be repaired (already at max durability)
-	Item indestructibleItem;
+	devilution::Item indestructibleItem;
 	indestructibleItem._iMaxDur = DUR_INDESTRUCTIBLE; // Indestructible item
 	indestructibleItem._iDurability = 100;
 	indestructibleItem._iMagical = ITEM_QUALITY_MAGIC;
@@ -79,7 +79,7 @@ TEST(Stores, FilterRepairableItems_no_repair)
 	indestructibleItem._ivalue = 5000;
 
 	// Add the item to the player's inventory
-	playerItems.push_back({ &indestructibleItem, ItemLocation::Inventory, 0 });
+	playerItems.emplace_back(&indestructibleItem, ItemLocation::Inventory, 0);
 
 	// Call the filtering function to remove non-repairable items
 	FilterRepairableItems();
