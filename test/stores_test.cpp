@@ -6,7 +6,9 @@ using namespace devilution;
 
 namespace {
 
-// Helper function to reset the playerItems vector before each test
+/**
+ * @brief Helper function to reset the playerItems vector before each test void ResetPlayerItems()
+ */
 void ResetPlayerItems()
 {
 	playerItems.clear();
