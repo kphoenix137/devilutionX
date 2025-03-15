@@ -14,17 +14,6 @@ void ResetPlayerItems()
 	playerItems.clear();
 }
 
-// This is a direct copy of FilterRepairableItems logic for testing purposes
-void Test_FilterRepairableItems()
-{
-	playerItems.erase(std::remove_if(playerItems.begin(), playerItems.end(),
-	                      [](const IndexedItem &indexedItem) {
-		                      const Item &itemPtr = *indexedItem.itemPtr;
-		                      return itemPtr._iDurability == itemPtr._iMaxDur || itemPtr._iMaxDur == DUR_INDESTRUCTIBLE;
-	                      }),
-	    playerItems.end());
-}
-
 TEST(Stores, FilterRepairableItems_magic)
 {
 	// Reset playerItems before starting the test
@@ -43,7 +32,7 @@ TEST(Stores, FilterRepairableItems_magic)
 	playerItems.push_back({ &magicItem, ItemLocation::Inventory, 0 });
 
 	// Call the filtering function to remove non-repairable items
-	Test_FilterRepairableItems();
+	FilterRepairableItems();
 
 	// Check that the playerItems vector contains the magic item and its values are correct
 	ASSERT_EQ(playerItems.size(), 1);
@@ -68,7 +57,7 @@ TEST(Stores, FilterRepairableItems_normal)
 	playerItems.push_back({ &normalItem, ItemLocation::Inventory, 0 });
 
 	// Call the filtering function to remove non-repairable items
-	Test_FilterRepairableItems();
+	FilterRepairableItems();
 
 	// Check that the playerItems vector contains the normal item and its values are correct
 	ASSERT_EQ(playerItems.size(), 1);
@@ -93,7 +82,7 @@ TEST(Stores, FilterRepairableItems_no_repair)
 	playerItems.push_back({ &indestructibleItem, ItemLocation::Inventory, 0 });
 
 	// Call the filtering function to remove non-repairable items
-	Test_FilterRepairableItems();
+	FilterRepairableItems();
 
 	// Check that the playerItems vector is empty since the item is indestructible
 	ASSERT_EQ(playerItems.size(), 0);
