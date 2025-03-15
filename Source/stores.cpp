@@ -26,6 +26,7 @@
 #include "multi.h"
 #include "options.h"
 #include "panels/info_box.hpp"
+#include "qol/stash.h"
 #include "utils/format_int.hpp"
 #include "utils/language.h"
 #include "utils/str_cat.hpp"
@@ -399,10 +400,10 @@ bool GiveItemToPlayer(Item &item, bool persistItem)
 	}
 
 	if (persistItem) {
-		return AutoPlaceItemInInventory(player, item, true);
+		return AutoPlaceItemInInventory(*MyPlayer, item, true);
 	}
 
-	return CanFitItemInInventory(player, item);
+	return CanFitItemInInventory(*MyPlayer, item);
 }
 
 void SetupScreenElements(TalkID talkId)
@@ -719,7 +720,7 @@ void RestoreResource()
 		component = PanelDrawComponent::Health;
 		break;
 	case ResourceType::Mana:
-		if (!*sgOptions.Gameplay.adriaRefillsMana)
+		if (!*GetOptions().Gameplay.adriaRefillsMana)
 			return;
 		resource = &MyPlayer->_pMana;
 		maxResource = &MyPlayer->_pMaxMana;
