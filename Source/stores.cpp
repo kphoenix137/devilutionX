@@ -257,7 +257,7 @@ void DrawTextUI(const Surface &out)
 
 void DrawScrollbar(const Surface &out, int y1, int y2)
 {
-	int itemCount = GetItemCount(ActiveStore);
+	const int itemCount = GetItemCount(ActiveStore);
 	const Point uiPosition = GetUIRectangle().position;
 	int yd1 = y1 * 12 + 44 + uiPosition.y;
 	int yd2 = y2 * 12 + 44 + uiPosition.y;
