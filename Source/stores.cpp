@@ -49,6 +49,17 @@ _talker_id TownerId; // The current towner being interacted with
 
 std::vector<IndexedItem> playerItems;
 
+void FilterRepairableItems()
+{
+	// Filter playerItems in place to only include items that can be repaired
+	playerItems.erase(std::remove_if(playerItems.begin(), playerItems.end(),
+	                      [](const IndexedItem &indexedItem) {
+		                      const Item &itemPtr = *indexedItem.itemPtr;
+		                      return itemPtr._iDurability == itemPtr._iMaxDur || itemPtr._iMaxDur == DUR_INDESTRUCTIBLE;
+	                      }),
+	    playerItems.end());
+}
+
 namespace {
 
 constexpr int PaddingTop = 32;
@@ -880,17 +891,6 @@ void FilterSellableItems(TalkID talkId)
 		                      default:
 			                      return true; // Remove this item for unsupported TalkID
 		                      }
-	                      }),
-	    playerItems.end());
-}
-
-void FilterRepairableItems()
-{
-	// Filter playerItems in place to only include items that can be repaired
-	playerItems.erase(std::remove_if(playerItems.begin(), playerItems.end(),
-	                      [](const IndexedItem &indexedItem) {
-		                      const Item &itemPtr = *indexedItem.itemPtr;
-		                      return itemPtr._iDurability == itemPtr._iMaxDur || itemPtr._iMaxDur == DUR_INDESTRUCTIBLE;
 	                      }),
 	    playerItems.end());
 }
