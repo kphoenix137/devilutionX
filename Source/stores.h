@@ -123,9 +123,9 @@ extern TownerStore Storyteller;
 extern TownerStore Barmaid;
 
 void FilterRepairableItems();
-/* Clears premium items sold by Griswold and Wirt. */
+/** Clears premium items sold by Griswold and Wirt. */
 void InitStores();
-/* Spawns items sold by vendors, including premium items sold by Griswold and Wirt. */
+/** Spawns items sold by vendors, including premium items sold by Griswold and Wirt. */
 void SetupTownStores();
 void FreeStoreMem();
 void ExitStore();
