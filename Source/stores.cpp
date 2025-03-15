@@ -595,15 +595,23 @@ void SetupConfirmScreen()
 void SetupGossipScreen()
 {
 	int la;
-	TownerStore *towner = townerStores[TownerId];
+	const StoreData &store = Stores[TownerId];
+
+	auto gossipOption = std::find_if(store.menuOptions.begin(), store.menuOptions.end(),
+	    [](const StoreMenuOption &option) { return option.action == TalkID::Gossip; });
+
+	const std::string &gossipText = gossipOption->text;
 
 	IsTextFullSize = false;
 
-	SetLineText(0, 2, fmt::format(fmt::runtime(_("Talk to {:s}")), towner->name), UiFlags::ColorWhitegold | UiFlags::AlignCenter, false);
-	SetLineAsDivider(5);
-	if (gbIsSpawn) {
-		SetLineText(0, 10, fmt::format(fmt::runtime(_("Talking to {:s}")), towner->name), UiFlags::ColorWhite | UiFlags::AlignCenter, false);
+	SetLineText(0, 2, fmt::format(fmt::runtime(_("{}")), gossipText),
+	    UiFlags::ColorWhitegold | UiFlags::AlignCenter, false);
 
+	SetLineAsDivider(5);
+
+	if (gbIsSpawn) {
+		SetLineText(0, 10, fmt::format(fmt::runtime(_("{}")), gossipText),
+		    UiFlags::ColorWhite | UiFlags::AlignCenter, false);
 		SetLineText(0, 12, _("is not available"), UiFlags::ColorWhite | UiFlags::AlignCenter, false);
 		SetLineText(0, 14, _("in the shareware"), UiFlags::ColorWhite | UiFlags::AlignCenter, false);
 		SetLineText(0, 16, _("version"), UiFlags::ColorWhite | UiFlags::AlignCenter, false);
@@ -633,6 +641,7 @@ void SetupGossipScreen()
 			sn += la;
 		}
 	}
+
 	SetLineText(0, sn2, _("Gossip"), UiFlags::ColorBlue | UiFlags::AlignCenter, true);
 	SetLineAsOptionsBackButton();
 }

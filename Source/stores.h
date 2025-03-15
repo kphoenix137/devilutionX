@@ -109,7 +109,6 @@ public:
 	{
 	}
 
-	std::string name;
 	/** Used for the blacksmith store that only displays non-magical items */
 	std::vector<Item> basicItems;
 	std::vector<Item> items;
