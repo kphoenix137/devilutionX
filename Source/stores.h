@@ -44,7 +44,7 @@ constexpr int NumStoreLines = 104;
 extern _talker_id TownerId;
 
 enum class TalkID : uint8_t {
-	Exit,
+	None,
 	MainMenu,
 	BasicBuy,
 	Buy,

@@ -131,15 +131,15 @@ std::vector<std::pair<int, TalkID>> LineActionMappings;
 int CurrentMenuDrawLine;
 
 std::vector<StoreData> Stores = {
-	{ N_("Blacksmith"), N_("Welcome to the\n\nBlacksmith's shop"), { { TalkID::Gossip, N_("Talk to Griswold") }, { TalkID::BasicBuy, N_("Buy basic items") }, { TalkID::Buy, N_("Buy premium items") }, { TalkID::Sell, N_("Sell items") }, { TalkID::Repair, N_("Repair items") }, { TalkID::Exit, N_("Leave the shop") } } },
-	{ N_("Healer"), N_("Welcome to the\n\nHealer's home"), { { TalkID::Gossip, N_("Talk to Pepin") }, { TalkID::Buy, N_("Buy items") }, { TalkID::Exit, N_("Leave Healer's home") } } },
+	{ N_("Blacksmith"), N_("Welcome to the\n\nBlacksmith's shop"), { { TalkID::Gossip, N_("Talk to Griswold") }, { TalkID::BasicBuy, N_("Buy basic items") }, { TalkID::Buy, N_("Buy premium items") }, { TalkID::Sell, N_("Sell items") }, { TalkID::Repair, N_("Repair items") }, { TalkID::None, N_("Leave the shop") } } },
+	{ N_("Healer"), N_("Welcome to the\n\nHealer's home"), { { TalkID::Gossip, N_("Talk to Pepin") }, { TalkID::Buy, N_("Buy items") }, { TalkID::None, N_("Leave Healer's home") } } },
 	{},
-	{ N_("Tavern"), N_("Welcome to the\n\nRising Sun"), { { TalkID::Gossip, N_("Talk to the Ogden") }, { TalkID::Exit, N_("Leave the tavern") } } },
-	{ N_("Storyteller"), N_("The Town Elder"), { { TalkID::Gossip, N_("Talk to Cain") }, { TalkID::Identify, N_("Identify an item") }, { TalkID::Exit, N_("Say goodbye") } } },
-	{ N_("Drunk"), N_("Farnham the Drunk"), { { TalkID::Gossip, N_("Talk to Farnham") }, { TalkID::Exit, N_("Say goodbye") } } },
-	{ N_("Witch"), N_("Welcome to the\n\nWitch's shack"), { { TalkID::Gossip, N_("Talk to Adria") }, { TalkID::Buy, N_("Buy items") }, { TalkID::Sell, N_("Sell items") }, { TalkID::Recharge, N_("Recharge staves") }, { TalkID::Exit, N_("Leave the shack") } } },
-	{ N_("Barmaid"), N_("Gillian"), { { TalkID::Gossip, N_("Talk to Gillian") }, { TalkID::Stash, N_("Access Stash") }, { TalkID::Exit, N_("Say goodbye") } } },
-	{ N_("Boy"), N_("Wirt the Peg-legged boy"), { { TalkID::Gossip, N_("Talk to Wirt") }, { TalkID::Buy, N_("What have you got?") }, { TalkID::Exit, N_("Say goodbye") } } },
+	{ N_("Tavern"), N_("Welcome to the\n\nRising Sun"), { { TalkID::Gossip, N_("Talk to the Ogden") }, { TalkID::None, N_("Leave the tavern") } } },
+	{ N_("Storyteller"), N_("The Town Elder"), { { TalkID::Gossip, N_("Talk to Cain") }, { TalkID::Identify, N_("Identify an item") }, { TalkID::None, N_("Say goodbye") } } },
+	{ N_("Drunk"), N_("Farnham the Drunk"), { { TalkID::Gossip, N_("Talk to Farnham") }, { TalkID::None, N_("Say goodbye") } } },
+	{ N_("Witch"), N_("Welcome to the\n\nWitch's shack"), { { TalkID::Gossip, N_("Talk to Adria") }, { TalkID::Buy, N_("Buy items") }, { TalkID::Sell, N_("Sell items") }, { TalkID::Recharge, N_("Recharge staves") }, { TalkID::None, N_("Leave the shack") } } },
+	{ N_("Barmaid"), N_("Gillian"), { { TalkID::Gossip, N_("Talk to Gillian") }, { TalkID::Stash, N_("Access Stash") }, { TalkID::None, N_("Say goodbye") } } },
+	{ N_("Boy"), N_("Wirt the Peg-legged boy"), { { TalkID::Gossip, N_("Talk to Wirt") }, { TalkID::Buy, N_("What have you got?") }, { TalkID::None, N_("Say goodbye") } } },
 	{},
 	{},
 	{},
@@ -695,7 +695,7 @@ void SetMenuOption(TalkID action, const std::string_view &text)
 	UiFlags flags = (action == TalkID::Gossip) ? UiFlags::ColorBlue | UiFlags::AlignCenter : UiFlags::ColorWhite | UiFlags::AlignCenter;
 
 	// Set leave option as the last menu option, trying for line 18 if there's room, otherwise line 20.
-	if (action == TalkID::Exit) {
+	if (action == TalkID::None) {
 		CurrentMenuDrawLine = CurrentMenuDrawLine < 18 ? 18 : 20;
 	}
 
@@ -1049,7 +1049,7 @@ void MainMenuEnter()
 	TownerStore *towner = townerStores[TownerId];
 
 	switch (selectedAction) {
-	case TalkID::Exit:
+	case TalkID::None:
 		ExitStore();
 		return;
 	case TalkID::Gossip:
@@ -1544,7 +1544,7 @@ void FreeStoreMem()
 
 void ExitStore()
 {
-	SetActiveStore(TalkID::Exit);
+	SetActiveStore(TalkID::None);
 }
 
 void PrintSString(const Surface &out, int margin, int line, std::string_view text, UiFlags flags, int price, int cursId, bool cursIndent)
@@ -1687,13 +1687,13 @@ void StartStore(TalkID store /*= TalkID::MainMenu*/)
 	case TalkID::Confirm:
 		SetupConfirmScreen();
 		break;
-	case TalkID::Exit:
+	case TalkID::None:
 		break;
 	}
 
 	CurrentTextLine = -1;
 
-	if (store == TalkID::MainMenu && IsNoneOf(OldActiveStore, TalkID::Exit, TalkID::Invalid)) {
+	if (store == TalkID::MainMenu && IsNoneOf(OldActiveStore, TalkID::None, TalkID::Invalid)) {
 		CurrentTextLine = GetLineForAction(OldActiveStore);
 	} else { // Set currently selected line to the first selectable line
 		for (int i = 0; i < NumStoreLines; i++) {
@@ -1941,12 +1941,12 @@ void CheckStoreButton()
 
 	if (!IsTextFullSize) {
 		if (!windowRect.contains(MousePosition)) {
-			while (ActiveStore != TalkID::Exit)
+			while (ActiveStore != TalkID::None)
 				StoreESC();
 		}
 	} else {
 		if (!windowRectFull.contains(MousePosition)) {
-			while (ActiveStore != TalkID::Exit)
+			while (ActiveStore != TalkID::None)
 				StoreESC();
 		}
 	}
@@ -2015,7 +2015,7 @@ void ReleaseStoreButton()
 
 bool IsPlayerInStore()
 {
-	return ActiveStore != TalkID::Exit;
+	return ActiveStore != TalkID::None;
 }
 
 } // namespace devilution
