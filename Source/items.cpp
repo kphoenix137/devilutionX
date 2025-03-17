@@ -619,7 +619,7 @@ void GetBookSpell(Item &item, int lvl)
 
 	rv = GenerateRnd(maxSpells) + 1;
 
-	if (gbIsSpawn && lvl > 5)
+	if (gbIsSpawn && lvl > 5 && lvl != 20)
 		lvl = 5;
 
 	int s = static_cast<int8_t>(SpellID::Firebolt);
