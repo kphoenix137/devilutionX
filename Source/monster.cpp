@@ -4249,7 +4249,7 @@ tl::expected<void, std::string> SyncMonsterAnim(Monster &monster)
 		monsterType.corpseId = 1;
 	}
 #endif
-	if (monster.isUnique()) {
+	if (monster.isUnique() && !gbIsSpawn) {
 		RETURN_IF_ERROR(InitTRNForUniqueMonster(monster));
 	}
 	MonsterGraphic graphic = MonsterGraphic::Stand;
