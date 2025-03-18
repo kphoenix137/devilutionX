@@ -10,7 +10,8 @@ namespace devilution {
 void LuaInitialize();
 void LuaReloadActiveMods();
 void LuaShutdown();
-void LuaEvent(std::string_view name);
+void LuaEvent(std::string_view eventName, sol::table eventData);
+void LuaEvent(std::string_view eventName);
 sol::state &GetLuaState();
 sol::environment CreateLuaSandbox();
 sol::object SafeCallResult(sol::protected_function_result result, bool optional);

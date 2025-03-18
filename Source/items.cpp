@@ -34,6 +34,7 @@
 #include "levels/tile_properties.hpp"
 #include "levels/town.h"
 #include "lighting.h"
+#include "lua/modules/items.hpp"
 #include "minitext.h"
 #include "missiles.h"
 #include "options.h"
@@ -1522,9 +1523,11 @@ void SetupBaseItem(Point position, _item_indexes idx, bool onlygood, bool sendms
 	GetSuperItemSpace(position, ii);
 	int curlv = ItemsGetCurrlevel();
 
-	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * curlv, 1, onlygood, delta);
-	TryRandomUniqueItem(item, idx, 2 * curlv, 1, onlygood, delta);
-	SetupItem(item);
+	do {
+		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * curlv, 1, onlygood, delta);
+		TryRandomUniqueItem(item, idx, 2 * curlv, 1, onlygood, delta);
+		SetupItem(item);
+	} while (CallLuaNoSpawnCondition(item));
 
 	if (sendmsg)
 		NetSendCmdPItem(false, CMD_DROPITEM, item.position, item);
@@ -1968,7 +1971,7 @@ void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
 		GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire);
 
 		if (!gbIsHellfire) {
-			if (premiumItem._iIvalue <= MaxVendorValue) {
+			if (!CallLuaVendorSpawnCondition(premiumItem, MaxVendorValue)) {
 				break;
 			}
 		} else {
@@ -2191,7 +2194,7 @@ void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, int i
 		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), 2 * lvl, 1, true, delta);
 		TryRandomUniqueItem(item, idx, 2 * lvl, 1, true, delta);
 		SetupItem(item);
-		if (item._iCurs == icurs)
+		if (CallLuaRewardSpawnCondition(item, icurs))
 			break;
 
 		idx = RndTypeItems(itemType, imid, lvl);
@@ -3464,9 +3467,11 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 	if (!gbIsHellfire && monster.type().type == MT_DIABLO)
 		mLevel -= 15;
 
-	SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), mLevel, uper, onlygood, false, false);
-	TryRandomUniqueItem(item, idx, mLevel, uper, onlygood, false);
-	SetupItem(item);
+	do {
+		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), mLevel, uper, onlygood, false);
+		TryRandomUniqueItem(item, idx, mLevel, uper, onlygood, false);
+		SetupItem(item);
+	} while (CallLuaNoSpawnCondition(item));
 
 	if (sendmsg)
 		NetSendCmdPItem(false, CMD_DROPITEM, item.position, item);
@@ -4509,7 +4514,7 @@ void SpawnWitch(int lvl)
 				maxlvl = 2 * lvl;
 			if (maxlvl != -1)
 				GetItemBonus(*MyPlayer, item, maxlvl / 2, maxlvl, true, true);
-		} while (item._iIvalue > maxValue);
+		} while (CallLuaVendorSpawnCondition(item, maxValue));
 
 		item._iCreateInfo = lvl | CF_WITCH;
 		item._iIdentified = true;
@@ -4546,7 +4551,7 @@ void SpawnBoy(int lvl)
 		GetItemBonus(*MyPlayer, BoyItem, lvl, 2 * lvl, true, true);
 
 		if (!gbIsHellfire) {
-			if (BoyItem._iIvalue > MaxBoyValue) {
+			if (CallLuaVendorSpawnCondition(BoyItem, MaxBoyValue)) {
 				keepgoing = true; // prevent breaking the do/while loop too early by failing hellfire's condition in while
 				continue;
 			}
@@ -4619,14 +4624,7 @@ void SpawnBoy(int lvl)
 				break;
 			}
 		}
-	} while (keepgoing
-	    || ((
-	            BoyItem._iIvalue > MaxBoyValueHf
-	            || BoyItem._iMinStr > strength
-	            || BoyItem._iMinMag > magic
-	            || BoyItem._iMinDex > dexterity
-	            || BoyItem._iIvalue < ivalue)
-	        && count < 250));
+	} while (keepgoing || CallLuaBoyHfSpawnCondition(BoyItem, MaxBoyValueHf, strength, magic, dexterity, ivalue, count, 250));
 	BoyItem._iCreateInfo = lvl | CF_BOY;
 	BoyItem._iIdentified = true;
 	BoyItemLevel = lvl / 2;

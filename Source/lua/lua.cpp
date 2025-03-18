@@ -31,6 +31,64 @@ namespace devilution {
 
 namespace {
 
+inline const char *enumToString(SpellID spell)
+{
+	switch (spell) {
+	case SpellID::Firebolt: return "Firebolt";
+	case SpellID::Healing: return "Healing";
+	case SpellID::Lightning: return "Lightning";
+	case SpellID::Flash: return "Flash";
+	case SpellID::Identify: return "Identify";
+	case SpellID::FireWall: return "FireWall";
+	case SpellID::TownPortal: return "TownPortal";
+	case SpellID::StoneCurse: return "StoneCurse";
+	case SpellID::Infravision: return "Infravision";
+	case SpellID::Phasing: return "Phasing";
+	case SpellID::ManaShield: return "ManaShield";
+	case SpellID::Fireball: return "Fireball";
+	case SpellID::Guardian: return "Guardian";
+	case SpellID::ChainLightning: return "ChainLightning";
+	case SpellID::FlameWave: return "FlameWave";
+	case SpellID::DoomSerpents: return "DoomSerpents";
+	case SpellID::BloodRitual: return "BloodRitual";
+	case SpellID::Nova: return "Nova";
+	case SpellID::Invisibility: return "Invisibility";
+	case SpellID::Inferno: return "Inferno";
+	case SpellID::Golem: return "Golem";
+	case SpellID::Rage: return "Rage";
+	case SpellID::Teleport: return "Teleport";
+	case SpellID::Apocalypse: return "Apocalypse";
+	case SpellID::Etherealize: return "Etherealize";
+	case SpellID::ItemRepair: return "ItemRepair";
+	case SpellID::StaffRecharge: return "StaffRecharge";
+	case SpellID::TrapDisarm: return "TrapDisarm";
+	case SpellID::Elemental: return "Elemental";
+	case SpellID::ChargedBolt: return "ChargedBolt";
+	case SpellID::HolyBolt: return "HolyBolt";
+	case SpellID::Resurrect: return "Resurrect";
+	case SpellID::Telekinesis: return "Telekinesis";
+	case SpellID::HealOther: return "HealOther";
+	case SpellID::BloodStar: return "BloodStar";
+	case SpellID::BoneSpirit: return "BoneSpirit";
+	case SpellID::Mana: return "Mana";
+	case SpellID::Magi: return "Magi";
+	case SpellID::Jester: return "Jester";
+	case SpellID::LightningWall: return "LightningWall";
+	case SpellID::Immolation: return "Immolation";
+	case SpellID::Warp: return "Warp";
+	case SpellID::Reflect: return "Reflect";
+	case SpellID::Berserk: return "Berserk";
+	case SpellID::RingOfFire: return "RingOfFire";
+	case SpellID::Search: return "Search";
+	case SpellID::RuneOfFire: return "RuneOfFire";
+	case SpellID::RuneOfLight: return "RuneOfLight";
+	case SpellID::RuneOfNova: return "RuneOfNova";
+	case SpellID::RuneOfImmolation: return "RuneOfImmolation";
+	case SpellID::RuneOfStone: return "RuneOfStone";
+	default: return "Unknown";
+	}
+}
+
 struct LuaState {
 	sol::state sol = {};
 	sol::table commonPackages = {};
@@ -215,6 +273,24 @@ void LuaInitialize()
 {
 	CurrentLuaState.emplace(LuaState { .sol = { sol::c_call<decltype(&LuaPanic), &LuaPanic> } });
 	sol::state &lua = CurrentLuaState->sol;
+
+	sol::table spellTable = lua.create_named_table("SpellID");
+
+	for (int i = static_cast<int>(SpellID::FIRST); i <= static_cast<int>(SpellID::LAST); ++i) {
+		SpellID spell = static_cast<SpellID>(i);
+		spellTable[enumToString(spell)] = spell;
+	}
+
+	lua["SpellID"] = spellTable;
+
+	lua.new_usertype<Item>("Item",
+	    "_iCurs", &Item::_iCurs,
+	    "_iIvalue", &Item::_iIvalue,
+	    "_iSpell", &Item::_iSpell,
+	    "_iMinStr", &Item::_iMinStr,
+	    "_iMinMag", &Item::_iMinMag,
+	    "_iMinDex", &Item::_iMinDex);
+
 	lua_setwarnf(lua.lua_state(), LuaWarn, /*ud=*/nullptr);
 	lua.open_libraries(
 	    sol::lib::base,
@@ -263,15 +339,26 @@ void LuaShutdown()
 	CurrentLuaState = std::nullopt;
 }
 
-void LuaEvent(std::string_view name)
+void LuaEvent(std::string_view eventName, sol::table eventData)
 {
-	const auto trigger = CurrentLuaState->events.traverse_get<std::optional<sol::object>>(name, "trigger");
-	if (!trigger.has_value() || !trigger->is<sol::protected_function>()) {
-		LogError("events.{}.trigger is not a function", name);
-		return;
+	sol::state &lua = GetLuaState(); // Get Lua state
+
+	sol::function eventHandler = lua[eventName];
+	if (eventHandler.valid()) {
+		eventHandler(eventData); // Call Lua function
+
+		// 🚀 If `handled` is true, stop propagation
+		if (eventData["handled"].get_or(false)) {
+			return;
+		}
 	}
-	const sol::protected_function fn = trigger->as<sol::protected_function>();
-	SafeCallResult(fn(), /*optional=*/true);
+}
+
+void LuaEvent(std::string_view eventName)
+{
+	sol::state &lua = GetLuaState();
+	sol::table eventData = lua.create_table(); // Create empty table
+	LuaEvent(eventName, eventData);            // Call the main function
 }
 
 sol::state &GetLuaState()
