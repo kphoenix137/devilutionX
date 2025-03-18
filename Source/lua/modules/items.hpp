@@ -8,7 +8,7 @@ namespace devilution {
 
 struct Item;
 
-bool CallLuaNoSpawnCondition(Item &item);
+bool CallLuaDungeonSpawnCondition(Item &item);
 bool CallLuaRewardSkipItem(Item &item, uint8_t iCurs);
 bool CallLuaVendorSkipItem(Item &item, int maxValue);
 bool CallLuaSmithPremiumHfSkipItem(Item &item, int maxValue, int strength, int magic, int dexterity, int ivalue);
