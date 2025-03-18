@@ -10,11 +10,15 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <functional>
 #include <iterator>
 #include <optional>
 #include <span>
+#include <string>
+#include <unordered_set>
 
+#include <SDL.h>
 #include <SDL_version.h>
 #include <expected.hpp>
 #include <fmt/format.h>
@@ -57,6 +61,50 @@ namespace devilution {
 #endif
 
 namespace {
+
+void LoadUserMods()
+{
+	const std::string modsPath = paths::BasePath() + "assets/lua/mods/";
+
+	// Check if the mods directory exists
+	if (!DirectoryExists(modsPath.c_str())) {
+		return;
+	}
+
+	// Get existing mods from the INI file
+	std::vector<std::string_view> existingMods = GetOptions().Mods.GetModList();
+	std::unordered_set<std::string> modsInFolder;
+
+	// Iterate over folders in the mods directory
+	for (const auto &entry : std::filesystem::directory_iterator(modsPath)) {
+		if (!entry.is_directory())
+			continue; // Skip files, only process folders
+
+		std::string modFolder = entry.path().filename().string();
+		std::string modScriptPath = entry.path().string() + "/init.lua";
+
+		// Ensure the mod has an init.lua file
+		if (!FileExists(modScriptPath.c_str())) {
+			continue;
+		}
+
+		// Track mods found in the folder
+		modsInFolder.insert(modFolder);
+
+		// Check if the mod is already in the INI file
+		if (std::find(existingMods.begin(), existingMods.end(), modFolder) == existingMods.end()) {
+			// Add new mod
+			GetOptions().Mods.AddModEntry(modFolder);
+		}
+	}
+
+	// Remove mods that exist in the INI but are no longer in the mods folder
+	for (const std::string_view &mod : existingMods) {
+		if (modsInFolder.find(std::string(mod)) == modsInFolder.end()) {
+			GetOptions().Mods.RemoveModEntry(std::string(mod));
+		}
+	}
+}
 
 std::optional<Ini> ini;
 
@@ -158,6 +206,7 @@ bool HardwareCursorSupported()
 void LoadOptions()
 {
 	LoadIni();
+	LoadUserMods();
 	Options &options = GetOptions();
 	for (OptionCategoryBase *pCategory : options.GetCategories()) {
 		for (OptionEntryBase *pEntry : pCategory->GetEntries()) {
@@ -1476,6 +1525,24 @@ std::vector<OptionEntryBase *> ModOptions::GetEntries()
 		optionEntries.emplace_back(&modEntry.enabled);
 	}
 	return optionEntries;
+}
+
+void ModOptions::AddModEntry(const std::string &modName)
+{
+	auto &entries = GetModEntries();
+	entries.emplace_front(modName);
+}
+
+void ModOptions::RemoveModEntry(const std::string &modName)
+{
+	if (!modEntries) {
+		return;
+	}
+
+	auto &entries = *modEntries;
+	entries.remove_if([&](const ModEntry &entry) {
+		return entry.name == modName;
+	});
 }
 
 std::forward_list<ModOptions::ModEntry> &ModOptions::GetModEntries()

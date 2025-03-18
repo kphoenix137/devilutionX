@@ -279,6 +279,11 @@ sol::state &GetLuaState()
 	return CurrentLuaState->sol;
 }
 
+sol::table &GetLuaEvents()
+{
+	return CurrentLuaState->events;
+}
+
 sol::object SafeCallResult(sol::protected_function_result result, bool optional)
 {
 	const bool valid = result.valid();
