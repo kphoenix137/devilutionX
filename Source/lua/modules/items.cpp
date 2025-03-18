@@ -256,7 +256,7 @@ bool CallLuaSkipIdxHelper(const std::string_view eventName, _item_indexes idx, b
 
 } // namespace
 
-bool CallLuaNoSpawnCondition(Item &item)
+bool CallLuaDungeonSpawnCondition(Item &item)
 {
 	bool defaultCondition = false;
 
