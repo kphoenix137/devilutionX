@@ -102,7 +102,7 @@ std::string ItemSpecialEffectHfToString(ItemSpecialEffectHf flags)
 	return result;
 }
 
-static std::string CreateSpellIDString(SpellID spell)
+std::string SpellIDToString(SpellID spell)
 {
 	switch (spell) {
 	case SpellID::Null: return "Null";
@@ -180,7 +180,7 @@ sol::table CreateItemTable(const Item &item)
 	tbl["_iName"] = item._iName;
 	tbl["_iIName"] = item._iIName;
 	tbl["_iLoc"] = static_cast<int>(item._iLoc);
-	tbl["_iClass"] = static_cast<int>(item._iClass);
+	tbl["_iClass"] = ItemClassToString(item._iClass);
 	tbl["_iCurs"] = item._iCurs;
 	tbl["_ivalue"] = item._ivalue;
 	tbl["_iIvalue"] = item._iIvalue;
@@ -188,9 +188,9 @@ sol::table CreateItemTable(const Item &item)
 	tbl["_iMaxDam"] = item._iMaxDam;
 	tbl["_iAC"] = item._iAC;
 	tbl["_iFlags"] = static_cast<int>(item._iFlags);
-	tbl["_iMiscId"] = static_cast<int>(item._iMiscId);
-	tbl["spell"] = CreateSpellIDString(item._iSpell);
-	tbl["IDidx"] = static_cast<int>(item.IDidx);
+	tbl["_iMiscId"] = ItemMiscIdToString(item._iMiscId);
+	tbl["spell"] = SpellIDToString(item._iSpell);
+	tbl["IDidx"] = ItemIndexToString(item.IDidx);
 	tbl["_iCharges"] = item._iCharges;
 	tbl["_iMaxCharges"] = item._iMaxCharges;
 	tbl["_iDurability"] = item._iDurability;
@@ -231,77 +231,6 @@ sol::table CreateItemTable(const Item &item)
 	tbl["_iDamAcFlags"] = ItemSpecialEffectHfToString(item._iDamAcFlags);
 	tbl["dwBuff"] = item.dwBuff;
 
-	return tbl;
-}
-
-static sol::table CreateItemTable(const Item &item)
-{
-	sol::state &L = GetLuaState();
-	sol::table tbl = L.create_table();
-
-	tbl["_iSeed"] = item._iSeed;
-	tbl["_iCreateInfo"] = item._iCreateInfo;
-	tbl["_itype"] = static_cast<int>(item._itype);
-	tbl["_iAnimFlag"] = item._iAnimFlag;
-	tbl["position"] = { item.position.x, item.position.y };
-	tbl["_iDelFlag"] = item._iDelFlag;
-	tbl["selectionRegion"] = static_cast<int>(item.selectionRegion);
-	tbl["_iPostDraw"] = item._iPostDraw;
-	tbl["_iIdentified"] = item._iIdentified;
-	tbl["_iMagical"] = static_cast<int>(item._iMagical);
-	tbl["_iName"] = item._iName;
-	tbl["_iIName"] = item._iIName;
-	tbl["_iLoc"] = static_cast<int>(item._iLoc);
-	tbl["_iClass"] = ItemClassToString(item._iClass);
-	tbl["_iCurs"] = item._iCurs;
-	tbl["_ivalue"] = item._ivalue;
-	tbl["_iIvalue"] = item._iIvalue;
-	tbl["_iMinDam"] = item._iMinDam;
-	tbl["_iMaxDam"] = item._iMaxDam;
-	tbl["_iAC"] = item._iAC;
-	tbl["_iFlags"] = static_cast<int>(item._iFlags);
-	tbl["_iMiscId"] = ItemMiscIdToString(item._iMiscId);
-	tbl["spell"] = CreateSpellIDTable(item._iSpell);
-	tbl["IDidx"] = ItemIndexToString(item.IDidx);
-	tbl["_iCharges"] = item._iCharges;
-	tbl["_iMaxCharges"] = item._iMaxCharges;
-	tbl["_iDurability"] = item._iDurability;
-	tbl["_iMaxDur"] = item._iMaxDur;
-	tbl["_iPLDam"] = item._iPLDam;
-	tbl["_iPLToHit"] = item._iPLToHit;
-	tbl["_iPLAC"] = item._iPLAC;
-	tbl["_iPLStr"] = item._iPLStr;
-	tbl["_iPLMag"] = item._iPLMag;
-	tbl["_iPLDex"] = item._iPLDex;
-	tbl["_iPLVit"] = item._iPLVit;
-	tbl["_iPLFR"] = item._iPLFR;
-	tbl["_iPLLR"] = item._iPLLR;
-	tbl["_iPLMR"] = item._iPLMR;
-	tbl["_iPLMana"] = item._iPLMana;
-	tbl["_iPLHP"] = item._iPLHP;
-	tbl["_iPLDamMod"] = item._iPLDamMod;
-	tbl["_iPLGetHit"] = item._iPLGetHit;
-	tbl["_iPLLight"] = item._iPLLight;
-	tbl["_iSplLvlAdd"] = item._iSplLvlAdd;
-	tbl["_iRequest"] = item._iRequest;
-	tbl["_iUid"] = item._iUid;
-	tbl["_iFMinDam"] = item._iFMinDam;
-	tbl["_iFMaxDam"] = item._iFMaxDam;
-	tbl["_iLMinDam"] = item._iLMinDam;
-	tbl["_iLMaxDam"] = item._iLMaxDam;
-	tbl["_iPLEnAc"] = item._iPLEnAc;
-	tbl["_iPrePower"] = static_cast<int>(item._iPrePower);
-	tbl["_iSufPower"] = static_cast<int>(item._iSufPower);
-	tbl["_iVAdd1"] = item._iVAdd1;
-	tbl["_iVMult1"] = item._iVMult1;
-	tbl["_iVAdd2"] = item._iVAdd2;
-	tbl["_iVMult2"] = item._iVMult2;
-	tbl["_iMinStr"] = item._iMinStr;
-	tbl["_iMinMag"] = item._iMinMag;
-	tbl["_iMinDex"] = item._iMinDex;
-	tbl["_iStatFlag"] = item._iStatFlag;
-	tbl["_iDamAcFlags"] = static_cast<int>(item._iDamAcFlags);
-	tbl["dwBuff"] = item.dwBuff;
 	return tbl;
 }
 
