@@ -10,7 +10,11 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#ifdef NXDK
+#include <dirent.h>
+#else
 #include <filesystem>
+#endif
 #include <functional>
 #include <iterator>
 #include <optional>
@@ -71,11 +75,46 @@ void LoadUserMods()
 		return;
 	}
 
-	// Get existing mods from the INI file
-	std::vector<std::string_view> existingMods = GetOptions().Mods.GetModList();
 	std::unordered_set<std::string> modsInFolder;
 
-	// Iterate over folders in the mods directory
+#ifdef NXDK
+	// Use POSIX directory functions.
+	DIR *dir = opendir(modsPath.c_str());
+
+	if (!dir)
+		return;
+
+	struct dirent *entry;
+
+	while ((entry = readdir(dir)) != nullptr) {
+		// Check for directories (skip . and ..)
+		if (entry->d_type != DT_DIR)
+			continue;
+
+		std::string modFolder = entry->d_name;
+
+		if (modFolder == "." || modFolder == "..")
+			continue;
+
+		std::string modScriptPath = modsPath + modFolder + "/init.lua";
+
+		// Ensure the mod has an init.lua file
+		if (!FileExists(modScriptPath.c_str()))
+			continue;
+
+		// Track mods found in the folder
+		modsInFolder.insert(modFolder);
+
+		// Get existing mods from the INI file
+		auto existingMods = GetOptions().Mods.GetModList();
+
+		// Check if the mod is already in the INI file
+		if (std::find(existingMods.begin(), existingMods.end(), modFolder) == existingMods.end())
+			GetOptions().Mods.AddModEntry(modFolder);
+	}
+	closedir(dir);
+#else
+	// Use std::filesystem for platforms that support it.
 	for (const auto &entry : std::filesystem::directory_iterator(modsPath)) {
 		if (!entry.is_directory())
 			continue; // Skip files, only process folders
@@ -84,19 +123,23 @@ void LoadUserMods()
 		std::string modScriptPath = entry.path().string() + "/init.lua";
 
 		// Ensure the mod has an init.lua file
-		if (!FileExists(modScriptPath.c_str())) {
+		if (!FileExists(modScriptPath.c_str()))
 			continue;
-		}
 
 		// Track mods found in the folder
 		modsInFolder.insert(modFolder);
 
+		// Get existing mods from the INI file
+		auto existingMods = GetOptions().Mods.GetModList();
+
 		// Check if the mod is already in the INI file
-		if (std::find(existingMods.begin(), existingMods.end(), modFolder) == existingMods.end()) {
-			// Add new mod
+		if (std::find(existingMods.begin(), existingMods.end(), modFolder) == existingMods.end())
 			GetOptions().Mods.AddModEntry(modFolder);
-		}
 	}
+#endif
+
+	// Remove mods that exist in the INI but are no longer in the mods folder
+	auto existingMods = GetOptions().Mods.GetModList();
 
 	// Remove mods that exist in the INI but are no longer in the mods folder
 	for (const std::string_view &mod : existingMods) {
