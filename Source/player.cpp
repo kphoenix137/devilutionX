@@ -206,13 +206,11 @@ void StartRangeAttack(Player &player, Direction d, WorldTileCoord cx, WorldTileC
 	int8_t skippedAnimationFrames = 0;
 	const auto flags = player._pIFlags;
 
-	if (!gbIsHellfire) {
-		if (includesFirstFrame && HasAnyOf(flags, ItemSpecialEffect::QuickAttack | ItemSpecialEffect::FastAttack)) {
-			skippedAnimationFrames += 1;
-		}
-		if (HasAnyOf(flags, ItemSpecialEffect::FastAttack)) {
-			skippedAnimationFrames += 1;
-		}
+	if (includesFirstFrame && HasAnyOf(flags, ItemSpecialEffect::QuickAttack | ItemSpecialEffect::FastAttack)) {
+		skippedAnimationFrames += 1;
+	}
+	if (HasAnyOf(flags, ItemSpecialEffect::FastAttack)) {
+		skippedAnimationFrames += 1;
 	}
 
 	auto animationFlags = AnimationDistributionFlags::ProcessAnimationPending;
