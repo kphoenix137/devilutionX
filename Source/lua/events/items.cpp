@@ -1,4 +1,4 @@
-#include "lua/modules/items.hpp"
+#include "lua/events/items.hpp"
 #include "items.h"
 #include "lua/lua.hpp"
 #include "lua/metadoc.hpp"
