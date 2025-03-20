@@ -10,11 +10,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#ifdef NXDK
-#include <dirent.h>
-#else
-#include <filesystem>
-#endif
 #include <functional>
 #include <iterator>
 #include <optional>
