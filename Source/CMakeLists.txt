@@ -127,6 +127,7 @@ set(libdevilutionx_SRCS
   lua/modules/player.cpp
   lua/modules/render.cpp
   lua/modules/towners.cpp
+  lua/usertypes/items.cpp
   lua/repl.cpp
 
   panels/charpanel.cpp
