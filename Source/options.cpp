@@ -70,82 +70,37 @@ void LoadUserMods()
 {
 	const std::string modsPath = paths::BasePath() + "assets/lua/mods/";
 
-	// Check if the mods directory exists
-	if (!DirectoryExists(modsPath.c_str())) {
+	// Check if the mods directory exists.
+	if (!DirectoryExists(modsPath.c_str()))
 		return;
-	}
 
+	// Use our helper function to get a list of directory names.
+	std::vector<std::string> modFolders = ListDirectories(modsPath.c_str());
 	std::unordered_set<std::string> modsInFolder;
 
-#ifdef NXDK
-	// Use POSIX directory functions.
-	DIR *dir = opendir(modsPath.c_str());
-
-	if (!dir)
-		return;
-
-	struct dirent *entry;
-
-	while ((entry = readdir(dir)) != nullptr) {
-		// Check for directories (skip . and ..)
-		if (entry->d_type != DT_DIR)
-			continue;
-
-		std::string modFolder = entry->d_name;
-
-		if (modFolder == "." || modFolder == "..")
-			continue;
-
-		std::string modScriptPath = modsPath + modFolder + "/init.lua";
-
-		// Ensure the mod has an init.lua file
+	// Iterate through each found mod folder.
+	for (const std::string &modFolder : modFolders) {
+		// Build the full path to the expected init.lua file.
+		std::string modScriptPath = modsPath + modFolder + DIRECTORY_SEPARATOR_STR + "init.lua";
+		// Only consider this folder if the init.lua file exists.
 		if (!FileExists(modScriptPath.c_str()))
 			continue;
 
-		// Track mods found in the folder
+		// Record that this mod folder is present.
 		modsInFolder.insert(modFolder);
 
-		// Get existing mods from the INI file
+		// Get the list of mods currently stored in the INI.
 		auto existingMods = GetOptions().Mods.GetModList();
-
-		// Check if the mod is already in the INI file
+		// If the mod isn’t already registered, add it.
 		if (std::find(existingMods.begin(), existingMods.end(), modFolder) == existingMods.end())
 			GetOptions().Mods.AddModEntry(modFolder);
 	}
-	closedir(dir);
-#else
-	// Use std::filesystem for platforms that support it.
-	for (const auto &entry : std::filesystem::directory_iterator(modsPath)) {
-		if (!entry.is_directory())
-			continue; // Skip files, only process folders
 
-		std::string modFolder = entry.path().filename().string();
-		std::string modScriptPath = entry.path().string() + "/init.lua";
-
-		// Ensure the mod has an init.lua file
-		if (!FileExists(modScriptPath.c_str()))
-			continue;
-
-		// Track mods found in the folder
-		modsInFolder.insert(modFolder);
-
-		// Get existing mods from the INI file
-		auto existingMods = GetOptions().Mods.GetModList();
-
-		// Check if the mod is already in the INI file
-		if (std::find(existingMods.begin(), existingMods.end(), modFolder) == existingMods.end())
-			GetOptions().Mods.AddModEntry(modFolder);
-	}
-#endif
-
-	// Remove mods that exist in the INI but are no longer in the mods folder
+	// Remove mods that are in the INI but no longer in the mods folder.
 	auto existingMods = GetOptions().Mods.GetModList();
-
-	// Remove mods that exist in the INI but are no longer in the mods folder
 	for (const std::string_view &mod : existingMods) {
-		if (modsInFolder.find(std::string(mod)) == modsInFolder.end()) {
+		if (modsInFolder.find(std::string(mod)) == modsInFolder.end())
 			GetOptions().Mods.RemoveModEntry(std::string(mod));
-		}
 	}
 }
 
