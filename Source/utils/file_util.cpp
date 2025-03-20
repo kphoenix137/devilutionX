@@ -44,6 +44,12 @@
 #endif
 #endif
 
+#ifdef NXDK
+#include <windows.h> // For WIN32_FIND_DATAA, FindFirstFileA, etc.
+#else
+#include <filesystem>
+#endif
+
 namespace devilution {
 
 #if defined(_WIN32) && !defined(DEVILUTIONX_WINDOWS_NO_WCHAR)
