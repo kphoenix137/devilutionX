@@ -61,16 +61,21 @@ void InitPlayerUserType(sol::state_view &lua)
 	SetDocumented(playerType, "mode", "PlayerMode", "Current player mode", [](const Player &p) { return p._pmode; }, [](Player &p, PLR_MODE val) { p._pmode = val; });
 	SetDocumented(playerType, "walkpath", "integer[]", "Pathfinding data (internal)", [](const Player &p) { return sol::as_table(std::vector<int8_t>(std::begin(p.walkpath), std::end(p.walkpath))); }, [](Player &p, const std::vector<int8_t> &path) { std::copy_n(path.begin(), std::min(path.size(), size_t(MaxPathLengthPlayer)), std::begin(p.walkpath)); });
 	SetDocumented(playerType, "plractive", "boolean", "Whether this player slot is in use", [](const Player &p) { return p.plractive; }, [](Player &p, bool val) { p.plractive = val; });
+	// TODO: Add ActionID new_enum
 	// SetDocumented(playerType, "destAction", "ActionID", "Pending action ID", [](const Player &p) { return p.destAction; }, [](Player &p, action_id val) { p.destAction = val; });
 	SetDocumented(playerType, "destParam1", "integer", "Pending action parameter 1", [](const Player &p) { return p.destParam1; }, [](Player &p, int val) { p.destParam1 = val; });
 	SetDocumented(playerType, "destParam2", "integer", "Pending action parameter 2", [](const Player &p) { return p.destParam2; }, [](Player &p, int val) { p.destParam2 = val; });
 	SetDocumented(playerType, "destParam3", "integer", "Pending action parameter 3", [](const Player &p) { return p.destParam3; }, [](Player &p, int val) { p.destParam3 = val; });
 	SetDocumented(playerType, "destParam4", "integer", "Pending action parameter 4", [](const Player &p) { return p.destParam4; }, [](Player &p, int val) { p.destParam4 = val; });
 	SetDocumented(playerType, "gold", "integer", "Amount of gold carried", [](const Player &p) { return p._pGold; }, [](Player &p, int val) { p._pGold = val; });
+	// TODO: Add AnimationInfo usertype
 	// SetDocumented(playerType, "animInfo", "AnimationInfo", "Current animation info", [](const Player &p) { return p.AnimInfo; }, [](Player &p, const AnimationInfo &val) { p.AnimInfo = val; });
+	// TODO: Add OptionalClxSprite usertype
 	// SetDocumented(playerType, "previewCelSprite", "OptionalClxSprite", "Temporary preview sprite", [](const Player &p) { return p.previewCelSprite; }, [](Player &p, const OptionalClxSprite &val) { p.previewCelSprite = val; });
 	SetDocumented(playerType, "progressToNextGameTickWhenPreviewWasSet", "integer", "Animation tick progress when preview was set", [](const Player &p) { return p.progressToNextGameTickWhenPreviewWasSet; }, [](Player &p, int8_t val) { p.progressToNextGameTickWhenPreviewWasSet = val; });
 	SetDocumented(playerType, "iFlags", "ItemSpecialEffect", "Item special effects (bitmask)", [](const Player &p) { return p._pIFlags; }, [](Player &p, ItemSpecialEffect val) { p._pIFlags = val; });
+	// TODO: Add PlayerAnimationData usertype
+	// TODO: Add PlayerGraphic new_enum
 	// SetDocumented(playerType, "animationData", "PlayerAnimationData[]", "Per-graphic animation frame data", [](const Player &p) { return p.AnimationData; }, [](Player &p, const std::array<PlayerAnimationData, enum_size<player_graphic>::value> &val) { p.AnimationData = val; });
 	SetDocumented(playerType, "nFrames", "integer", "Total number of animation frames", [](const Player &p) { return p._pNFrames; }, [](Player &p, int8_t val) { p._pNFrames = val; });
 	SetDocumented(playerType, "wFrames", "integer", "Walk animation frames", [](const Player &p) { return p._pWFrames; }, [](Player &p, int8_t val) { p._pWFrames = val; });
