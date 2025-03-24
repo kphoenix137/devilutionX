@@ -1124,7 +1124,7 @@ std::string DebugCmdBBQ(const string_view parameter)
 	for (Player &player : Players) {
 		if (player.getId() != MyPlayerId) {
 			Direction sd = GetDirection(myPlayer.position.tile, player.position.tile);
-			NetSendCmdLocParam5(true, CMD_SPELLXYD, player.position.tile, static_cast<int8_t>(SpellID::FireWall), static_cast<uint8_t>(SpellType::Skill), static_cast<uint16_t>(sd), 127, 0);
+			NetSendCmdLocParam4(true, CMD_SPELLXYD, player.position.tile, static_cast<int8_t>(SpellID::FireWall), static_cast<uint8_t>(SpellType::Skill), static_cast<uint16_t>(sd), 0);
 		}
 	}
 
