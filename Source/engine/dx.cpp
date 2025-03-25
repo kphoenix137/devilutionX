@@ -99,7 +99,6 @@ void dx_init()
 
 	palette_init();
 	CreateBackBuffer();
-	UpdateZoomLimits();
 	pal_surface_palette_version = 1;
 }
 
@@ -279,7 +278,6 @@ void RenderPresent()
 			ErrSdl();
 		}
 		LimitFrameRate();
-		UpdateZoomLimits();
 	}
 #else
 	if (SDL_Flip(surface) <= -1) {
@@ -300,15 +298,29 @@ void PaletteGetEntries(int dwNumEntries, SDL_Color *lpEntries)
 
 void UpdateZoomLimits()
 {
-	int screenWidth, screenHeight;
-	SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
+	int width = 0, height = 0;
 
-	const float internalHeight = static_cast<float>(screenHeight); // Game renders at full screen resolution
-	constexpr float minVisibleHeight = 240.0f;                     // max zoom-in (tight view)
-	constexpr float maxVisibleHeight = 720.0f;                     // max zoom-out (full screen)
+	if (renderer != nullptr) {
+		SDL_GetRendererOutputSize(renderer, &width, &height);
+	} else {
+		SDL_GetWindowSize(ghMainWnd, &width, &height);
+	}
+
+	if (height <= 0)
+		return;
+
+	const float internalHeight = static_cast<float>(height);
+	constexpr float minVisibleHeight = 240.0f;
+	constexpr float maxVisibleHeight = 720.0f;
 
 	MinZoom = minVisibleHeight / internalHeight;
 	MaxZoom = maxVisibleHeight / internalHeight;
+
+	if (MinZoom > MaxZoom)
+		std::swap(MinZoom, MaxZoom);
+
+	MinZoom = std::clamp(MinZoom, 0.05f, 10.0f);
+	MaxZoom = std::clamp(MaxZoom, 0.05f, 10.0f);
 
 	CurrentZoomLevel = std::clamp(CurrentZoomLevel, MinZoom, MaxZoom);
 }

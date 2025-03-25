@@ -593,6 +593,7 @@ void ReinitializeRenderer()
 		SDL_GetWindowSize(ghMainWnd, &windowSize.width, &windowSize.height);
 		AdjustToScreenGeometry(windowSize);
 	}
+	UpdateZoomLimits();
 #endif
 }
 
