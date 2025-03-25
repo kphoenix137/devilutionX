@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <switch.h>
 
+#include "engine/dx.h"
 #include "utils/display.h"
 
 namespace devilution {
