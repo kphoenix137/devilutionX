@@ -54,6 +54,7 @@ void HandleDocking()
 			SDL_RenderPresent(renderer);
 		}
 		SDL_SetWindowSize(ghMainWnd, display_width, display_height);
+		UpdateZoomLimits();
 	}
 }
 

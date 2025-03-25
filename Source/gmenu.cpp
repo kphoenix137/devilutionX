@@ -153,10 +153,10 @@ void GameMenuMove()
 bool GmenuMouseIsOverSlider()
 {
 	int uiPositionX = GetUIRectangle().position.x;
-	if (MousePosition.x < SliderValueLeft + uiPositionX) {
+	if (MousePositionWorld.x < SliderValueLeft + uiPositionX) {
 		return false;
 	}
-	if (MousePosition.x >= SliderValueLeft + SliderValueWidth + uiPositionX) {
+	if (MousePositionWorld.x >= SliderValueLeft + SliderValueWidth + uiPositionX) {
 		return false;
 	}
 	return true;
@@ -164,7 +164,7 @@ bool GmenuMouseIsOverSlider()
 
 int GmenuGetSliderFill()
 {
-	return std::clamp(MousePosition.x - SliderValueLeft - GetUIRectangle().position.x, SliderFillMin, SliderFillMax);
+	return std::clamp(MousePositionWorld.x - SliderValueLeft - GetUIRectangle().position.x, SliderFillMin, SliderFillMax);
 }
 
 } // namespace
@@ -330,13 +330,13 @@ bool gmenu_left_mouse(bool isDown)
 		return false;
 	}
 	const Point uiPosition = GetUIRectangle().position;
-	if (MousePosition.y >= GetMainPanel().position.y) {
+	if (MousePositionWorld.y >= GetMainPanel().position.y) {
 		return false;
 	}
-	if (MousePosition.y - (GMenuTop + uiPosition.y) < 0) {
+	if (MousePositionWorld.y - (GMenuTop + uiPosition.y) < 0) {
 		return true;
 	}
-	int i = (MousePosition.y - (GMenuTop + uiPosition.y)) / GMenuItemHeight;
+	int i = (MousePositionWorld.y - (GMenuTop + uiPosition.y)) / GMenuItemHeight;
 	if (i >= sgCurrentMenuIdx) {
 		return true;
 	}
@@ -346,10 +346,10 @@ bool gmenu_left_mouse(bool isDown)
 	}
 	int w = GmenuGetLineWidth(pItem);
 	uint16_t screenWidth = GetScreenWidth();
-	if (MousePosition.x < screenWidth / 2 - w / 2) {
+	if (MousePositionWorld.x < screenWidth / 2 - w / 2) {
 		return true;
 	}
-	if (MousePosition.x > screenWidth / 2 + w / 2) {
+	if (MousePositionWorld.x > screenWidth / 2 + w / 2) {
 		return true;
 	}
 	sgpCurrItem = pItem;

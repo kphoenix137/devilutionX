@@ -50,7 +50,8 @@ void SimulateMouseMovement(const SDL_Event &event)
 			return;
 	}
 
-	MousePosition = position;
+	MousePositionRaw = position;
+	MousePositionWorld = ScreenToGame(MousePositionRaw);
 
 	SetPointAndClick(true);
 
@@ -130,9 +131,9 @@ void HandleStashPanelInteraction(const SDL_Event &event)
 		return;
 
 	if (event.type != SDL_FINGERUP) {
-		CheckStashButtonPress(MousePosition);
+		CheckStashButtonPress(MousePositionWorld);
 	} else {
-		CheckStashButtonRelease(MousePosition);
+		CheckStashButtonRelease(MousePositionWorld);
 	}
 }
 

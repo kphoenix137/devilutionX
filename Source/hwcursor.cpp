@@ -14,6 +14,7 @@
 #include "appfat.h"
 #include "cursor.h"
 #include "engine/clx_sprite.hpp"
+#include "engine/dx.h"
 #include "engine/render/clx_render.hpp"
 #include "engine/surface.hpp"
 #include "utils/display.h"
@@ -73,7 +74,12 @@ bool SetHardwareCursorFromSurface(SDL_Surface *surface, HotpointPosition hotpoin
 {
 	SDLCursorUniquePtr newCursor;
 	const Size size { surface->w, surface->h };
-	const Size scaledSize = ScaledSize(size);
+	const float zoom = CurrentZoomLevel;
+	float scale = 1.0f / CurrentZoomLevel;
+	const Size scaledSize {
+		static_cast<int>(surface->w * scale),
+		static_cast<int>(surface->h * scale)
+	};
 
 	if (size == scaledSize) {
 #if LOG_HWCURSOR
@@ -144,8 +150,10 @@ bool SetHardwareCursorFromSprite(int pcurs)
 	constexpr std::uint8_t TransparentColor = 1;
 	SDL_FillRect(out.surface, nullptr, TransparentColor);
 	SDL_SetColorKey(out.surface, 1, TransparentColor);
+	float prevZoom = CurrentZoomLevel;
+	CurrentZoomLevel = 1.0f; // Draw at original scale
 	DrawSoftwareCursor(out, { outlineWidth, size.height - outlineWidth - 1 }, pcurs);
-
+	CurrentZoomLevel = prevZoom;
 	const bool result = SetHardwareCursorFromSurface(
 	    out.surface, isItem ? HotpointPosition::Center : HotpointPosition::TopLeft);
 	return result;
@@ -153,6 +161,11 @@ bool SetHardwareCursorFromSprite(int pcurs)
 #endif
 
 } // namespace
+
+void RefreshCurrentHardwareCursor()
+{
+	SetHardwareCursorFromSprite(pcurs);
+}
 
 CursorInfo &GetCurrentCursorInfo()
 {

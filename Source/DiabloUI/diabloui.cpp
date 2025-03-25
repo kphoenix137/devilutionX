@@ -424,7 +424,8 @@ void UiHandleEvents(SDL_Event *event)
 #ifdef USE_SDL1
 		OutputToLogical(&event->motion.x, &event->motion.y);
 #endif
-		MousePosition = { event->motion.x, event->motion.y };
+		MousePositionRaw = { event->motion.x, event->motion.y };
+		MousePositionWorld = ScreenToGame(MousePositionRaw);
 		return;
 	}
 
@@ -435,6 +436,7 @@ void UiHandleEvents(SDL_Event *event)
 			SaveOptions();
 			if (gfnFullscreen != nullptr)
 				gfnFullscreen();
+			UpdateZoomLimits();
 			return;
 		}
 	}
@@ -457,6 +459,7 @@ void UiHandleEvents(SDL_Event *event)
 			// For example, if the previous size was too large for a hardware cursor then it was invisible
 			// but may now become visible.
 			DoReinitializeHardwareCursor();
+			UpdateZoomLimits();
 		} else if (event->window.event == SDL_WINDOWEVENT_FOCUS_LOST && *GetOptions().Gameplay.pauseOnFocusLoss) {
 			music_mute();
 		} else if (event->window.event == SDL_WINDOWEVENT_FOCUS_GAINED && *GetOptions().Gameplay.pauseOnFocusLoss) {
@@ -1134,6 +1137,6 @@ void DrawMouse()
 {
 	if (ControlDevice != ControlTypes::KeyboardAndMouse || IsHardwareCursor() || !ArtCursor)
 		return;
-	RenderClxSprite(Surface(DiabloUiSurface()), (*ArtCursor)[0], MousePosition);
+	RenderClxSprite(Surface(DiabloUiSurface()), (*ArtCursor)[0], MousePositionWorld);
 }
 } // namespace devilution

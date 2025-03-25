@@ -173,4 +173,6 @@ inline void ReinitializeHardwareCursor()
 	}
 }
 
+void RefreshCurrentHardwareCursor();
+
 } // namespace devilution

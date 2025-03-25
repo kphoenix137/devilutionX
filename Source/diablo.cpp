@@ -119,7 +119,8 @@ namespace devilution {
 
 uint32_t DungeonSeeds[NUMLEVELS];
 std::optional<uint32_t> LevelSeeds[NUMLEVELS];
-Point MousePosition;
+Point MousePositionRaw;
+Point MousePositionWorld;
 bool gbRunGame;
 bool gbRunGameResult;
 bool ReturnToMainMenu;
@@ -220,7 +221,7 @@ bool ProcessInput()
 
 	if (!gmenu_is_active() && sgnTimeoutCurs == CURSOR_NONE) {
 #ifdef __vita__
-		FinishSimulatedMouseClicks(MousePosition);
+		FinishSimulatedMouseClicks(MousePositionWorld);
 #endif
 		CheckCursMove();
 		plrctrls_after_check_curs_move();
@@ -234,7 +235,7 @@ void LeftMouseCmd(bool bShift)
 {
 	bool bNear;
 
-	assert(!GetMainPanel().contains(MousePosition));
+	assert(!GetMainPanel().contains(MousePositionWorld));
 
 	if (leveltype == DTYPE_TOWN) {
 		CloseGoldWithdraw();
@@ -355,23 +356,23 @@ void LeftMouseDown(uint16_t modState)
 	const bool isShiftHeld = (modState & KMOD_SHIFT) != 0;
 	const bool isCtrlHeld = (modState & KMOD_CTRL) != 0;
 
-	if (!GetMainPanel().contains(MousePosition)) {
+	if (!GetMainPanel().contains(MousePositionWorld)) {
 		if (!gmenu_is_active() && !TryIconCurs()) {
-			if (QuestLogIsOpen && GetLeftPanel().contains(MousePosition)) {
+			if (QuestLogIsOpen && GetLeftPanel().contains(MousePositionWorld)) {
 				QuestlogESC();
 			} else if (qtextflag) {
 				qtextflag = false;
 				stream_stop();
-			} else if (CharFlag && GetLeftPanel().contains(MousePosition)) {
+			} else if (CharFlag && GetLeftPanel().contains(MousePositionWorld)) {
 				CheckChrBtns();
-			} else if (invflag && GetRightPanel().contains(MousePosition)) {
+			} else if (invflag && GetRightPanel().contains(MousePositionWorld)) {
 				if (!DropGoldFlag)
 					CheckInvItem(isShiftHeld, isCtrlHeld);
-			} else if (IsStashOpen && GetLeftPanel().contains(MousePosition)) {
+			} else if (IsStashOpen && GetLeftPanel().contains(MousePositionWorld)) {
 				if (!IsWithdrawGoldOpen)
-					CheckStashItem(MousePosition, isShiftHeld, isCtrlHeld);
-				CheckStashButtonPress(MousePosition);
-			} else if (SpellbookFlag && GetRightPanel().contains(MousePosition)) {
+					CheckStashItem(MousePositionWorld, isShiftHeld, isCtrlHeld);
+				CheckStashButtonPress(MousePositionWorld);
+			} else if (SpellbookFlag && GetRightPanel().contains(MousePositionWorld)) {
 				CheckSBook();
 			} else if (!MyPlayer->HoldItem.isEmpty()) {
 				if (!TryOpenDungeonWithMouse()) {
@@ -392,7 +393,7 @@ void LeftMouseDown(uint16_t modState)
 		if (!ChatFlag && !DropGoldFlag && !IsWithdrawGoldOpen && !gmenu_is_active())
 			CheckInvScrn(isShiftHeld, isCtrlHeld);
 		CheckMainPanelButton();
-		CheckStashButtonPress(MousePosition);
+		CheckStashButtonPress(MousePositionWorld);
 		if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM)
 			NewCursor(CURSOR_HAND);
 	}
@@ -404,7 +405,7 @@ void LeftMouseUp(uint16_t modState)
 	CheckMuteButtonUp();
 	if (MainPanelButtonDown)
 		CheckMainPanelButtonUp();
-	CheckStashButtonRelease(MousePosition);
+	CheckStashButtonRelease(MousePositionWorld);
 	if (CharPanelButtonActive) {
 		const bool isShiftHeld = (modState & KMOD_SHIFT) != 0;
 		ReleaseChrBtns(isShiftHeld);
@@ -439,7 +440,7 @@ void RightMouseDown(bool isShiftHeld)
 		SetSpell();
 		return;
 	}
-	if (SpellbookFlag && GetRightPanel().contains(MousePosition))
+	if (SpellbookFlag && GetRightPanel().contains(MousePositionWorld))
 		return;
 	if (TryIconCurs())
 		return;
@@ -465,10 +466,10 @@ void ReleaseKey(SDL_Keycode vkey)
 void ClosePanels()
 {
 	if (CanPanelsCoverView()) {
-		if (!IsLeftPanelOpen() && IsRightPanelOpen() && MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
-			SetCursorPos(MousePosition + Displacement { 160, 0 });
-		} else if (!IsRightPanelOpen() && IsLeftPanelOpen() && MousePosition.x > 160 && MousePosition.y < GetMainPanel().position.y) {
-			SetCursorPos(MousePosition - Displacement { 160, 0 });
+		if (!IsLeftPanelOpen() && IsRightPanelOpen() && MousePositionWorld.x < 480 && MousePositionWorld.y < GetMainPanel().position.y) {
+			SetCursorPos(MousePositionWorld + Displacement { 160, 0 });
+		} else if (!IsRightPanelOpen() && IsLeftPanelOpen() && MousePositionWorld.x > 160 && MousePositionWorld.y < GetMainPanel().position.y) {
+			SetCursorPos(MousePositionWorld - Displacement { 160, 0 });
 		}
 	}
 	CloseInventory();
@@ -746,15 +747,18 @@ void GameEventHandler(const SDL_Event &event, uint16_t modState)
 	case SDL_MOUSEMOTION:
 		if (ControlMode == ControlTypes::KeyboardAndMouse && invflag)
 			InvalidateInventorySlot();
-		MousePosition = { event.motion.x, event.motion.y };
+		MousePositionRaw = { event.motion.x, event.motion.y };
+		MousePositionWorld = ScreenToGame(MousePositionRaw);
 		gmenu_on_mouse_move();
 		return;
 	case SDL_MOUSEBUTTONDOWN:
-		MousePosition = { event.button.x, event.button.y };
+		MousePositionRaw = { event.motion.x, event.motion.y };
+		MousePositionWorld = ScreenToGame(MousePositionRaw);
 		HandleMouseButtonDown(event.button.button, modState);
 		return;
 	case SDL_MOUSEBUTTONUP:
-		MousePosition = { event.button.x, event.button.y };
+		MousePositionRaw = { event.motion.x, event.motion.y };
+		MousePositionWorld = ScreenToGame(MousePositionRaw);
 		HandleMouseButtonUp(event.button.button, modState);
 		return;
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -1143,9 +1147,10 @@ void DiabloParseFlags(int argc, char **argv)
 
 void DiabloInitScreen()
 {
-	MousePosition = { gnScreenWidth / 2, gnScreenHeight / 2 };
+	MousePositionRaw = { gnScreenWidth / 2, gnScreenHeight / 2 };
+	MousePositionWorld = ScreenToGame(MousePositionRaw);
 	if (ControlMode == ControlTypes::KeyboardAndMouse)
-		SetCursorPos(MousePosition);
+		SetCursorPos(MousePositionWorld);
 
 	ClrDiabloMsg();
 }
@@ -1549,12 +1554,12 @@ void InventoryKeyPressed()
 	invflag = !invflag;
 	if (!IsLeftPanelOpen() && CanPanelsCoverView()) {
 		if (!invflag) { // We closed the inventory
-			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition + Displacement { 160, 0 });
+			if (MousePositionWorld.x < 480 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld + Displacement { 160, 0 });
 			}
 		} else if (!SpellbookFlag) { // We opened the inventory
-			if (MousePosition.x > 160 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition - Displacement { 160, 0 });
+			if (MousePositionWorld.x > 160 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld - Displacement { 160, 0 });
 			}
 		}
 	}
@@ -1569,12 +1574,12 @@ void CharacterSheetKeyPressed()
 		return;
 	if (!IsRightPanelOpen() && CanPanelsCoverView()) {
 		if (CharFlag) { // We are closing the character sheet
-			if (MousePosition.x > 160 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition - Displacement { 160, 0 });
+			if (MousePositionWorld.x > 160 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld - Displacement { 160, 0 });
 			}
 		} else if (!QuestLogIsOpen) { // We opened the character sheet
-			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition + Displacement { 160, 0 });
+			if (MousePositionWorld.x < 480 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld + Displacement { 160, 0 });
 			}
 		}
 	}
@@ -1592,12 +1597,12 @@ void QuestLogKeyPressed()
 	}
 	if (!IsRightPanelOpen() && CanPanelsCoverView()) {
 		if (!QuestLogIsOpen) { // We closed the quest log
-			if (MousePosition.x > 160 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition - Displacement { 160, 0 });
+			if (MousePositionWorld.x > 160 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld - Displacement { 160, 0 });
 			}
 		} else if (!CharFlag) { // We opened the character quest log
-			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition + Displacement { 160, 0 });
+			if (MousePositionWorld.x < 480 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld + Displacement { 160, 0 });
 			}
 		}
 	}
@@ -1629,12 +1634,12 @@ void SpellBookKeyPressed()
 	SpellbookFlag = !SpellbookFlag;
 	if (!IsLeftPanelOpen() && CanPanelsCoverView()) {
 		if (!SpellbookFlag) { // We closed the inventory
-			if (MousePosition.x < 480 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition + Displacement { 160, 0 });
+			if (MousePositionWorld.x < 480 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld + Displacement { 160, 0 });
 			}
 		} else if (!invflag) { // We opened the inventory
-			if (MousePosition.x > 160 && MousePosition.y < GetMainPanel().position.y) {
-				SetCursorPos(MousePosition - Displacement { 160, 0 });
+			if (MousePositionWorld.x > 160 && MousePositionWorld.y < GetMainPanel().position.y) {
+				SetCursorPos(MousePositionWorld - Displacement { 160, 0 });
 			}
 		}
 	}
@@ -1695,6 +1700,30 @@ bool CanAutomapBeToggledOff()
 }
 
 } // namespace
+
+Point ScreenToGame(Point screenPos)
+{
+	int screenWidth, screenHeight;
+	SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
+
+	float zoom = CurrentZoomLevel;
+	int zoomedWidth = static_cast<int>(screenWidth / zoom);
+	int zoomedHeight = static_cast<int>(screenHeight / zoom);
+	int offsetX = (screenWidth - zoomedWidth) / 2;
+	int offsetY = (screenHeight - zoomedHeight) / 2;
+
+	return {
+		static_cast<int>((screenPos.x - offsetX) * zoom),
+		static_cast<int>((screenPos.y - offsetY) * zoom)
+	};
+}
+
+Point GetMousePosGameSpace()
+{
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	return ScreenToGame({ mouseX, mouseY });
+}
 
 void InitKeymapActions()
 {
@@ -2003,6 +2032,26 @@ void InitKeymapActions()
 	    'X',
 	    [] {
 		    DebugToggle = !DebugToggle;
+	    });
+	options.Keymapper.AddAction(
+	    "SDLZoomIn",
+	    "SDL Zoom in",
+	    "Zooms in",
+	    'J',
+	    [] {
+		    const float stepSize = (MaxZoom - MinZoom) / 9.0f;
+		    CurrentZoomLevel = std::clamp(CurrentZoomLevel - stepSize, MinZoom, MaxZoom);
+		    RefreshCurrentHardwareCursor();
+	    });
+	options.Keymapper.AddAction(
+	    "SDLZoomOut",
+	    "SDL Zoom Out",
+	    "Zooms out",
+	    'K',
+	    [] {
+		    const float stepSize = (MaxZoom - MinZoom) / 9.0f;
+		    CurrentZoomLevel = std::clamp(CurrentZoomLevel + stepSize, MinZoom, MaxZoom);
+		    RefreshCurrentHardwareCursor();
 	    });
 #endif
 	options.Keymapper.CommitActions();
@@ -2483,7 +2532,7 @@ void InitPadmapActions()
 void SetCursorPos(Point position)
 {
 	if (ControlDevice != ControlTypes::KeyboardAndMouse) {
-		MousePosition = position;
+		MousePositionWorld = position;
 		return;
 	}
 
@@ -2853,7 +2902,8 @@ void DisableInputEventHandler(const SDL_Event &event, uint16_t modState)
 {
 	switch (event.type) {
 	case SDL_MOUSEMOTION:
-		MousePosition = { event.motion.x, event.motion.y };
+		MousePositionRaw = { event.motion.x, event.motion.y };
+		MousePositionWorld = ScreenToGame(MousePositionRaw);
 		return;
 	case SDL_MOUSEBUTTONDOWN:
 		if (sgbMouseDown != CLICK_NONE)

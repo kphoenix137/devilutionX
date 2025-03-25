@@ -1003,7 +1003,7 @@ void CheckMainPanelButton()
 
 		SetPanelObjectPosition(UiPanels::Main, button);
 
-		if (button.contains(MousePosition)) {
+		if (button.contains(MousePositionWorld)) {
 			SetMainPanelButtonDown(i);
 		}
 	}
@@ -1012,7 +1012,7 @@ void CheckMainPanelButton()
 
 	SetPanelObjectPosition(UiPanels::Main, spellSelectButton);
 
-	if (!SpellSelectFlag && spellSelectButton.contains(MousePosition)) {
+	if (!SpellSelectFlag && spellSelectButton.contains(MousePositionWorld)) {
 		if ((SDL_GetModState() & KMOD_SHIFT) != 0) {
 			Player &myPlayer = *MyPlayer;
 			myPlayer._pRSpell = SpellID::Invalid;
@@ -1031,7 +1031,7 @@ void CheckMainPanelButtonDead()
 
 	SetPanelObjectPosition(UiPanels::Main, menuButton);
 
-	if (menuButton.contains(MousePosition)) {
+	if (menuButton.contains(MousePositionWorld)) {
 		SetMainPanelButtonDown(PanelButtonMainmenu);
 		return;
 	}
@@ -1040,7 +1040,7 @@ void CheckMainPanelButtonDead()
 
 	SetPanelObjectPosition(UiPanels::Main, chatButton);
 
-	if (chatButton.contains(MousePosition)) {
+	if (chatButton.contains(MousePositionWorld)) {
 		SetMainPanelButtonDown(PanelButtonSendmsg);
 	}
 }
@@ -1079,7 +1079,7 @@ void CheckPanelInfo()
 
 		SetPanelObjectPosition(UiPanels::Main, button);
 
-		if (button.contains(MousePosition)) {
+		if (button.contains(MousePositionWorld)) {
 			if (i != 7) {
 				InfoString = _(PanBtnStr[i]);
 			} else {
@@ -1100,7 +1100,7 @@ void CheckPanelInfo()
 
 	SetPanelObjectPosition(UiPanels::Main, spellSelectButton);
 
-	if (!SpellSelectFlag && spellSelectButton.contains(MousePosition)) {
+	if (!SpellSelectFlag && spellSelectButton.contains(MousePositionWorld)) {
 		InfoString = _("Select current spell button");
 		InfoColor = UiFlags::ColorWhite;
 		MainPanelFlag = true;
@@ -1138,7 +1138,7 @@ void CheckPanelInfo()
 
 	SetPanelObjectPosition(UiPanels::Main, belt);
 
-	if (belt.contains(MousePosition))
+	if (belt.contains(MousePositionWorld))
 		pcursinvitem = CheckInvHLight();
 
 	if (CheckXPBarInfo())
@@ -1161,7 +1161,7 @@ void CheckMainPanelButtonUp()
 
 		SetPanelObjectPosition(UiPanels::Main, button);
 
-		if (!button.contains(MousePosition))
+		if (!button.contains(MousePositionWorld))
 			continue;
 
 		switch (i) {
@@ -1308,7 +1308,7 @@ void CheckLevelButton()
 
 	SetPanelObjectPosition(UiPanels::Main, button);
 
-	if (!LevelButtonDown && button.contains(MousePosition))
+	if (!LevelButtonDown && button.contains(MousePositionWorld))
 		LevelButtonDown = true;
 }
 
@@ -1318,7 +1318,7 @@ void CheckLevelButtonUp()
 
 	SetPanelObjectPosition(UiPanels::Main, button);
 
-	if (button.contains(MousePosition)) {
+	if (button.contains(MousePositionWorld)) {
 		OpenCharPanel();
 	}
 	LevelButtonDown = false;
@@ -1347,7 +1347,7 @@ void CheckChrBtns()
 		auto buttonId = static_cast<size_t>(attribute);
 		Rectangle button = CharPanelButtonRect[buttonId];
 		SetPanelObjectPosition(UiPanels::Character, button);
-		if (button.contains(MousePosition)) {
+		if (button.contains(MousePositionWorld)) {
 			CharPanelButton[buttonId] = true;
 			CharPanelButtonActive = true;
 		}
@@ -1365,7 +1365,7 @@ void ReleaseChrBtns(bool addAllStatPoints)
 		CharPanelButton[buttonId] = false;
 		Rectangle button = CharPanelButtonRect[buttonId];
 		SetPanelObjectPosition(UiPanels::Character, button);
-		if (button.contains(MousePosition)) {
+		if (button.contains(MousePositionWorld)) {
 			Player &myPlayer = *MyPlayer;
 			int statPointsToAdd = 1;
 			if (addAllStatPoints)
@@ -1615,7 +1615,7 @@ bool CheckMuteButton()
 
 	buttons.size.height = (MuteButtons * buttons.size.height) + ((MuteButtons - 1) * MuteButtonPadding);
 
-	if (!buttons.contains(MousePosition))
+	if (!buttons.contains(MousePositionWorld))
 		return false;
 
 	for (bool &talkButtonDown : TalkButtonsDown) {
@@ -1624,7 +1624,7 @@ bool CheckMuteButton()
 
 	const Point mainPanelPosition = GetMainPanel().position;
 
-	TalkButtonsDown[(MousePosition.y - (69 + mainPanelPosition.y)) / 18] = true;
+	TalkButtonsDown[(MousePositionWorld.y - (69 + mainPanelPosition.y)) / 18] = true;
 
 	return true;
 }
@@ -1643,10 +1643,10 @@ void CheckMuteButtonUp()
 
 	buttons.size.height = (MuteButtons * buttons.size.height) + ((MuteButtons - 1) * MuteButtonPadding);
 
-	if (!buttons.contains(MousePosition))
+	if (!buttons.contains(MousePositionWorld))
 		return;
 
-	int off = (MousePosition.y - buttons.position.y) / (MuteButtonRect.size.height + MuteButtonPadding);
+	int off = (MousePositionWorld.y - buttons.position.y) / (MuteButtonRect.size.height + MuteButtonPadding);
 
 	size_t playerId = 0;
 	for (; playerId < Players.size() && off != -1; ++playerId) {

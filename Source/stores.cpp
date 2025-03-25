@@ -2702,12 +2702,12 @@ void CheckStoreBtn()
 	const Rectangle windowRectFull { { uiPosition.x + 24, uiPosition.y + PaddingTop - 7 }, { 591, 303 } };
 
 	if (!IsTextFullSize) {
-		if (!windowRect.contains(MousePosition)) {
+		if (!windowRect.contains(MousePositionWorld)) {
 			while (IsPlayerInStore())
 				StoreESC();
 		}
 	} else {
-		if (!windowRectFull.contains(MousePosition)) {
+		if (!windowRectFull.contains(MousePositionWorld)) {
 			while (IsPlayerInStore())
 				StoreESC();
 		}
@@ -2718,9 +2718,9 @@ void CheckStoreBtn()
 		if (leveltype == DTYPE_TOWN)
 			stream_stop();
 	} else if (CurrentTextLine != -1) {
-		const int relativeY = MousePosition.y - (uiPosition.y + PaddingTop);
+		const int relativeY = MousePositionWorld.y - (uiPosition.y + PaddingTop);
 
-		if (HasScrollbar && MousePosition.x > 600 + uiPosition.x) {
+		if (HasScrollbar && MousePositionWorld.x > 600 + uiPosition.x) {
 			// Scroll bar is always measured in terms of the small line height.
 			int y = relativeY / SmallLineHeight;
 			if (y == 4) {

@@ -394,7 +394,7 @@ VirtualGamepadButtonType PrimaryActionButtonRenderer::GetButtonType()
 	// NEED: Confirm surface
 	if (qtextflag)
 		return GetTalkButtonType(virtualPadButton->isHeld);
-	if (CharFlag && InteractsWithCharButton(MousePosition))
+	if (CharFlag && InteractsWithCharButton(MousePositionWorld))
 		return GetApplyButtonType(virtualPadButton->isHeld);
 	if (invflag)
 		return GetInventoryButtonType();

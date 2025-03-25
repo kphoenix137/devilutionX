@@ -1741,7 +1741,7 @@ void PrintItemOil(char iDidx)
 
 Point DrawUniqueInfoWindow(const Surface &out)
 {
-	const bool isInStash = IsStashOpen && GetLeftPanel().contains(MousePosition);
+	const bool isInStash = IsStashOpen && GetLeftPanel().contains(MousePositionWorld);
 	int panelX, panelY;
 	if (isInStash) {
 		ClxDraw(out, GetPanelPosition(UiPanels::Stash, { 24 + SidePanelSize.width, 327 }), (*pSTextBoxCels)[0]);

@@ -49,6 +49,9 @@ SDLSurfaceUniquePtr PinnedPalSurface;
 
 /** Whether we render directly to the screen surface, i.e. `PalSurface == GetOutputSurface()` */
 bool RenderDirectlyToOutputSurface;
+float CurrentZoomLevel = 1.0f;
+float MinZoom = 1.0f;
+float MaxZoom = 1.0f;
 
 namespace {
 
@@ -96,6 +99,7 @@ void dx_init()
 
 	palette_init();
 	CreateBackBuffer();
+	UpdateZoomLimits();
 	pal_surface_palette_version = 1;
 }
 
@@ -242,7 +246,21 @@ void RenderPresent()
 		if (SDL_RenderClear(renderer) <= -1) {
 			ErrSdl();
 		}
-		if (SDL_RenderCopy(renderer, texture.get(), nullptr, nullptr) <= -1) {
+		int screenWidth, screenHeight;
+		SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
+
+		float zoom = CurrentZoomLevel;
+		int zoomedWidth = static_cast<int>(screenWidth / zoom);
+		int zoomedHeight = static_cast<int>(screenHeight / zoom);
+
+		SDL_Rect dstRect = {
+			(screenWidth - zoomedWidth) / 2,
+			(screenHeight - zoomedHeight) / 2,
+			zoomedWidth,
+			zoomedHeight
+		};
+
+		if (SDL_RenderCopy(renderer, texture.get(), nullptr, &dstRect) <= -1) {
 			ErrSdl();
 		}
 		if (ControlMode == ControlTypes::VirtualGamepad) {
@@ -261,6 +279,7 @@ void RenderPresent()
 			ErrSdl();
 		}
 		LimitFrameRate();
+		UpdateZoomLimits();
 	}
 #else
 	if (SDL_Flip(surface) <= -1) {
@@ -278,4 +297,20 @@ void PaletteGetEntries(int dwNumEntries, SDL_Color *lpEntries)
 		lpEntries[i] = system_palette[i];
 	}
 }
+
+void UpdateZoomLimits()
+{
+	int screenWidth, screenHeight;
+	SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
+
+	const float internalHeight = static_cast<float>(screenHeight); // Game renders at full screen resolution
+	constexpr float minVisibleHeight = 360.0f;                     // max zoom-in (tight view)
+	constexpr float maxVisibleHeight = 720.0f;                     // max zoom-out (full screen)
+
+	MinZoom = minVisibleHeight / internalHeight;
+	MaxZoom = maxVisibleHeight / internalHeight;
+
+	CurrentZoomLevel = std::clamp(CurrentZoomLevel, MinZoom, MaxZoom);
+}
+
 } // namespace devilution

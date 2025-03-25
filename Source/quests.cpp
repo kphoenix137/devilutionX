@@ -182,9 +182,9 @@ int QuestLogMouseToEntry()
 {
 	Rectangle innerArea = InnerPanel;
 	innerArea.position += Displacement(GetLeftPanel().position.x, GetLeftPanel().position.y);
-	if (!innerArea.contains(MousePosition) || (EncounteredQuestCount == 0))
+	if (!innerArea.contains(MousePositionWorld) || (EncounteredQuestCount == 0))
 		return -1;
-	int y = MousePosition.y - innerArea.position.y;
+	int y = MousePositionWorld.y - innerArea.position.y;
 	for (int i = 0; i < FirstFinishedQuest; i++) {
 		if ((y >= ListYOffset + i * LineSpacing)
 		    && (y < ListYOffset + i * LineSpacing + LineHeight)) {

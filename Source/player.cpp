@@ -3083,12 +3083,12 @@ void CheckPlrSpell(bool isShiftHeld, SpellID spellID, SpellType spellType)
 		if (pcurs != CURSOR_HAND)
 			return;
 
-		if (GetMainPanel().contains(MousePosition)) // inside main panel
+		if (GetMainPanel().contains(MousePositionWorld)) // inside main panel
 			return;
 
 		if (
-		    (IsLeftPanelOpen() && GetLeftPanel().contains(MousePosition))      // inside left panel
-		    || (IsRightPanelOpen() && GetRightPanel().contains(MousePosition)) // inside right panel
+		    (IsLeftPanelOpen() && GetLeftPanel().contains(MousePositionWorld))      // inside left panel
+		    || (IsRightPanelOpen() && GetRightPanel().contains(MousePositionWorld)) // inside right panel
 		) {
 			if (spellID != SpellID::Healing
 			    && spellID != SpellID::Identify

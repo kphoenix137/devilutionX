@@ -211,8 +211,8 @@ void CheckSBook()
 	// enough to the height of the space given to spell descriptions that we can reuse that value and subtract the
 	// padding from the end of the area.
 	Rectangle iconArea = { GetPanelPosition(UiPanels::Spell, { 11, 18 }), Size { 37, SpellBookDescription.height * 7 - 5 } };
-	if (iconArea.contains(MousePosition) && !IsInspectingPlayer()) {
-		SpellID sn = GetSpellFromSpellPage(SpellbookTab, (MousePosition.y - iconArea.position.y) / SpellBookDescription.height);
+	if (iconArea.contains(MousePositionWorld) && !IsInspectingPlayer()) {
+		SpellID sn = GetSpellFromSpellPage(SpellbookTab, (MousePositionWorld.y - iconArea.position.y) / SpellBookDescription.height);
 		Player &player = *InspectPlayer;
 		uint64_t spl = player._pMemSpells | player._pISpells | player._pAblSpells;
 		if (IsValidSpell(sn) && (spl & GetSpellBitmask(sn)) != 0) {
@@ -236,8 +236,8 @@ void CheckSBook()
 	const int buttonWidth = SpellBookButtonWidth();
 	// Tabs are drawn in a row near the bottom of the panel
 	Rectangle tabArea = { GetPanelPosition(UiPanels::Spell, { 7, 320 }), Size { 305, 29 } };
-	if (tabArea.contains(MousePosition)) {
-		int hitColumn = MousePosition.x - tabArea.position.x;
+	if (tabArea.contains(MousePositionWorld)) {
+		int hitColumn = MousePositionWorld.x - tabArea.position.x;
 		// Clicking on the gutter currently activates tab 3. Could make it do nothing by checking for == here and return early.
 		if (!gbIsHellfire && hitColumn > buttonWidth * 2) {
 			// Subtract 1 pixel to account for the gutter between buttons 2/3

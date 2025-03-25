@@ -135,11 +135,11 @@ void AddItemToLabelQueue(int id, Point position)
 
 bool IsMouseOverGameArea()
 {
-	if ((IsRightPanelOpen()) && GetRightPanel().contains(MousePosition))
+	if ((IsRightPanelOpen()) && GetRightPanel().contains(MousePositionWorld))
 		return false;
-	if ((IsLeftPanelOpen()) && GetLeftPanel().contains(MousePosition))
+	if ((IsLeftPanelOpen()) && GetLeftPanel().contains(MousePositionWorld))
 		return false;
-	if (GetMainPanel().contains(MousePosition))
+	if (GetMainPanel().contains(MousePositionWorld))
 		return false;
 
 	return true;
@@ -189,8 +189,8 @@ void DrawItemNameLabels(const Surface &out)
 	for (const ItemLabel &label : labelQueue) {
 		Item &item = Items[label.id];
 
-		if (MousePosition.x >= label.pos.x && MousePosition.x < label.pos.x + label.width
-		    && MousePosition.y >= label.pos.y && MousePosition.y < label.pos.y + labelHeight) {
+		if (MousePositionWorld.x >= label.pos.x && MousePositionWorld.x < label.pos.x + label.width
+		    && MousePositionWorld.y >= label.pos.y && MousePositionWorld.y < label.pos.y + labelHeight) {
 			if (!gmenu_is_active()
 			    && PauseMode == 0
 			    && !MyPlayerIsDead

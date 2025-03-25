@@ -20,6 +20,7 @@
 #include "doom.h"
 #include "engine/backbuffer_state.hpp"
 #include "engine/demomode.h"
+#include "engine/dx.h"
 #include "engine/point.hpp"
 #include "engine/points_in_rectangle_range.hpp"
 #include "engine/render/clx_render.hpp"
@@ -262,9 +263,9 @@ bool TrySelectPixelBased(Point tile)
 			spriteTopLeft *= 2;
 		}
 		const Rectangle spriteCoords = Rectangle(spriteTopLeft, spriteSize);
-		if (!spriteCoords.contains(MousePosition))
+		if (!spriteCoords.contains(MousePositionWorld))
 			return false;
-		Point pointInSprite = Point { 0, 0 } + (MousePosition - spriteCoords.position);
+		Point pointInSprite = Point { 0, 0 } + (MousePositionWorld - spriteCoords.position);
 		if (*GetOptions().Graphics.zoom)
 			pointInSprite /= 2;
 		return IsPointWithinClx(pointInSprite, sprite);
@@ -581,6 +582,7 @@ void NewCursor(int cursId)
 void DrawSoftwareCursor(const Surface &out, Point position, int cursId)
 {
 	const ClxSprite sprite = GetInvItemSprite(cursId);
+
 	if (cursId >= CURSOR_FIRSTITEM && !MyPlayer->HoldItem.isEmpty()) {
 		const auto &heldItem = MyPlayer->HoldItem;
 		ClxDrawOutline(out, GetOutlineColor(heldItem, true), position, sprite);
@@ -657,7 +659,7 @@ void AlterMousePositionViaPanels(Point &screenPosition)
  */
 void AlterMousePositionViaScrolling(Point &screenPosition, Rectangle mainPanel)
 {
-	if (mainPanel.contains(MousePosition) && track_isscrolling()) {
+	if (mainPanel.contains(MousePositionWorld) && track_isscrolling()) {
 		screenPosition.y = mainPanel.position.y - 1;
 	}
 }
@@ -805,24 +807,24 @@ bool CheckPlayerState(const Point currentTile, const Player &myPlayer)
 
 bool CheckPanelsAndFlags(Rectangle mainPanel)
 {
-	if (mainPanel.contains(MousePosition)) {
+	if (mainPanel.contains(MousePositionWorld)) {
 		CheckPanelInfo();
 		return true;
 	}
 	if (DoomFlag) {
 		return true;
 	}
-	if (invflag && GetRightPanel().contains(MousePosition)) {
+	if (invflag && GetRightPanel().contains(MousePositionWorld)) {
 		pcursinvitem = CheckInvHLight();
 		return true;
 	}
-	if (IsStashOpen && GetLeftPanel().contains(MousePosition)) {
-		pcursstashitem = CheckStashHLight(MousePosition);
+	if (IsStashOpen && GetLeftPanel().contains(MousePositionWorld)) {
+		pcursstashitem = CheckStashHLight(MousePositionWorld);
 	}
-	if (SpellbookFlag && GetRightPanel().contains(MousePosition)) {
+	if (SpellbookFlag && GetRightPanel().contains(MousePositionWorld)) {
 		return true;
 	}
-	if (IsLeftPanelOpen() && GetLeftPanel().contains(MousePosition)) {
+	if (IsLeftPanelOpen() && GetLeftPanel().contains(MousePositionWorld)) {
 		return true;
 	}
 	return false;
@@ -879,7 +881,7 @@ void CheckCursMove()
 	if (IsItemLabelHighlighted())
 		return;
 
-	Point screenPosition = MousePosition;
+	Point screenPosition = MousePositionWorld;
 	const Rectangle &mainPanel = GetMainPanel();
 
 	AlterMousePositionViaPanels(screenPosition);

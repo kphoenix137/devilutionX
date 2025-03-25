@@ -810,7 +810,7 @@ void CheckTrigForce()
 {
 	trigflag = false;
 
-	if (ControlMode == ControlTypes::KeyboardAndMouse && GetMainPanel().contains(MousePosition)) {
+	if (ControlMode == ControlTypes::KeyboardAndMouse && GetMainPanel().contains(MousePositionWorld)) {
 		return;
 	}
 

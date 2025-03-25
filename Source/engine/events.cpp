@@ -54,7 +54,7 @@ bool FetchMessage_Real(SDL_Event *event, uint16_t *modState)
 	*modState = SDL_GetModState();
 
 #ifdef __vita__
-	HandleTouchEvent(&e, MousePosition);
+	HandleTouchEvent(&e, MousePositionWorld);
 #elif !defined(USE_SDL1)
 	HandleTouchEvent(e);
 #endif

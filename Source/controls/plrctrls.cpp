@@ -558,7 +558,7 @@ void AttrIncBtnSnap(AxisDirection dir)
 	for (int i = 0; i < 4; i++) {
 		button = CharPanelButtonRect[i];
 		button.position = GetPanelPosition(UiPanels::Character, button.position);
-		if (button.contains(MousePosition)) {
+		if (button.contains(MousePositionWorld)) {
 			slot = i;
 			break;
 		}
@@ -824,7 +824,7 @@ Point FindClosestStashSlot(Point mousePos)
 
 void LiftInventoryItem()
 {
-	int inventorySlot = (Slot >= 0) ? Slot : FindClosestInventorySlot(MousePosition, MyPlayer->HoldItem);
+	int inventorySlot = (Slot >= 0) ? Slot : FindClosestInventorySlot(MousePositionWorld, MyPlayer->HoldItem);
 
 	int jumpSlot = inventorySlot; // If the cursor is over an inventory slot we may need to adjust it due to pasting items of different sizes over each other
 	if (inventorySlot >= SLOTXY_INV_FIRST && inventorySlot <= SLOTXY_INV_LAST) {
@@ -865,7 +865,7 @@ void LiftInventoryItem()
 
 void LiftStashItem()
 {
-	Point stashSlot = (ActiveStashSlot != InvalidStashPoint) ? ActiveStashSlot : FindClosestStashSlot(MousePosition);
+	Point stashSlot = (ActiveStashSlot != InvalidStashPoint) ? ActiveStashSlot : FindClosestStashSlot(MousePositionWorld);
 
 	Size cursorSizeInCells = MyPlayer->HoldItem.isEmpty() ? Size { 1, 1 } : GetInventorySize(MyPlayer->HoldItem);
 
@@ -884,7 +884,7 @@ void LiftStashItem()
 	}(stashSlot, cursorSizeInCells);
 
 	Point jumpSlot = itemUnderCursor == StashStruct::EmptyCell ? stashSlot : FindFirstStashSlotOnItem(itemUnderCursor);
-	CheckStashItem(MousePosition);
+	CheckStashItem(MousePositionWorld);
 
 	Point mousePos = GetStashSlotCoord(jumpSlot);
 	ActiveStashSlot = jumpSlot;
@@ -914,7 +914,7 @@ inv_xy_slot InventoryMoveToBody(int slot)
 
 void InventoryMove(AxisDirection dir)
 {
-	Point mousePos = MousePosition;
+	Point mousePos = MousePositionWorld;
 
 	const Item &heldItem = MyPlayer->HoldItem;
 	// normalize slots
@@ -1136,7 +1136,7 @@ void InventoryMove(AxisDirection dir)
 		mousePos.y += ((itemSize.height - 1) * InventorySlotSizeInPixels.height) / 2;
 	}
 
-	if (mousePos == MousePosition) {
+	if (mousePos == MousePositionWorld) {
 		return; // Avoid wobbling when scaled
 	}
 
@@ -1189,13 +1189,13 @@ void StashMove(AxisDirection dir)
 
 	Item &holdItem = MyPlayer->HoldItem;
 	if (Slot < 0 && ActiveStashSlot == InvalidStashPoint) {
-		int invSlot = FindClosestInventorySlot(MousePosition, holdItem);
+		int invSlot = FindClosestInventorySlot(MousePositionWorld, holdItem);
 		Point invSlotCoord = GetSlotCoord(invSlot);
-		int invDistance = MousePosition.ManhattanDistance(invSlotCoord);
+		int invDistance = MousePositionWorld.ManhattanDistance(invSlotCoord);
 
-		Point stashSlot = FindClosestStashSlot(MousePosition);
+		Point stashSlot = FindClosestStashSlot(MousePositionWorld);
 		Point stashSlotCoord = GetStashSlotCoord(stashSlot);
-		int stashDistance = MousePosition.ManhattanDistance(stashSlotCoord);
+		int stashDistance = MousePositionWorld.ManhattanDistance(stashSlotCoord);
 
 		if (invDistance < stashDistance) {
 			BeltReturnsToStash = false;
@@ -1348,11 +1348,11 @@ void HotSpellMove(AxisDirection dir)
 
 	auto spellListItems = GetSpellListItems();
 
-	Point position = MousePosition;
+	Point position = MousePositionWorld;
 	int shortestDistance = std::numeric_limits<int>::max();
 	for (auto &spellListItem : spellListItems) {
 		Point center = spellListItem.location + Displacement { SPLICONLENGTH / 2, -SPLICONLENGTH / 2 };
-		int distance = MousePosition.ManhattanDistance(center);
+		int distance = MousePositionWorld.ManhattanDistance(center);
 		if (distance < shortestDistance) {
 			position = center;
 			shortestDistance = distance;
@@ -1371,15 +1371,15 @@ void HotSpellMove(AxisDirection dir)
 				continue;
 
 			Point center = spellListItem.location + Displacement { SPLICONLENGTH / 2, -SPLICONLENGTH / 2 };
-			if (dir.x == AxisDirectionX_LEFT && center.x >= MousePosition.x)
+			if (dir.x == AxisDirectionX_LEFT && center.x >= MousePositionWorld.x)
 				continue;
-			if (dir.x == AxisDirectionX_RIGHT && center.x <= MousePosition.x)
+			if (dir.x == AxisDirectionX_RIGHT && center.x <= MousePositionWorld.x)
 				continue;
 			if (dir.x == AxisDirectionX_NONE && center.x != position.x)
 				continue;
-			if (dir.y == AxisDirectionY_UP && center.y >= MousePosition.y)
+			if (dir.y == AxisDirectionY_UP && center.y >= MousePositionWorld.y)
 				continue;
-			if (dir.y == AxisDirectionY_DOWN && center.y <= MousePosition.y)
+			if (dir.y == AxisDirectionY_DOWN && center.y <= MousePositionWorld.y)
 				continue;
 			if (dir.y == AxisDirectionY_NONE && center.y != position.y)
 				continue;
@@ -1391,7 +1391,7 @@ void HotSpellMove(AxisDirection dir)
 	search({ AxisDirectionX_NONE, dir.y }, dir.y == AxisDirectionY_DOWN);
 	search({ dir.x, AxisDirectionY_NONE }, dir.x == AxisDirectionX_RIGHT);
 
-	if (position != MousePosition) {
+	if (position != MousePositionWorld) {
 		SetCursorPos(position);
 	}
 }
@@ -1837,8 +1837,8 @@ void HandleRightStickMotion()
 
 	{ // move cursor
 		InvalidateInventorySlot();
-		int x = MousePosition.x;
-		int y = MousePosition.y;
+		int x = MousePositionWorld.x;
+		int y = MousePositionWorld.y;
 		acc.Pool(&x, &y, 2);
 		x = std::min(std::max(x, 0), gnScreenWidth - 1);
 		y = std::min(std::max(y, 0), gnScreenHeight - 1);
@@ -1975,9 +1975,9 @@ void PerformPrimaryAction()
 				return;
 			TryIconCurs();
 			NewCursor(CURSOR_HAND);
-		} else if (GetRightPanel().contains(MousePosition) || GetMainPanel().contains(MousePosition)) {
+		} else if (GetRightPanel().contains(MousePositionWorld) || GetMainPanel().contains(MousePositionWorld)) {
 			LiftInventoryItem();
-		} else if (IsStashOpen && GetLeftPanel().contains(MousePosition)) {
+		} else if (IsStashOpen && GetLeftPanel().contains(MousePositionWorld)) {
 			LiftStashItem();
 		}
 		return;
@@ -2079,7 +2079,7 @@ void PerformSpellAction()
 			if (itemId != GetItemIdOnSlot(Slot))
 				ResetInvCursorPosition();
 		} else if (pcursstashitem != StashStruct::EmptyCell) {
-			CheckStashItem(MousePosition, true, false);
+			CheckStashItem(MousePositionWorld, true, false);
 		}
 		return;
 	}
@@ -2152,7 +2152,7 @@ void CtrlUseStashItem()
 	}
 
 	if (item.isEquipment()) {
-		CheckStashItem(MousePosition, true, false); // Auto-equip if it's equipment
+		CheckStashItem(MousePositionWorld, true, false); // Auto-equip if it's equipment
 	} else {
 		UseStashItem(pcursstashitem);
 	}

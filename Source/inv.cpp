@@ -1633,19 +1633,19 @@ void CheckInvItem(bool isShiftHeld, bool isCtrlHeld)
 	if (IsInspectingPlayer())
 		return;
 	if (!MyPlayer->HoldItem.isEmpty()) {
-		CheckInvPaste(*MyPlayer, MousePosition);
+		CheckInvPaste(*MyPlayer, MousePositionWorld);
 	} else if (IsStashOpen && isCtrlHeld) {
 		TransferItemToStash(*MyPlayer, pcursinvitem);
 	} else {
-		CheckInvCut(*MyPlayer, MousePosition, isShiftHeld, isCtrlHeld);
+		CheckInvCut(*MyPlayer, MousePositionWorld, isShiftHeld, isCtrlHeld);
 	}
 }
 
 void CheckInvScrn(bool isShiftHeld, bool isCtrlHeld)
 {
 	const Point mainPanelPosition = GetMainPanel().position;
-	if (MousePosition.x > 190 + mainPanelPosition.x && MousePosition.x < 437 + mainPanelPosition.x
-	    && MousePosition.y > mainPanelPosition.y && MousePosition.y < 33 + mainPanelPosition.y) {
+	if (MousePositionWorld.x > 190 + mainPanelPosition.x && MousePositionWorld.x < 437 + mainPanelPosition.x
+	    && MousePositionWorld.y > mainPanelPosition.y && MousePositionWorld.y < 33 + mainPanelPosition.y) {
 		CheckInvItem(isShiftHeld, isCtrlHeld);
 	}
 }
@@ -1912,7 +1912,7 @@ int8_t CheckInvHLight()
 			yo = GetMainPanel().position.y;
 		}
 
-		if (InvRect[r].contains(MousePosition - Displacement(xo, yo))) {
+		if (InvRect[r].contains(MousePositionWorld - Displacement(xo, yo))) {
 			break;
 		}
 	}
