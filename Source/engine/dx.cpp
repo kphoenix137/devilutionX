@@ -304,7 +304,7 @@ void UpdateZoomLimits()
 	SDL_GetRendererOutputSize(renderer, &screenWidth, &screenHeight);
 
 	const float internalHeight = static_cast<float>(screenHeight); // Game renders at full screen resolution
-	constexpr float minVisibleHeight = 360.0f;                     // max zoom-in (tight view)
+	constexpr float minVisibleHeight = 240.0f;                     // max zoom-in (tight view)
 	constexpr float maxVisibleHeight = 720.0f;                     // max zoom-out (full screen)
 
 	MinZoom = minVisibleHeight / internalHeight;
