@@ -505,4 +505,34 @@ std::vector<std::string> ListDirectories(const char *path)
 	return dirs;
 }
 
+std::vector<std::string> ListFiles(const char *path)
+{
+	std::vector<std::string> files;
+#ifdef NXDK
+	// Use the NXDK Windows API.
+	WIN32_FIND_DATAA findData;
+	// Construct the search path by appending the directory separator and wildcard.
+	std::string searchPath = std::string(path) + DIRECTORY_SEPARATOR_STR + "*";
+	HANDLE hFind = FindFirstFileA(searchPath.c_str(), &findData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return files;
+	do {
+		std::string file = findData.cFileName;
+		// Skip the special entries "." and ".."
+		if (file == "." || file == "..")
+			continue;
+		if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			files.push_back(file);
+	} while (FindNextFileA(hFind, &findData));
+	FindClose(hFind);
+#else
+	// For platforms that support std::filesystem.
+	for (const auto &entry : std::filesystem::directory_iterator(path)) {
+		if (entry.is_regular_file())
+			files.push_back(entry.path().filename().string());
+	}
+#endif
+	return files;
+}
+
 } // namespace devilution
