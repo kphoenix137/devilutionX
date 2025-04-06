@@ -2144,7 +2144,7 @@ void SetupTownStores()
 	l = std::clamp(l + 2, 6, 16);
 	SpawnSmith(l);
 	SpawnWitch(l);
-	SpawnHealer(l);
+	SpawnHealer((l >= 15) ? 20 : l);
 	SpawnBoy(myPlayer.getCharacterLevel());
 	SpawnPremium(myPlayer);
 }
