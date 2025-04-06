@@ -49,16 +49,10 @@ bool IsTownItemValid(uint16_t iCreateInfo, const Player &player)
 {
 	const uint8_t level = iCreateInfo & CF_LEVEL;
 	const bool isBoyItem = (iCreateInfo & CF_BOY) != 0;
-	const bool isPremiumItem = (iCreateInfo & CF_SMITHPREMIUM) != 0;
-	const bool isHealerItem = (iCreateInfo & CF_HEALER) != 0;
-	const uint8_t maxTownItemLevel = 16;
+	const uint8_t maxTownItemLevel = 30;
 
 	// Wirt items in multiplayer are equal to the level of the player, therefore they cannot exceed the max character level
 	if (isBoyItem && level <= player.getMaxCharacterLevel())
-		return true;
-	if (isPremiumItem && level <= 30)
-		return true;
-	if (isHealerItem && level <= 20)
 		return true;
 
 	return level <= maxTownItemLevel;
