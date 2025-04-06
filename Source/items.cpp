@@ -4683,8 +4683,8 @@ void SpawnHealer(int lvl)
 			tempLvl = expandedLvl;
 		}
 
-		GetItemAttrs(item, itemData, lvl);
-		item._iCreateInfo = lvl | CF_HEALER;
+		GetItemAttrs(item, itemData, tempLvl);
+		item._iCreateInfo = tempLvl | CF_HEALER;
 		item._iIdentified = true;
 	}
 
