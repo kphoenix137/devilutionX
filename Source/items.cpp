@@ -1368,7 +1368,7 @@ struct WeightedItemIndex {
 	unsigned cumulativeWeight;
 };
 
-_item_indexes GetItemIndexForDroppableItem(bool considerDropRate, tl::function_ref<bool(const ItemData &item)> isItemOkay)
+_item_indexes GenerateBaseItem(bool considerDropRate, tl::function_ref<bool(const ItemData &item)> isItemOkay)
 {
 	static std::vector<WeightedItemIndex> ril;
 	ril.clear();
@@ -1391,12 +1391,12 @@ _item_indexes GetItemIndexForDroppableItem(bool considerDropRate, tl::function_r
 	return std::upper_bound(ril.begin(), ril.end(), targetWeight, [](unsigned target, const WeightedItemIndex &value) { return target < value.cumulativeWeight; })->index;
 }
 
-_item_indexes RndUItem(Monster *monster)
+_item_indexes GenerateBaseItemUniqueMonster(Monster *monster)
 {
 	int itemMaxLevel = ItemsGetCurrlevel() * 2;
 	if (monster != nullptr)
 		itemMaxLevel = monster->level(sgGameInitInfo.nDifficulty);
-	return GetItemIndexForDroppableItem(false, [&itemMaxLevel](const ItemData &item) {
+	return GenerateBaseItem(false, [&itemMaxLevel](const ItemData &item) {
 		if (item.itype == ItemType::Misc && item.iMiscId == IMISC_BOOK)
 			return true;
 		if (itemMaxLevel < item.iMinMLvl)
@@ -1407,23 +1407,23 @@ _item_indexes RndUItem(Monster *monster)
 	});
 }
 
-_item_indexes RndAllItems()
+_item_indexes GenerateBaseItemDungeon()
 {
 	if (GenerateRnd(100) > 25)
 		return IDI_GOLD;
 
 	int itemMaxLevel = ItemsGetCurrlevel() * 2;
-	return GetItemIndexForDroppableItem(false, [&itemMaxLevel](const ItemData &item) {
+	return GenerateBaseItem(false, [&itemMaxLevel](const ItemData &item) {
 		if (itemMaxLevel < item.iMinMLvl)
 			return false;
 		return true;
 	});
 }
 
-_item_indexes RndTypeItems(ItemType itemType, int imid, int lvl)
+_item_indexes GenerateBaseItemWithItemType(ItemType itemType, int imid, int lvl)
 {
 	int itemMaxLevel = lvl * 2;
-	return GetItemIndexForDroppableItem(false, [&itemMaxLevel, &itemType, &imid](const ItemData &item) {
+	return GenerateBaseItem(false, [&itemMaxLevel, &itemType, &imid](const ItemData &item) {
 		if (itemMaxLevel < item.iMinMLvl)
 			return false;
 		if (item.itype != itemType)
@@ -1891,9 +1891,9 @@ bool SmithItemOk(const Player &player, const ItemData &item)
 }
 
 template <bool (*Ok)(const Player &, const ItemData &), bool ConsiderDropRate = false>
-_item_indexes RndVendorItem(const Player &player, int minlvl, int maxlvl)
+_item_indexes GenerateBaseItemVendor(const Player &player, int minlvl, int maxlvl)
 {
-	return GetItemIndexForDroppableItem(ConsiderDropRate, [&player, &minlvl, &maxlvl](const ItemData &item) {
+	return GenerateBaseItem(ConsiderDropRate, [&player, &minlvl, &maxlvl](const ItemData &item) {
 		if (!Ok(player, item))
 			return false;
 		if (item.iMinMLvl < minlvl || item.iMinMLvl > maxlvl)
@@ -1902,9 +1902,9 @@ _item_indexes RndVendorItem(const Player &player, int minlvl, int maxlvl)
 	});
 }
 
-_item_indexes RndSmithItem(const Player &player, int lvl)
+_item_indexes GenerateBaseItemSmith(const Player &player, int lvl)
 {
-	return RndVendorItem<SmithItemOk, true>(player, 0, lvl);
+	return GenerateBaseItemVendor<SmithItemOk, true>(player, 0, lvl);
 }
 
 void SortVendor(Item *itemList, size_t count)
@@ -1937,9 +1937,9 @@ bool PremiumItemOk(const Player &player, const ItemData &item)
 	return true;
 }
 
-_item_indexes RndPremiumItem(const Player &player, int minlvl, int maxlvl)
+_item_indexes GenerateBaseItemPremium(const Player &player, int minlvl, int maxlvl)
 {
-	return RndVendorItem<PremiumItemOk>(player, minlvl, maxlvl);
+	return GenerateBaseItemVendor<PremiumItemOk>(player, minlvl, maxlvl);
 }
 
 void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
@@ -1959,7 +1959,7 @@ void SpawnOnePremium(Item &premiumItem, int plvl, const Player &player)
 		premiumItem = {};
 		premiumItem._iSeed = AdvanceRndSeed();
 		SetRndSeed(premiumItem._iSeed);
-		_item_indexes itemType = RndPremiumItem(player, plvl / 4, plvl);
+		_item_indexes itemType = GenerateBaseItemPremium(player, plvl / 4, plvl);
 		GetItemAttrs(premiumItem, itemType, plvl);
 		GetItemBonus(player, premiumItem, plvl / 2, plvl, true, !gbIsHellfire);
 
@@ -2039,14 +2039,14 @@ bool WitchItemOk(const Player &player, const ItemData &item)
 	return true;
 }
 
-_item_indexes RndWitchItem(const Player &player, int lvl)
+_item_indexes GenerateBaseItemWitch(const Player &player, int lvl)
 {
-	return RndVendorItem<WitchItemOk>(player, 0, lvl);
+	return GenerateBaseItemVendor<WitchItemOk>(player, 0, lvl);
 }
 
-_item_indexes RndBoyItem(const Player &player, int lvl)
+_item_indexes GenerateBaseItemBoy(const Player &player, int lvl)
 {
-	return RndVendorItem<PremiumItemOk>(player, 0, lvl);
+	return GenerateBaseItemVendor<PremiumItemOk>(player, 0, lvl);
 }
 
 bool HealerItemOk(const Player &player, const ItemData &item)
@@ -2078,15 +2078,15 @@ bool HealerItemOk(const Player &player, const ItemData &item)
 	return false;
 }
 
-_item_indexes RndHealerItem(const Player &player, int lvl)
+_item_indexes GenerateBaseItemHealer(const Player &player, int lvl)
 {
-	return RndVendorItem<HealerItemOk>(player, 0, lvl);
+	return GenerateBaseItemVendor<HealerItemOk>(player, 0, lvl);
 }
 
 void RecreateSmithItem(const Player &player, Item &item, int lvl, int iseed)
 {
 	SetRndSeed(iseed);
-	_item_indexes itype = RndSmithItem(player, lvl);
+	_item_indexes itype = GenerateBaseItemSmith(player, lvl);
 	GetItemAttrs(item, itype, lvl);
 
 	item._iSeed = iseed;
@@ -2097,7 +2097,7 @@ void RecreateSmithItem(const Player &player, Item &item, int lvl, int iseed)
 void RecreatePremiumItem(const Player &player, Item &item, int plvl, int iseed)
 {
 	SetRndSeed(iseed);
-	_item_indexes itype = RndPremiumItem(player, plvl / 4, plvl);
+	_item_indexes itype = GenerateBaseItemPremium(player, plvl / 4, plvl);
 	GetItemAttrs(item, itype, plvl);
 	GetItemBonus(player, item, plvl / 2, plvl, true, !gbIsHellfire);
 
@@ -2109,7 +2109,7 @@ void RecreatePremiumItem(const Player &player, Item &item, int plvl, int iseed)
 void RecreateBoyItem(const Player &player, Item &item, int lvl, int iseed)
 {
 	SetRndSeed(iseed);
-	_item_indexes itype = RndBoyItem(player, lvl);
+	_item_indexes itype = GenerateBaseItemBoy(player, lvl);
 	GetItemAttrs(item, itype, lvl);
 	GetItemBonus(player, item, lvl, 2 * lvl, true, true);
 
@@ -2128,7 +2128,7 @@ void RecreateWitchItem(const Player &player, Item &item, _item_indexes idx, int 
 		GetItemAttrs(item, idx, lvl);
 	} else {
 		SetRndSeed(iseed);
-		_item_indexes itype = RndWitchItem(player, lvl);
+		_item_indexes itype = GenerateBaseItemWitch(player, lvl);
 		GetItemAttrs(item, itype, lvl);
 		int iblvl = -1;
 		if (GenerateRnd(100) <= 5)
@@ -2150,7 +2150,7 @@ void RecreateHealerItem(const Player &player, Item &item, _item_indexes idx, int
 		GetItemAttrs(item, idx, lvl);
 	} else {
 		SetRndSeed(iseed);
-		_item_indexes itype = RndHealerItem(player, lvl);
+		_item_indexes itype = GenerateBaseItemHealer(player, lvl);
 		GetItemAttrs(item, itype, lvl);
 	}
 
@@ -2180,7 +2180,7 @@ void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, int i
 
 	int ii = AllocateItem();
 	auto &item = Items[ii];
-	_item_indexes idx = RndTypeItems(itemType, imid, lvl);
+	_item_indexes idx = GenerateBaseItemWithItemType(itemType, imid, lvl);
 
 	while (true) {
 		item = {};
@@ -2190,7 +2190,7 @@ void CreateMagicItem(Point position, int lvl, ItemType itemType, int imid, int i
 		if (item._iCurs == icurs)
 			break;
 
-		idx = RndTypeItems(itemType, imid, lvl);
+		idx = GenerateBaseItemWithItemType(itemType, imid, lvl);
 	}
 	GetSuperItemSpace(position, ii);
 
@@ -2255,15 +2255,15 @@ std::string GetTranslatedItemNameMagical(const Item &item, bool hellfireItem, bo
 	int minlvl;
 	int maxlvl;
 	if ((item._iCreateInfo & CF_SMITHPREMIUM) != 0) {
-		DiscardRandomValues(2); // RndVendorItem and GetItemAttrs
+		DiscardRandomValues(2); // GenerateBaseItemVendor and GetItemAttrs
 		minlvl = lvl / 2;
 		maxlvl = lvl;
 	} else if ((item._iCreateInfo & CF_BOY) != 0) {
-		DiscardRandomValues(2); // RndVendorItem and GetItemAttrs
+		DiscardRandomValues(2); // GenerateBaseItemVendor and GetItemAttrs
 		minlvl = lvl;
 		maxlvl = lvl * 2;
 	} else if ((item._iCreateInfo & CF_WITCH) != 0) {
-		DiscardRandomValues(2); // RndVendorItem and GetItemAttrs
+		DiscardRandomValues(2); // GenerateBaseItemVendor and GetItemAttrs
 		int iblvl = -1;
 		if (GenerateRnd(100) <= 5)
 			iblvl = 2 * lvl;
@@ -3207,7 +3207,7 @@ Item *SpawnUnique(_unique_items uid, Point position, std::optional<int> level /*
 		if (level)
 			curlv = *level;
 		const ItemData &uniqueItemData = AllItemsList[idx];
-		_item_indexes idx = GetItemIndexForDroppableItem(false, [&uniqueItemData](const ItemData &item) {
+		_item_indexes idx = GenerateBaseItem(false, [&uniqueItemData](const ItemData &item) {
 			return item.itype == uniqueItemData.itype;
 		});
 		SetupAllItems(*MyPlayer, item, idx, AdvanceRndSeed(), curlv * 2, 15, true, false);
@@ -3241,7 +3241,7 @@ void GetSuperItemSpace(Point position, int8_t inum)
 	}
 }
 
-_item_indexes RndItemForMonsterLevel(int8_t monsterLevel)
+_item_indexes GenerateBaseItemMonster(int8_t monsterLevel)
 {
 	if (GenerateRnd(100) > 40)
 		return IDI_NONE;
@@ -3249,7 +3249,7 @@ _item_indexes RndItemForMonsterLevel(int8_t monsterLevel)
 	if (GenerateRnd(100) > 25)
 		return IDI_GOLD;
 
-	return GetItemIndexForDroppableItem(true, [&monsterLevel](const ItemData &item) {
+	return GenerateBaseItem(true, [&monsterLevel](const ItemData &item) {
 		return item.iMinMLvl <= monsterLevel;
 	});
 }
@@ -3422,7 +3422,7 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 		return;
 	} else if (monster.isUnique() || dropsSpecialTreasure) {
 		// Unique monster is killed => use better item base (for example no gold)
-		idx = RndUItem(&monster);
+		idx = GenerateBaseItemUniqueMonster(&monster);
 	} else if (dropBrain && !gbIsMultiplayer) {
 		// Normal monster is killed => need to drop brain to progress the quest
 		Quests[Q_MUSHROOM]._qvar1 = QS_BRAINSPAWNED;
@@ -3442,7 +3442,7 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 		if ((monster.data().treasure & T_NODROP) != 0)
 			return;
 		onlygood = false;
-		idx = RndItemForMonsterLevel(static_cast<int8_t>(monster.level(sgGameInitInfo.nDifficulty)));
+		idx = GenerateBaseItemMonster(static_cast<int8_t>(monster.level(sgGameInitInfo.nDifficulty)));
 	}
 
 	if (idx == IDI_NONE)
@@ -3472,7 +3472,7 @@ void SpawnItem(Monster &monster, Point position, bool sendmsg, bool spawn /*= fa
 
 void CreateRndItem(Point position, bool onlygood, bool sendmsg, bool delta)
 {
-	_item_indexes idx = onlygood ? RndUItem(nullptr) : RndAllItems();
+	_item_indexes idx = onlygood ? GenerateBaseItemUniqueMonster(nullptr) : GenerateBaseItemDungeon();
 
 	SetupBaseItem(position, idx, onlygood, sendmsg, delta);
 }
@@ -3498,7 +3498,7 @@ void CreateTypeItem(Point position, bool onlygood, ItemType itemType, int imisc,
 
 	int curlv = ItemsGetCurrlevel();
 	if (itemType != ItemType::Gold)
-		idx = RndTypeItems(itemType, imisc, curlv);
+		idx = GenerateBaseItemWithItemType(itemType, imisc, curlv);
 	else
 		idx = IDI_GOLD;
 
@@ -4402,7 +4402,7 @@ void SpawnSmith(int lvl)
 			newItem = {};
 			newItem._iSeed = AdvanceRndSeed();
 			SetRndSeed(newItem._iSeed);
-			_item_indexes itemData = RndSmithItem(*MyPlayer, lvl);
+			_item_indexes itemData = GenerateBaseItemSmith(*MyPlayer, lvl);
 			GetItemAttrs(newItem, itemData, lvl);
 		} while (newItem._iIvalue > maxValue);
 
@@ -4497,7 +4497,7 @@ void SpawnWitch(int lvl)
 			item = {};
 			item._iSeed = AdvanceRndSeed();
 			SetRndSeed(item._iSeed);
-			_item_indexes itemData = RndWitchItem(*MyPlayer, lvl);
+			_item_indexes itemData = GenerateBaseItemWitch(*MyPlayer, lvl);
 			GetItemAttrs(item, itemData, lvl);
 			int maxlvl = -1;
 			if (GenerateRnd(100) <= 5)
@@ -4538,7 +4538,7 @@ void SpawnBoy(int lvl)
 		BoyItem = {};
 		BoyItem._iSeed = AdvanceRndSeed();
 		SetRndSeed(BoyItem._iSeed);
-		_item_indexes itype = RndBoyItem(*MyPlayer, lvl);
+		_item_indexes itype = GenerateBaseItemBoy(*MyPlayer, lvl);
 		GetItemAttrs(BoyItem, itype, lvl);
 		GetItemBonus(*MyPlayer, BoyItem, lvl, 2 * lvl, true, true);
 
@@ -4654,7 +4654,7 @@ void SpawnHealer(int lvl)
 
 		item._iSeed = AdvanceRndSeed();
 		SetRndSeed(item._iSeed);
-		_item_indexes itype = RndHealerItem(*MyPlayer, lvl);
+		_item_indexes itype = GenerateBaseItemHealer(*MyPlayer, lvl);
 		GetItemAttrs(item, itype, lvl);
 		item._iCreateInfo = lvl | CF_HEALER;
 		item._iIdentified = true;
@@ -4693,7 +4693,7 @@ void CreateSpellBook(Point position, SpellID ispell, bool sendmsg, bool delta)
 		}
 	}
 
-	_item_indexes idx = RndTypeItems(ItemType::Misc, IMISC_BOOK, lvl);
+	_item_indexes idx = GenerateBaseItemWithItemType(ItemType::Misc, IMISC_BOOK, lvl);
 	if (ActiveItemCount >= MAXITEMS)
 		return;
 
