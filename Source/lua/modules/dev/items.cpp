@@ -92,9 +92,9 @@ std::string DebugSpawnItem(std::string itemName)
 			continue;
 
 		testItem = {};
-		SetupAllItems(*MyPlayer, testItem, idx, AdvanceRndSeed(), monsterLevel, 1, false, false);
+		GenerateItem(*MyPlayer, testItem, idx, AdvanceRndSeed(), monsterLevel, 1, false, false);
 		TryRandomUniqueItem(testItem, idx, monsterLevel, 1, false, false);
-		SetupItem(testItem);
+		FinalizeGeneratedItemInDungeon(testItem);
 
 		std::string tmp = AsciiStrToLower(testItem._iIName);
 		if (tmp.find(itemName) != std::string::npos)
@@ -106,7 +106,7 @@ std::string DebugSpawnItem(std::string itemName)
 	item = testItem.pop();
 	item._iIdentified = true;
 	Point pos = MyPlayer->position.tile;
-	GetSuperItemSpace(pos, ii);
+	AssignItemDropPosition(pos, ii);
 	NetSendCmdPItem(false, CMD_SPAWNITEM, item.position, item);
 	return StrCat("Item generated successfully - iterations: ", i);
 }
@@ -167,9 +167,9 @@ std::string DebugSpawnUniqueItem(std::string itemName)
 		for (auto &flag : UniqueItemFlags)
 			flag = true;
 		UniqueItemFlags[uniqueIndex] = false;
-		SetupAllItems(*MyPlayer, testItem, uniqueBaseIndex, testItem._iMiscId == IMISC_UNIQUE ? uniqueIndex : AdvanceRndSeed(), uniqueItem.UIMinLvl, 1, false, false);
+		GenerateItem(*MyPlayer, testItem, uniqueBaseIndex, testItem._iMiscId == IMISC_UNIQUE ? uniqueIndex : AdvanceRndSeed(), uniqueItem.UIMinLvl, 1, false, false);
 		TryRandomUniqueItem(testItem, uniqueBaseIndex, uniqueItem.UIMinLvl, 1, false, false);
-		SetupItem(testItem);
+		FinalizeGeneratedItemInDungeon(testItem);
 		for (auto &flag : UniqueItemFlags)
 			flag = false;
 
@@ -186,7 +186,7 @@ std::string DebugSpawnUniqueItem(std::string itemName)
 	auto &item = Items[ii];
 	item = testItem.pop();
 	Point pos = MyPlayer->position.tile;
-	GetSuperItemSpace(pos, ii);
+	AssignItemDropPosition(pos, ii);
 	item._iIdentified = true;
 	NetSendCmdPItem(false, CMD_SPAWNITEM, item.position, item);
 

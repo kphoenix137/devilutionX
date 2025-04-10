@@ -293,7 +293,7 @@ void RespawnDeadItem(Item &&itm, Point target)
 
 	item = itm;
 	item.position = target;
-	RespawnItem(item, true);
+	PlaceItemInWorld(item, true);
 	NetSendCmdPItem(false, CMD_SPAWNITEM, target, item);
 }
 

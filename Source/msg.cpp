@@ -305,7 +305,7 @@ DLevel &GetDeltaLevel(const Player &player)
 
 Point GetItemPosition(Point position)
 {
-	if (CanPut(position))
+	if (CanPlaceItemInTile(position))
 		return position;
 
 	for (int k = 1; k < 50; k++) {
@@ -313,7 +313,7 @@ Point GetItemPosition(Point position)
 			int yy = position.y + j;
 			for (int l = -k; l <= k; l++) {
 				int xx = position.x + l;
-				if (CanPut({ xx, yy }))
+				if (CanPlaceItemInTile({ xx, yy }))
 					return { xx, yy };
 			}
 		}
@@ -1093,20 +1093,20 @@ void PrepareItemForNetwork(const Item &item, TCmdChItem &message)
 		PrepareItemForNetwork(item, message.item);
 }
 
-void RecreateItem(const Player &player, const TCmdPItem &message, Item &item)
+void RegenerateItem(const Player &player, const TCmdPItem &message, Item &item)
 {
 	if (message.def.wIndx == SDL_SwapLE16(IDI_EAR))
-		RecreateEar(item, SDL_SwapLE16(message.ear.wCI), SDL_SwapLE32(message.ear.dwSeed), message.ear.bCursval, message.ear.heroname);
+		RegenerateItemEar(item, SDL_SwapLE16(message.ear.wCI), SDL_SwapLE32(message.ear.dwSeed), message.ear.bCursval, message.ear.heroname);
 	else
-		RecreateItem(player, message.item, item);
+		RegenerateItem(player, message.item, item);
 }
 
-void RecreateItem(const Player &player, const TCmdChItem &message, Item &item)
+void RegenerateItem(const Player &player, const TCmdChItem &message, Item &item)
 {
 	if (message.def.wIndx == SDL_SwapLE16(IDI_EAR))
-		RecreateEar(item, SDL_SwapLE16(message.ear.wCI), SDL_SwapLE32(message.ear.dwSeed), message.ear.bCursval, message.ear.heroname);
+		RegenerateItemEar(item, SDL_SwapLE16(message.ear.wCI), SDL_SwapLE32(message.ear.dwSeed), message.ear.bCursval, message.ear.heroname);
 	else
-		RecreateItem(player, message.item, item);
+		RegenerateItem(player, message.item, item);
 }
 
 int SyncDropItem(Point position, const TItem &item)
@@ -1348,7 +1348,7 @@ size_t OnPutItem(const TCmd *pCmd, Player &player)
 			if (isSelf) {
 				std::optional<Point> itemTile = FindAdjacentPositionForItem(player.position.tile, GetDirection(player.position.tile, position));
 				if (itemTile)
-					ii = PlaceItemInWorld(std::move(ItemLimbo), *itemTile);
+					ii = NetPlaceItemInWorld(std::move(ItemLimbo), *itemTile);
 				else
 					ii = -1;
 			} else
@@ -1925,7 +1925,7 @@ size_t OnChangePlayerItems(const TCmd *pCmd, Player &player)
 	} else if (&player != MyPlayer && IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)))) {
 		Item &item = player.InvBody[message.bLoc];
 		item = {};
-		RecreateItem(player, message, item);
+		RegenerateItem(player, message, item);
 		CheckInvSwap(player, bodyLocation);
 	}
 
@@ -1959,7 +1959,7 @@ size_t OnChangeInventoryItems(const TCmd *pCmd, Player &player)
 		SendPacket(player, &message, sizeof(message));
 	} else if (&player != MyPlayer && IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)))) {
 		Item item {};
-		RecreateItem(player, message, item);
+		RegenerateItem(player, message, item);
 		CheckInvSwap(player, item, message.bLoc);
 	}
 
@@ -1992,7 +1992,7 @@ size_t OnChangeBeltItems(const TCmd *pCmd, Player &player)
 	} else if (&player != MyPlayer && IsItemAvailable(static_cast<_item_indexes>(SDL_SwapLE16(message.def.wIndx)))) {
 		Item &item = player.SpdList[message.bLoc];
 		item = {};
-		RecreateItem(player, message, item);
+		RegenerateItem(player, message, item);
 	}
 
 	return sizeof(message);
@@ -2426,10 +2426,10 @@ void PrepareEarForNetwork(const Item &item, TEar &ear)
 	CopyUtf8(ear.heroname, item._iIName, sizeof(ear.heroname));
 }
 
-void RecreateItem(const Player &player, const TItem &messageItem, Item &item)
+void RegenerateItem(const Player &player, const TItem &messageItem, Item &item)
 {
 	const uint32_t dwBuff = SDL_SwapLE32(messageItem.dwBuff);
-	RecreateItem(player, item,
+	RegenerateItem(player, item,
 	    static_cast<_item_indexes>(SDL_SwapLE16(messageItem.wIndx)), SDL_SwapLE16(messageItem.wCI),
 	    SDL_SwapLE32(messageItem.dwSeed), SDL_SwapLE16(messageItem.wValue), dwBuff);
 	if (messageItem.bId != 0)
@@ -2803,13 +2803,13 @@ void DeltaLoadLevel()
 		if (deltaLevel.item[i].bCmd == TCmdPItem::DroppedItem) {
 			int ii = AllocateItem();
 			auto &item = Items[ii];
-			RecreateItem(*MyPlayer, deltaLevel.item[i], item);
+			RegenerateItem(*MyPlayer, deltaLevel.item[i], item);
 
 			int x = deltaLevel.item[i].x;
 			int y = deltaLevel.item[i].y;
 			item.position = GetItemPosition({ x, y });
 			dItem[item.position.x][item.position.y] = ii + 1;
-			RespawnItem(Items[ii], false);
+			PlaceItemInWorld(Items[ii], false);
 		}
 	}
 }

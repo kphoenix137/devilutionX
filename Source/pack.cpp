@@ -82,7 +82,7 @@ void VerifyGoldSeeds(Player &player)
 bool RecreateHellfireSpellBook(const Player &player, const TItem &packedItem, Item *item)
 {
 	Item spellBook {};
-	RecreateItem(player, packedItem, spellBook);
+	RegenerateItem(player, packedItem, spellBook);
 
 	// Hellfire uses the spell book level when generating items via CreateSpellBook()
 	int spellBookLevel = GetSpellBookLevel(spellBook._iSpell);
@@ -329,13 +329,13 @@ void UnPackItem(const ItemPack &packedItem, const Player &player, Item &item, bo
 		heroName[15] = static_cast<char>(ibuff & 0x7F);
 		heroName[16] = '\0';
 
-		RecreateEar(item, ic, iseed, ivalue & 0xFF, heroName);
+		RegenerateItemEar(item, ic, iseed, ivalue & 0xFF, heroName);
 	} else {
 		item = {};
 		// Item generation logic will assign CF_HELLFIRE based on isHellfire
 		// so if we carry it over from packedItem, it may be incorrect
 		const uint32_t dwBuff = SDL_SwapLE32(packedItem.dwBuff) | (isHellfire ? CF_HELLFIRE : 0);
-		RecreateItem(player, item, idx, SDL_SwapLE16(packedItem.iCreateInfo), SDL_SwapLE32(packedItem.iSeed), SDL_SwapLE16(packedItem.wValue), dwBuff);
+		RegenerateItem(player, item, idx, SDL_SwapLE16(packedItem.iCreateInfo), SDL_SwapLE32(packedItem.iSeed), SDL_SwapLE16(packedItem.wValue), dwBuff);
 		item._iIdentified = (packedItem.bId & 1) != 0;
 		item._iMaxDur = packedItem.bMDur;
 		item._iDurability = ClampDurability(item, packedItem.bDur);
@@ -439,7 +439,7 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 	if (idx < 0 || idx > IDI_LAST)
 		return true;
 	if (idx == IDI_EAR) {
-		RecreateEar(item, SDL_SwapLE16(packedItem.ear.wCI), SDL_SwapLE32(packedItem.ear.dwSeed), packedItem.ear.bCursval, packedItem.ear.heroname);
+		RegenerateItemEar(item, SDL_SwapLE16(packedItem.ear.wCI), SDL_SwapLE32(packedItem.ear.dwSeed), packedItem.ear.bCursval, packedItem.ear.heroname);
 		return true;
 	}
 
@@ -456,7 +456,7 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 	else
 		ValidateFields(creationFlags, dwBuff, IsDungeonItemValid(creationFlags, dwBuff));
 
-	RecreateItem(player, packedItem.item, item);
+	RegenerateItem(player, packedItem.item, item);
 	return true;
 }
 

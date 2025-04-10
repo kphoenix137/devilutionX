@@ -442,7 +442,7 @@ void Theme_MonstPit(int t)
 			}
 		}
 	}
-	CreateRndItem({ ixp, iyp }, true, false, true);
+	GenerateItemDungeon({ ixp, iyp }, true, false, true);
 	ItemNoFlippy();
 	PlaceThemeMonsts(t, monstrnd[leveltype - 1]);
 }
@@ -524,11 +524,11 @@ void Theme_Treasure(int t)
 				int rv = GenerateRnd(treasureType);
 				// BUGFIX: this used to be `2*GenerateRnd(treasureType) == 0` however 2*0 has no effect, should probably be `FlipCoin(2*treasureType)`
 				if (FlipCoin(treasureType)) {
-					CreateTypeItem({ xp, yp }, false, ItemType::Gold, IMISC_NONE, false, true);
+					GenerateItemWithItemType({ xp, yp }, false, ItemType::Gold, IMISC_NONE, false, true);
 					ItemNoFlippy();
 				}
 				if (rv == 0) {
-					CreateRndItem({ xp, yp }, false, false, true);
+					GenerateItemDungeon({ xp, yp }, false, false, true);
 					ItemNoFlippy();
 				}
 				// BUGFIX: the following code is likely not working as intended.

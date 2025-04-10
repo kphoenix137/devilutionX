@@ -1935,7 +1935,7 @@ void OperateBookLever(Object &questBook, bool sendmsg)
 			Quests[Q_BLOOD]._qvar1 = 1;
 			NetSendCmdQuest(true, Quests[Q_BLOOD]);
 			if (sendmsg)
-				SpawnQuestItem(IDI_BLDSTONE, SetPiece.position.megaToWorld() + Displacement { 9, 17 }, 0, SelectionRegion::Bottom, true);
+				GenerateQuestItem(IDI_BLDSTONE, SetPiece.position.megaToWorld() + Displacement { 9, 17 }, 0, SelectionRegion::Bottom, true);
 		}
 		if (questBook._otype == OBJ_STEELTOME && Quests[Q_WARLORD]._qvar1 == QS_WARLORD_INIT) {
 			Quests[Q_WARLORD]._qactive = QUEST_ACTIVE;
@@ -1948,7 +1948,7 @@ void OperateBookLever(Object &questBook, bool sendmsg)
 				ObjChangeMap(questBook._oVar1, questBook._oVar2, questBook._oVar3, questBook._oVar4);
 			if (questBook._otype == OBJ_BLINDBOOK) {
 				if (sendmsg)
-					SpawnUnique(UITEM_OPTAMULET, SetPiece.position.megaToWorld() + Displacement { 5, 5 }, std::nullopt, true, true);
+					GenerateUniqueItem(UITEM_OPTAMULET, SetPiece.position.megaToWorld() + Displacement { 5, 5 }, std::nullopt, true, true);
 				auto tren = TransVal;
 				TransVal = 9;
 				DRLG_MRectTrans(WorldTilePosition(questBook._oVar1, questBook._oVar2), WorldTilePosition(questBook._oVar3, questBook._oVar4));
@@ -2021,14 +2021,14 @@ void OperateChest(const Player &player, Object &chest, bool sendLootMsg)
 	SetRndSeed(chest._oRndSeed);
 	if (setlevel) {
 		for (int j = 0; j < chest._oVar1; j++) {
-			CreateRndItem(chest.position, true, sendLootMsg, false);
+			GenerateItemDungeon(chest.position, true, sendLootMsg, false);
 		}
 	} else {
 		for (int j = 0; j < chest._oVar1; j++) {
 			if (chest._oVar2 != 0)
-				CreateRndItem(chest.position, false, sendLootMsg, false);
+				GenerateItemDungeon(chest.position, false, sendLootMsg, false);
 			else
-				CreateRndUseful(chest.position, sendLootMsg);
+				GenerateItemUseful(chest.position, sendLootMsg);
 		}
 	}
 	if (chest.IsTrappedChest()) {
@@ -2088,7 +2088,7 @@ void OperateMushroomPatch(const Player &player, Object &mushroomPatch)
 	Point pos = GetSuperItemLoc(mushroomPatch.position);
 
 	if (&player == MyPlayer) {
-		SpawnQuestItem(IDI_MUSHROOM, pos, 0, SelectionRegion::None, true);
+		GenerateQuestItem(IDI_MUSHROOM, pos, 0, SelectionRegion::None, true);
 		Quests[Q_MUSHROOM]._qvar1 = QS_MUSHSPAWNED;
 		NetSendCmdQuest(true, Quests[Q_MUSHROOM]);
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, mushroomPatch.position);
@@ -2119,7 +2119,7 @@ void OperateInnSignChest(const Player &player, Object &questContainer, bool send
 
 	if (sendmsg) {
 		Point pos = GetSuperItemLoc(questContainer.position);
-		SpawnQuestItem(IDI_BANNER, pos, 0, SelectionRegion::None, true);
+		GenerateQuestItem(IDI_BANNER, pos, 0, SelectionRegion::None, true);
 		NetSendCmdLoc(MyPlayerId, true, CMD_OPERATEOBJ, questContainer.position);
 	}
 }
@@ -2191,7 +2191,7 @@ void OperateSarcophagus(Object &sarcophagus, bool sendMsg, bool sendLootMsg)
 	sarcophagus._oAnimDelay = 3;
 	SetRndSeed(sarcophagus._oRndSeed);
 	if (sarcophagus._oVar1 <= 2)
-		CreateRndItem(sarcophagus.position, false, sendLootMsg, false);
+		GenerateItemDungeon(sarcophagus.position, false, sendLootMsg, false);
 	if (sarcophagus._oVar1 >= 8 && sarcophagus._oVar2 >= 0)
 		ActivateSkeleton(Monsters[sarcophagus._oVar2], sarcophagus.position);
 	if (sendMsg)
@@ -2223,20 +2223,20 @@ void OperatePedestal(Player &player, Object &pedestal, bool sendmsg)
 		PlaySfxLoc(SfxID::SpellPuddle, pedestal.position);
 		ObjChangeMap(SetPiece.position.x, SetPiece.position.y + 3, SetPiece.position.x + 2, SetPiece.position.y + 7);
 		if (sendmsg)
-			SpawnQuestItem(IDI_BLDSTONE, SetPiece.position.megaToWorld() + Displacement { 3, 10 }, 0, SelectionRegion::Bottom, true);
+			GenerateQuestItem(IDI_BLDSTONE, SetPiece.position.megaToWorld() + Displacement { 3, 10 }, 0, SelectionRegion::Bottom, true);
 	}
 	if (pedestal._oVar6 == 2) {
 		PlaySfxLoc(SfxID::SpellPuddle, pedestal.position);
 		ObjChangeMap(SetPiece.position.x + 6, SetPiece.position.y + 3, SetPiece.position.x + SetPiece.size.width, SetPiece.position.y + 7);
 		if (sendmsg)
-			SpawnQuestItem(IDI_BLDSTONE, SetPiece.position.megaToWorld() + Displacement { 15, 10 }, 0, SelectionRegion::Bottom, true);
+			GenerateQuestItem(IDI_BLDSTONE, SetPiece.position.megaToWorld() + Displacement { 15, 10 }, 0, SelectionRegion::Bottom, true);
 	}
 	if (pedestal._oVar6 == 3) {
 		PlaySfxLoc(SfxID::SpellBloodStar, pedestal.position);
 		ObjChangeMap(pedestal._oVar1, pedestal._oVar2, pedestal._oVar3, pedestal._oVar4);
 		LoadMapObjects("levels\\l2data\\blood2.dun", SetPiece.position.megaToWorld());
 		if (sendmsg)
-			SpawnUnique(UITEM_ARMOFVAL, SetPiece.position.megaToWorld() + Displacement { 9, 3 }, std::nullopt, true, true);
+			GenerateUniqueItem(UITEM_ARMOFVAL, SetPiece.position.megaToWorld() + Displacement { 9, 3 }, std::nullopt, true, true);
 		pedestal.selectionRegion = SelectionRegion::None;
 	}
 }
@@ -2621,11 +2621,11 @@ void OperateShrineDivine(Player &player, Point spawnPosition)
 		return;
 
 	if (currlevel < 4) {
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLMANA, false, false, true);
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLHEAL, false, false, true);
+		GenerateItemWithItemType(spawnPosition, false, ItemType::Misc, IMISC_FULLMANA, false, false, true);
+		GenerateItemWithItemType(spawnPosition, false, ItemType::Misc, IMISC_FULLHEAL, false, false, true);
 	} else {
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLREJUV, false, false, true);
-		CreateTypeItem(spawnPosition, false, ItemType::Misc, IMISC_FULLREJUV, false, false, true);
+		GenerateItemWithItemType(spawnPosition, false, ItemType::Misc, IMISC_FULLREJUV, false, false, true);
+		GenerateItemWithItemType(spawnPosition, false, ItemType::Misc, IMISC_FULLREJUV, false, false, true);
 	}
 
 	player._pMana = player._pMaxMana;
@@ -3113,9 +3113,9 @@ void OperateBookStand(Object &bookStand, bool sendmsg, bool sendLootMsg)
 	bookStand._oAnimFrame += 2;
 	SetRndSeed(bookStand._oRndSeed);
 	if (FlipCoin(5))
-		CreateTypeItem(bookStand.position, false, ItemType::Misc, IMISC_BOOK, sendLootMsg, false);
+		GenerateItemWithItemType(bookStand.position, false, ItemType::Misc, IMISC_BOOK, sendLootMsg, false);
 	else
-		CreateTypeItem(bookStand.position, false, ItemType::Misc, IMISC_SCROLL, sendLootMsg, false);
+		GenerateItemWithItemType(bookStand.position, false, ItemType::Misc, IMISC_SCROLL, sendLootMsg, false);
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, bookStand.position);
 }
@@ -3130,7 +3130,7 @@ void OperateBookcase(Object &bookcase, bool sendmsg, bool sendLootMsg)
 	bookcase.selectionRegion = SelectionRegion::None;
 	bookcase._oAnimFrame -= 2;
 	SetRndSeed(bookcase._oRndSeed);
-	CreateTypeItem(bookcase.position, false, ItemType::Misc, IMISC_BOOK, sendLootMsg, false);
+	GenerateItemWithItemType(bookcase.position, false, ItemType::Misc, IMISC_BOOK, sendLootMsg, false);
 
 	if (Quests[Q_ZHAR].IsAvailable()) {
 		Monster &zhar = Monsters[MAX_PLRS];
@@ -3156,7 +3156,7 @@ void OperateDecapitatedBody(Object &corpse, bool sendmsg, bool sendLootMsg)
 	}
 	corpse.selectionRegion = SelectionRegion::None;
 	SetRndSeed(corpse._oRndSeed);
-	CreateRndItem(corpse.position, false, sendLootMsg, false);
+	GenerateItemDungeon(corpse.position, false, sendLootMsg, false);
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, corpse.position);
 }
@@ -3171,13 +3171,13 @@ void OperateArmorStand(Object &armorStand, bool sendmsg, bool sendLootMsg)
 	SetRndSeed(armorStand._oRndSeed);
 	bool uniqueRnd = !FlipCoin();
 	if (currlevel <= 5) {
-		CreateTypeItem(armorStand.position, true, ItemType::LightArmor, IMISC_NONE, sendLootMsg, false);
+		GenerateItemWithItemType(armorStand.position, true, ItemType::LightArmor, IMISC_NONE, sendLootMsg, false);
 	} else if (currlevel >= 6 && currlevel <= 9) {
-		CreateTypeItem(armorStand.position, uniqueRnd, ItemType::MediumArmor, IMISC_NONE, sendLootMsg, false);
+		GenerateItemWithItemType(armorStand.position, uniqueRnd, ItemType::MediumArmor, IMISC_NONE, sendLootMsg, false);
 	} else if (currlevel >= 10 && currlevel <= 12) {
-		CreateTypeItem(armorStand.position, false, ItemType::HeavyArmor, IMISC_NONE, sendLootMsg, false);
+		GenerateItemWithItemType(armorStand.position, false, ItemType::HeavyArmor, IMISC_NONE, sendLootMsg, false);
 	} else if (currlevel >= 13) {
-		CreateTypeItem(armorStand.position, true, ItemType::HeavyArmor, IMISC_NONE, sendLootMsg, false);
+		GenerateItemWithItemType(armorStand.position, true, ItemType::HeavyArmor, IMISC_NONE, sendLootMsg, false);
 	}
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, armorStand.position);
@@ -3327,7 +3327,7 @@ void OperateWeaponRack(Object &weaponRack, bool sendmsg, bool sendLootMsg)
 	weaponRack.selectionRegion = SelectionRegion::None;
 	weaponRack._oAnimFrame++;
 
-	CreateTypeItem(weaponRack.position, leveltype != DTYPE_CATHEDRAL, weaponType, IMISC_NONE, sendLootMsg, false);
+	GenerateItemWithItemType(weaponRack.position, leveltype != DTYPE_CATHEDRAL, weaponType, IMISC_NONE, sendLootMsg, false);
 
 	if (sendmsg)
 		NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, weaponRack.position);
@@ -3402,7 +3402,7 @@ void OperateLazStand(Object &stand)
 	stand._oAnimFrame++;
 	stand.selectionRegion = SelectionRegion::None;
 	Point pos = GetSuperItemLoc(stand.position);
-	SpawnQuestItem(IDI_LAZSTAFF, pos, 0, SelectionRegion::None, true);
+	GenerateQuestItem(IDI_LAZSTAFF, pos, 0, SelectionRegion::None, true);
 	NetSendCmdLoc(MyPlayerId, false, CMD_OPERATEOBJ, stand.position);
 }
 
@@ -3505,9 +3505,9 @@ void BreakBarrel(const Player &player, Object &barrel, bool forcebreak, bool sen
 		SetRndSeed(barrel._oRndSeed);
 		if (barrel._oVar2 <= 1) {
 			if (barrel._oVar3 == 0)
-				CreateRndUseful(barrel.position, sendmsg);
+				GenerateItemUseful(barrel.position, sendmsg);
 			else
-				CreateRndItem(barrel.position, false, sendmsg, false);
+				GenerateItemDungeon(barrel.position, false, sendmsg, false);
 		}
 		if (barrel._oVar2 >= 8 && barrel._oVar4 >= 0)
 			ActivateSkeleton(Monsters[barrel._oVar4], barrel.position);

@@ -326,7 +326,7 @@ void TalkToBarOwner(Player &player, Towner &barOwner)
 				bannerQuest._qactive = QUEST_DONE;
 				bannerQuest._qvar1 = 3;
 				NetSendCmdQuest(true, bannerQuest);
-				SpawnUnique(UITEM_HARCREST, barOwner.position + Direction::SouthWest, bannerQuest._qlevel);
+				GenerateUniqueItem(UITEM_HARCREST, barOwner.position + Direction::SouthWest, bannerQuest._qlevel);
 				InitQTextMsg(TEXT_BANNER3);
 				return;
 			}
@@ -374,7 +374,7 @@ void TalkToBlackSmith(Player &player, Towner &blackSmith)
 			if (Quests[Q_ROCK]._qvar2 == 1 && RemoveInventoryItemById(player, IDI_ROCK)) {
 				Quests[Q_ROCK]._qactive = QUEST_DONE;
 				NetSendCmdQuest(true, Quests[Q_ROCK]);
-				SpawnUnique(UITEM_INFRARING, blackSmith.position + Direction::SouthWest, Quests[Q_ROCK]._qlevel);
+				GenerateUniqueItem(UITEM_INFRARING, blackSmith.position + Direction::SouthWest, Quests[Q_ROCK]._qlevel);
 				InitQTextMsg(TEXT_INFRA7);
 				return;
 			}
@@ -395,7 +395,7 @@ void TalkToBlackSmith(Player &player, Towner &blackSmith)
 		if (Quests[Q_ANVIL]._qvar2 == 1 && RemoveInventoryItemById(player, IDI_ANVIL)) {
 			Quests[Q_ANVIL]._qactive = QUEST_DONE;
 			NetSendCmdQuest(true, Quests[Q_ANVIL]);
-			SpawnUnique(UITEM_GRISWOLD, blackSmith.position + Direction::SouthWest, Quests[Q_ANVIL]._qlevel);
+			GenerateUniqueItem(UITEM_GRISWOLD, blackSmith.position + Direction::SouthWest, Quests[Q_ANVIL]._qlevel);
 			InitQTextMsg(TEXT_ANVIL7);
 			return;
 		}
@@ -493,7 +493,7 @@ void TalkToHealer(Player &player, Towner &healer)
 		if (poisonWater._qactive == QUEST_DONE && poisonWater._qvar1 != 2) {
 			poisonWater._qvar1 = 2;
 			InitQTextMsg(TEXT_POISON5);
-			SpawnUnique(UITEM_TRING, healer.position + Direction::SouthWest, poisonWater._qlevel);
+			GenerateUniqueItem(UITEM_TRING, healer.position + Direction::SouthWest, poisonWater._qlevel);
 			NetSendCmdQuest(true, poisonWater);
 			return;
 		}
@@ -501,7 +501,7 @@ void TalkToHealer(Player &player, Towner &healer)
 	Quest &blackMushroom = Quests[Q_MUSHROOM];
 	if (blackMushroom._qactive == QUEST_ACTIVE) {
 		if (blackMushroom._qvar1 >= QS_MUSHGIVEN && blackMushroom._qvar1 < QS_BRAINGIVEN && RemoveInventoryItemById(player, IDI_BRAIN)) {
-			SpawnQuestItem(IDI_SPECELIX, healer.position + Displacement { 0, 1 }, 0, SelectionRegion::None, true);
+			GenerateQuestItem(IDI_SPECELIX, healer.position + Displacement { 0, 1 }, 0, SelectionRegion::None, true);
 			InitQTextMsg(TEXT_MUSH4);
 			blackMushroom._qvar1 = QS_BRAINGIVEN;
 			QuestDialogTable[TOWN_HEALER][Q_MUSHROOM] = TEXT_NONE;
@@ -620,7 +620,7 @@ void TalkToFarmer(Player &player, Towner &farmer)
 		quest._qvar1 = 1;
 		quest._qlog = true;
 		quest._qmsg = TEXT_FARMER1;
-		SpawnRuneBomb(farmer.position + Displacement { 1, 0 }, true);
+		GenerateQuestItemRuneBomb(farmer.position + Displacement { 1, 0 }, true);
 		if (gbIsMultiplayer)
 			NetSendCmdQuest(true, quest);
 		break;
@@ -629,7 +629,7 @@ void TalkToFarmer(Player &player, Towner &farmer)
 		break;
 	case QUEST_DONE:
 		InitQTextMsg(TEXT_FARMER4);
-		SpawnRewardItem(IDI_AURIC, farmer.position + Displacement { 1, 0 }, true);
+		GenerateQuestItemHellfire(IDI_AURIC, farmer.position + Displacement { 1, 0 }, true);
 		quest._qactive = QUEST_HIVE_DONE;
 		if (gbIsMultiplayer)
 			NetSendCmdQuest(true, quest);
@@ -652,7 +652,7 @@ void TalkToCowFarmer(Player &player, Towner &cowFarmer)
 	auto &quest = Quests[Q_JERSEY];
 
 	if (RemoveInventoryItemById(player, IDI_BROWNSUIT)) {
-		SpawnUnique(UITEM_BOVINE, cowFarmer.position + Direction::SouthEast, quest._qlevel);
+		GenerateUniqueItem(UITEM_BOVINE, cowFarmer.position + Direction::SouthEast, quest._qlevel);
 		InitQTextMsg(TEXT_JERSEY8);
 		quest._qactive = QUEST_DONE;
 		UpdateCowFarmerAnimAfterQuestComplete();
@@ -704,7 +704,7 @@ void TalkToCowFarmer(Player &player, Towner &cowFarmer)
 		quest._qvar1 = 1;
 		quest._qmsg = TEXT_JERSEY4;
 		quest._qlog = true;
-		SpawnRuneBomb(cowFarmer.position + Displacement { 1, 0 }, true);
+		GenerateQuestItemRuneBomb(cowFarmer.position + Displacement { 1, 0 }, true);
 		if (gbIsMultiplayer)
 			NetSendCmdQuest(true, quest);
 		break;

@@ -856,16 +856,16 @@ void SpawnLoot(Monster &monster, bool sendmsg)
 	}
 
 	if (Quests[Q_GARBUD].IsAvailable() && monster.uniqueType == UniqueMonsterType::Garbud) {
-		CreateTypeItem(monster.position.tile + Displacement { 1, 1 }, true, ItemType::Mace, IMISC_NONE, sendmsg, false);
+		GenerateItemWithItemType(monster.position.tile + Displacement { 1, 1 }, true, ItemType::Mace, IMISC_NONE, sendmsg, false);
 	} else if (monster.uniqueType == UniqueMonsterType::Defiler) {
 		if (effect_is_playing(SfxID::Defiler8))
 			stream_stop();
-		SpawnMapOfDoom(monster.position.tile, sendmsg);
+		GenerateQuestItemCathedralMap(monster.position.tile, sendmsg);
 		Quests[Q_DEFILER]._qactive = QUEST_DONE;
 		NetSendCmdQuest(true, Quests[Q_DEFILER]);
 	} else if (monster.uniqueType == UniqueMonsterType::HorkDemon) {
 		if (sgGameInitInfo.bTheoQuest != 0) {
-			SpawnTheodore(monster.position.tile, sendmsg);
+			GenerateQuestItemTheodore(monster.position.tile, sendmsg);
 		} else {
 			CreateAmulet(monster.position.tile, 13, sendmsg, false);
 		}
@@ -881,7 +881,7 @@ void SpawnLoot(Monster &monster, bool sendmsg)
 		CreateMagicWeapon(monster.position.tile, ItemType::Bow, ICURS_LONG_WAR_BOW, sendmsg, false);
 		CreateSpellBook(monster.position.tile, SpellID::Apocalypse, sendmsg, false);
 	} else if (!monster.isPlayerMinion()) {
-		SpawnItem(monster, monster.position.tile, sendmsg);
+		GenerateItemMonster(monster, monster.position.tile, sendmsg);
 	}
 }
 
@@ -4599,7 +4599,7 @@ void TalktoMonster(Player &player, Monster &monster)
 			monster.goal = MonsterGoal::Inquiring;
 			monster.flags |= MFLAG_QUEST_COMPLETE;
 			if (MyPlayer == &player) {
-				SpawnUnique(UITEM_STEELVEIL, monster.position.tile + Direction::South);
+				GenerateUniqueItem(UITEM_STEELVEIL, monster.position.tile + Direction::South);
 				Quests[Q_VEIL]._qvar2 = QS_VEIL_ITEM_SPAWNED;
 				NetSendCmdQuest(true, Quests[Q_VEIL]);
 			}
@@ -4614,7 +4614,7 @@ void TalktoMonster(Player &player, Monster &monster)
 			Quests[Q_ZHAR]._qvar1 = QS_ZHAR_ITEM_SPAWNED;
 			SetRndSeed(monster.rndItemSeed);
 			DiscardRandomValues(10);
-			CreateTypeItem(monster.position.tile + Displacement { 1, 1 }, false, ItemType::Misc, IMISC_BOOK, false, false, true);
+			GenerateItemWithItemType(monster.position.tile + Displacement { 1, 1 }, false, ItemType::Misc, IMISC_BOOK, false, false, true);
 			monster.flags |= MFLAG_QUEST_COMPLETE;
 			NetSendCmdQuest(true, Quests[Q_ZHAR]);
 		}
@@ -4629,7 +4629,7 @@ void TalktoMonster(Player &player, Monster &monster)
 		if (monster.talkMsg == TEXT_GARBUD2 && (monster.flags & MFLAG_QUEST_COMPLETE) == 0) {
 			SetRndSeed(monster.rndItemSeed);
 			DiscardRandomValues(10);
-			SpawnItem(monster, monster.position.tile + Displacement { 1, 1 }, false, true);
+			GenerateItemMonster(monster, monster.position.tile + Displacement { 1, 1 }, false, true);
 			monster.flags |= MFLAG_QUEST_COMPLETE;
 			Quests[Q_GARBUD]._qvar1 = QS_GHARBAD_FIRST_ITEM_SPAWNED;
 			NetSendCmdQuest(true, Quests[Q_GARBUD]);

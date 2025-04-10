@@ -969,8 +969,8 @@ void TryCombineNaKrulNotes(Player &player, Item &noteItem)
 
 	Point position = noteItem.position; // copy the position to restore it after re-initialising the item
 	noteItem = {};
-	GetItemAttrs(noteItem, IDI_FULLNOTE, 16);
-	SetupItem(noteItem);
+	AssignBaseItemStats(noteItem, IDI_FULLNOTE, 16);
+	FinalizeGeneratedItemInDungeon(noteItem);
 	noteItem.position = position; // this ensures CleanupItem removes the entry in the dropped items lookup table
 }
 
@@ -1693,31 +1693,31 @@ std::optional<Point> FindAdjacentPositionForItem(Point origin, Direction facing)
 	if (ActiveItemCount >= MAXITEMS)
 		return {};
 
-	if (CanPut(origin + facing))
+	if (CanPlaceItemInTile(origin + facing))
 		return origin + facing;
 
-	if (CanPut(origin + Left(facing)))
+	if (CanPlaceItemInTile(origin + Left(facing)))
 		return origin + Left(facing);
 
-	if (CanPut(origin + Right(facing)))
+	if (CanPlaceItemInTile(origin + Right(facing)))
 		return origin + Right(facing);
 
-	if (CanPut(origin + Left(Left(facing))))
+	if (CanPlaceItemInTile(origin + Left(Left(facing))))
 		return origin + Left(Left(facing));
 
-	if (CanPut(origin + Right(Right(facing))))
+	if (CanPlaceItemInTile(origin + Right(Right(facing))))
 		return origin + Right(Right(facing));
 
-	if (CanPut(origin + Left(Left(Left(facing)))))
+	if (CanPlaceItemInTile(origin + Left(Left(Left(facing)))))
 		return origin + Left(Left(Left(facing)));
 
-	if (CanPut(origin + Right(Right(Right(facing)))))
+	if (CanPlaceItemInTile(origin + Right(Right(Right(facing)))))
 		return origin + Right(Right(Right(facing)));
 
-	if (CanPut(origin + Opposite(facing)))
+	if (CanPlaceItemInTile(origin + Opposite(facing)))
 		return origin + Opposite(facing);
 
-	if (CanPut(origin))
+	if (CanPlaceItemInTile(origin))
 		return origin;
 
 	return {};
@@ -1770,7 +1770,7 @@ void AutoGetItem(Player &player, Item *itemPointer, int ii)
 	if (&player == MyPlayer) {
 		player.Say(HeroSpeech::ICantCarryAnymore);
 	}
-	RespawnItem(item, true);
+	PlaceItemInWorld(item, true);
 	NetSendCmdPItem(true, CMD_SPAWNITEM, item.position, item);
 }
 
@@ -1817,7 +1817,7 @@ void SyncGetItem(Point position, uint32_t iseed, _item_indexes idx, uint16_t ci)
 	CleanupItems(ii);
 }
 
-bool CanPut(Point position)
+bool CanPlaceItemInTile(Point position)
 {
 	if (!InDungeonBounds(position)) {
 		return false;
@@ -1878,7 +1878,7 @@ int SyncDropItem(Point position, _item_indexes idx, uint16_t icreateinfo, int is
 
 	Item item;
 
-	RecreateItem(*MyPlayer, item, idx, icreateinfo, iseed, ivalue, ibuff);
+	RegenerateItem(*MyPlayer, item, idx, icreateinfo, iseed, ivalue, ibuff);
 	if (id != 0)
 		item._iIdentified = true;
 	item._iMaxDur = mdur;
@@ -1890,7 +1890,7 @@ int SyncDropItem(Point position, _item_indexes idx, uint16_t icreateinfo, int is
 		item._iMaxDam = ClampMaxDam(item, maxDam);
 	}
 
-	return PlaceItemInWorld(std::move(item), position);
+	return NetPlaceItemInWorld(std::move(item), position);
 }
 
 int SyncDropEar(Point position, uint16_t icreateinfo, uint32_t iseed, uint8_t cursval, std::string_view heroname)
@@ -1899,9 +1899,9 @@ int SyncDropEar(Point position, uint16_t icreateinfo, uint32_t iseed, uint8_t cu
 		return -1;
 
 	Item item;
-	RecreateEar(item, icreateinfo, iseed, cursval, heroname);
+	RegenerateItemEar(item, icreateinfo, iseed, cursval, heroname);
 
-	return PlaceItemInWorld(std::move(item), position);
+	return NetPlaceItemInWorld(std::move(item), position);
 }
 
 int8_t CheckInvHLight()

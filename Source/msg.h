@@ -730,7 +730,7 @@ extern int dwRecCount;
 
 void PrepareItemForNetwork(const Item &item, TItem &messageItem);
 void PrepareEarForNetwork(const Item &item, TEar &ear);
-void RecreateItem(const Player &player, const TItem &messageItem, Item &item);
+void RegenerateItem(const Player &player, const TItem &messageItem, Item &item);
 void msg_send_drop_pkt(uint8_t pnum, int reason);
 bool msg_wait_resync();
 void run_delta_info();

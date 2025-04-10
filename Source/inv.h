@@ -227,7 +227,7 @@ void SyncGetItem(Point position, uint32_t iseed, _item_indexes idx, uint16_t ci)
  * @param position tile coordinates
  * @return True if the space is free of obstructions, false if blocked
  */
-bool CanPut(Point position);
+bool CanPlaceItemInTile(Point position);
 
 int ClampDurability(const Item &item, int durability);
 int16_t ClampToHit(const Item &item, int16_t toHit);

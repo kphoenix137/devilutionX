@@ -92,9 +92,9 @@ void GenerateAllUniques(bool hellfire, const size_t expectedUniques)
 				targetLvl = uniqueItem.UIMinLvl - 4;
 			}
 
-			SetupAllItems(*MyPlayer, testItem, uniqueBaseIndex, AdvanceRndSeed(), targetLvl, uper, true, false);
+			GenerateItem(*MyPlayer, testItem, uniqueBaseIndex, AdvanceRndSeed(), targetLvl, uper, true, false);
 			TryRandomUniqueItem(testItem, uniqueBaseIndex, targetLvl, uper, true, false);
-			SetupItem(testItem);
+			FinalizeGeneratedItemInDungeon(testItem);
 
 			if (testItem._iMagical != ITEM_QUALITY_UNIQUE)
 				continue;
