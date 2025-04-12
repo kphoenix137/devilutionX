@@ -321,7 +321,7 @@ std::string protocol_zt::make_default_gamename()
 	for (int i = 0; i < 5; ++i) {
 		ret += allowedChars.at(dist(rd));
 	}
-	return "?????";
+	return ret;
 }
 
 } // namespace net
