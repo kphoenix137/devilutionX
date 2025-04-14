@@ -60,20 +60,12 @@ bool IsTownItemValid(uint16_t iCreateInfo, const Player &player)
 
 bool IsShopPriceValid(const Item &item)
 {
-	const int boyPriceLimit = MaxBoyValue;
-	if (!gbIsHellfire && (item._iCreateInfo & CF_BOY) != 0 && item._iIvalue > boyPriceLimit)
+	const int maxBoyValue = gbIsHellfire ? MaxBoyValueHf : MaxBoyValue;
+	if ((item._iCreateInfo & CF_BOY) != 0 && item._iIvalue > maxBoyValue)
 		return false;
 
-	const int premiumPriceLimit = MaxVendorValue;
-	if (!gbIsHellfire && (item._iCreateInfo & CF_SMITHPREMIUM) != 0 && item._iIvalue > premiumPriceLimit)
-		return false;
-
-	const uint16_t smithOrWitch = CF_SMITH | CF_WITCH;
-	const int smithAndWitchPriceLimit = gbIsHellfire ? MaxVendorValueHf : MaxVendorValue;
-	if ((item._iCreateInfo & smithOrWitch) != 0 && item._iIvalue > smithAndWitchPriceLimit)
-		return false;
-
-	return true;
+	const int maxVendorValue = gbIsHellfire ? MaxVendorValueHf : MaxVendorValue;
+	return item._iIvalue <= maxVendorValue;
 }
 
 bool IsUniqueMonsterItemValid(uint16_t iCreateInfo, uint32_t dwBuff)
