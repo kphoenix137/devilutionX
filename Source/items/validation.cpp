@@ -60,9 +60,10 @@ bool IsTownItemValid(uint16_t iCreateInfo, const Player &player)
 
 bool IsShopPriceValid(const Item &item)
 {
-	const int maxBoyValue = gbIsHellfire ? MaxBoyValueHf : MaxBoyValue;
-	if ((item._iCreateInfo & CF_BOY) != 0 && item._iIvalue > maxBoyValue)
-		return false;
+	if ((item._iCreateInfo & CF_BOY) != 0) {
+		const int maxBoyValue = gbIsHellfire ? MaxBoyValueHf : MaxBoyValue;
+		return item._iIvalue <= maxBoyValue;
+	}
 
 	const int maxVendorValue = gbIsHellfire ? MaxVendorValueHf : MaxVendorValue;
 	return item._iIvalue <= maxVendorValue;
