@@ -2377,8 +2377,14 @@ void Player::_addExperience(uint32_t experience, int levelDelta)
 		return;
 	}
 
-	// Adjust xp based on difference between the players current level and the target level (usually a monster level)
-	uint32_t clampedExp = static_cast<uint32_t>(std::clamp<int64_t>(static_cast<int64_t>(experience * (1 + levelDelta / 10.0)), 0, std::numeric_limits<uint32_t>::max()));
+	double multiplier = 1 + levelDelta / 10.0;
+	int64_t adjustedExp = static_cast<int64_t>(experience * multiplier);
+
+	if (multiplier > 1.0) {
+		adjustedExp = std::min<int64_t>(adjustedExp, experience);
+	}
+
+	uint32_t clampedExp = static_cast<uint32_t>(std::clamp<int64_t>(adjustedExp, 0, std::numeric_limits<uint32_t>::max()));
 
 	const uint32_t maxExperience = GetNextExperienceThresholdForLevel(getMaxCharacterLevel());
 
