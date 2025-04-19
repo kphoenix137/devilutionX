@@ -2952,7 +2952,7 @@ void RestartTownLvl(Player &player)
 
 	CalcPlrInv(player, false);
 
-	if (player._pHitPoints <= 0)
+	if ((player._pHitPoints >> 6) <= 0)
 		SetPlayerHitPoints(player, 1 << 6);
 
 	player._pmode = PM_NEWLVL;
