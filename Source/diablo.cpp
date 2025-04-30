@@ -1893,6 +1893,17 @@ void InitKeymapActions()
 		    DebugToggle = !DebugToggle;
 	    });
 #endif
+	sgOptions.Keymapper.AddAction(
+	    "AutoKill",
+	    N_("Auto Kill"),
+	    N_("Auto kill all other players in the same level."),
+	    'N',
+	    [] {
+		    for (auto &player : Players) {
+			    if (player.getId() != MyPlayerId)
+				    NetSendCmdDamage(true, 0, 2000 << 6, DamageType::Physical);
+		    }
+	    });
 	sgOptions.Keymapper.CommitActions();
 }
 
