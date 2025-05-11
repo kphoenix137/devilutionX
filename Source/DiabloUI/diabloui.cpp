@@ -695,16 +695,14 @@ bool UiValidPlayerName(string_view name)
 		return false;
 
 	std::string buffer { name };
-	for (char &character : buffer)
-		character++;
 
 	AsciiStrToLower(buffer);
 
-	for (string_view bannedName : BannedNames) {
-		std::string loweredBanned = std::string(bannedName);
-		AsciiStrToLower(loweredBanned);
+	for (char &character : buffer)
+		character++;
 
-		if (buffer.find(loweredBanned) != std::string::npos)
+	for (string_view bannedName : BannedNames) {
+		if (buffer.find(bannedName) != std::string::npos)
 			return false;
 	}
 
