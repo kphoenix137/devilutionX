@@ -27,6 +27,7 @@
 #include "utils/sdl_compat.h"
 #include "utils/sdl_geometry.h"
 #include "utils/sdl_wrap.h"
+#include "utils/str_case.hpp"
 #include "utils/str_cat.hpp"
 #include "utils/stubs.h"
 #include "utils/utf8.hpp"
@@ -57,6 +58,42 @@ OptionalOwnedClxSpriteList ArtCursor;
 
 bool textInputActive = true;
 std::size_t SelectedItem = 0;
+
+const string_view BannedNames[] = {
+	"gvdl",
+	"dvou",
+	"tiju",
+	"cjudi",
+	"bttipmf",
+	"ojhhfs",
+	"cmj{{bse",
+	"benjo",
+	"cfbofs",
+	"dijol",
+	"gbhhpu",
+	"ezlf",
+	"hppl",
+	"hzqtz",
+	"kjhbcpp",
+	"ljlf",
+	"lzlf",
+	"ojhhb",
+	"qpsdinpolfz",
+	"sbhifbe",
+	"sfubse",
+	"tmboufzf",
+	"usbooz",
+	"usppo",
+	"xfucbdl",
+	"xijufusbti",
+	"xijufqpxfs",
+	"cmbdlqpxfs",
+	"{jqqfsifbe",
+	"ejbtvshjdbm",
+	"efwjmvujpo",
+};
+
+const size_t BannedNamesCount = sizeof(BannedNames) / sizeof(BannedNames[0]);
 
 namespace {
 
@@ -657,24 +694,15 @@ bool UiValidPlayerName(string_view name)
 	if (!std::all_of(name.begin(), name.end(), IsBasicLatin))
 		return false;
 
-	string_view bannedNames[] = {
-		"gvdl",
-		"dvou",
-		"tiju",
-		"cjudi",
-		"bttipmf",
-		"ojhhfs",
-		"cmj{{bse",
-		"benjo",
-	};
-
 	std::string buffer { name };
+
+	AsciiStrToLower(buffer);
+
 	for (char &character : buffer)
 		character++;
 
-	string_view tempName { buffer };
-	for (string_view bannedName : bannedNames) {
-		if (tempName.find(bannedName) != tempName.npos)
+	for (string_view bannedName : BannedNames) {
+		if (buffer.find(bannedName) != std::string::npos)
 			return false;
 	}
 
