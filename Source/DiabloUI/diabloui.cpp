@@ -70,8 +70,6 @@ const string_view BannedNames[] = {
 	"benjo",
 	"cfbofs",
 	"dijol",
-	"dppo",
-	"ejlf",
 	"gbhhpu",
 	"ezlf",
 	"hppl",
