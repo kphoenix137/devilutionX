@@ -17,6 +17,14 @@ extern bool AutoMapShowItems;
 extern bool frameflag;
 
 /**
+ * @brief Duration (in game ticks) for smoothing camera jumps (teleports, view shifts).
+ *
+ * 0 = disabled (instant camera, vanilla behavior).
+ * 20 = ~1 second at 20 TPS.
+ */
+extern int ViewPositionSmoothingDurationInTicks;
+
+/**
  * @brief Returns the offset for the walking animation
  * @param animationInfo the current active walking animation
  * @param dir walking direction

@@ -5,6 +5,7 @@
  */
 #include "engine/render/scrollrt.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -88,6 +89,7 @@
 namespace devilution {
 
 bool AutoMapShowItems;
+int ViewPositionSmoothingDurationInTicks = 200;
 
 // DevilutionX extension.
 extern void DrawControllerModifierHints(const Surface &out);
@@ -1089,6 +1091,7 @@ void CalcFirstTilePosition(Point &position, Displacement &offset)
 	position += tileShift;
 
 	// Skip rendering parts covered by the panels
+
 	if (CanPanelsCoverView() && (IsLeftPanelOpen() || IsRightPanelOpen())) {
 		const int multiplier = (*GetOptions().Graphics.zoom) ? 1 : 2;
 		position += Displacement(Direction::East) * multiplier;
@@ -1121,6 +1124,38 @@ void CalcFirstTilePosition(Point &position, Displacement &offset)
 			break;
 		}
 	}
+}
+
+struct CameraSmoothingState {
+	bool initialized = false;
+
+	// "Base" camera state from CalcFirstTilePosition (no smoothing applied)
+	Point lastBasePosition {};
+	Displacement lastBaseOffset {};
+
+	// Smoothing offset we add on top of the base offset
+	Displacement extraOffset {};      // current
+	Displacement extraOffsetStart {}; // value at start of current transition
+
+	int elapsedTicks = 0;
+	bool active = false;
+};
+
+CameraSmoothingState gCameraSmoothing;
+
+Displacement LerpDisplacement(const Displacement &a, const Displacement &b, float t)
+{
+	Displacement result;
+	result.deltaX = static_cast<int>(std::lround(a.deltaX + (b.deltaX - a.deltaX) * t));
+	result.deltaY = static_cast<int>(std::lround(a.deltaY + (b.deltaY - a.deltaY) * t));
+	return result;
+}
+
+// Smoothstep ease-in-out: slow start → fast middle → slow end
+float EaseInOutSmooth(float t)
+{
+	t = std::clamp(t, 0.0f, 1.0f);
+	return t * t * (3.0f - 2.0f * t);
 }
 
 /**
@@ -1208,6 +1243,114 @@ void DrawGame(const Surface &fullOut, Point position, Displacement offset)
 }
 
 /**
+ * @brief Apply camera smoothing by modifying `offset` in-place.
+ *
+ * `position` and `offset` are the base camera state for this frame
+ * as returned by CalcFirstTilePosition (no smoothing yet).
+ *
+ * We keep walking smoothing intact: when the player is walking, we disable
+ * this extra layer so we don't fight GetOffsetForWalking().
+ */
+void ApplyCameraSmoothing(Point &position, Displacement &offset)
+{
+	Player &myPlayer = *MyPlayer;
+
+	const bool allowSmoothing = !myPlayer.isWalking()
+	    && ViewPositionSmoothingDurationInTicks > 0;
+
+	// Capture the base offset BEFORE any smoothing
+	Displacement baseOffset = offset;
+
+	if (!gCameraSmoothing.initialized) {
+		gCameraSmoothing.initialized = true;
+		gCameraSmoothing.lastBasePosition = position;
+		gCameraSmoothing.lastBaseOffset = baseOffset;
+		gCameraSmoothing.extraOffset = {};
+		gCameraSmoothing.extraOffsetStart = {};
+		gCameraSmoothing.elapsedTicks = 0;
+		gCameraSmoothing.active = false;
+	}
+
+	if (!allowSmoothing) {
+		// While walking or if smoothing is disabled, just follow base camera.
+		gCameraSmoothing.active = false;
+		gCameraSmoothing.extraOffset = {};
+		gCameraSmoothing.extraOffsetStart = {};
+		gCameraSmoothing.elapsedTicks = 0;
+
+		// Still track the base so that when we re-enable smoothing
+		// we have a good reference.
+		gCameraSmoothing.lastBasePosition = position;
+		gCameraSmoothing.lastBaseOffset = baseOffset;
+
+		return;
+	}
+
+	// Check if our "ideal" base camera target changed since last frame:
+	// this happens on teleports, panel open/close, ScrollView jumps, etc.
+	const bool targetChanged = (position != gCameraSmoothing.lastBasePosition)
+	    || (baseOffset != gCameraSmoothing.lastBaseOffset);
+
+	if (targetChanged) {
+		// We want visual continuity: the first frame of the transition should
+		// show the same camera position we had last frame.
+		//
+		// Last frame visual := lastBasePosition + lastBaseOffset + extraOffset
+		// This frame base   := position + baseOffset
+		//
+		// We need a new extraOffset such that:
+		//   position + baseOffset + newExtra ~= last visual
+		//
+		// The exact tile→screen conversion depends on your helpers. If you have
+		// a function that converts a tile delta to a screen displacement, use it
+		// here. For example (adjust to your actual API):
+		//
+		//   Displacement deltaTile = (gCameraSmoothing.lastBasePosition - position).worldToScreen();
+		//
+		// If you don't have a direct helper, you can replace this with your own
+		// tile→screen mapping.
+		//
+		Displacement deltaTileScreen = (gCameraSmoothing.lastBasePosition - position).worldToScreen();
+
+		Displacement newExtra = gCameraSmoothing.lastBaseOffset
+		    + gCameraSmoothing.extraOffset
+		    + deltaTileScreen
+		    - baseOffset;
+
+		gCameraSmoothing.extraOffsetStart = newExtra;
+		gCameraSmoothing.extraOffset = newExtra;
+		gCameraSmoothing.elapsedTicks = 0;
+		gCameraSmoothing.active = true;
+	} else if (gCameraSmoothing.active) {
+		// Advance the easing
+		++gCameraSmoothing.elapsedTicks;
+
+		const float t = static_cast<float>(gCameraSmoothing.elapsedTicks)
+		    / static_cast<float>(ViewPositionSmoothingDurationInTicks);
+
+		if (t >= 1.0f) {
+			// Done, snap to base (no extra smoothing)
+			gCameraSmoothing.active = false;
+			gCameraSmoothing.extraOffset = {};
+		} else {
+			const float eased = EaseInOutSmooth(t);
+			// Target is zero extra offset (pure base camera)
+			gCameraSmoothing.extraOffset = LerpDisplacement(
+			    gCameraSmoothing.extraOffsetStart,
+			    Displacement {},
+			    eased);
+		}
+	}
+
+	// Apply smoothing on top of base offset
+	offset = baseOffset + gCameraSmoothing.extraOffset;
+
+	// Remember base state for next frame
+	gCameraSmoothing.lastBasePosition = position;
+	gCameraSmoothing.lastBaseOffset = baseOffset;
+}
+
+/**
  * @brief Start rendering of screen, town variation
  * @param out Buffer to render to
  * @param startPosition Center of view in dPiece coordinates
@@ -1217,9 +1360,11 @@ void DrawView(const Surface &out, Point startPosition)
 #ifdef _DEBUG
 	DebugCoordsMap.clear();
 #endif
+	Point position = startPosition;
 	Displacement offset = {};
-	CalcFirstTilePosition(startPosition, offset);
-	DrawGame(out, startPosition, offset);
+	CalcFirstTilePosition(position, offset);
+	ApplyCameraSmoothing(position, offset);
+	DrawGame(out, position, offset);
 	if (AutomapActive) {
 		DrawAutomap(out.subregionY(0, gnViewportHeight));
 	}
@@ -1293,7 +1438,7 @@ void DrawView(const Surface &out, Point startPosition)
 #endif
 	DrawItemNameLabels(out);
 	DrawMonsterHealthBar(out);
-	DrawFloatingNumbers(out, startPosition, offset);
+	DrawFloatingNumbers(out, position, offset);
 
 	if (IsPlayerInStore() && !qtextflag)
 		DrawSText(out);
