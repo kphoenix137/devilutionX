@@ -89,7 +89,7 @@
 namespace devilution {
 
 bool AutoMapShowItems;
-int ViewPositionSmoothingDurationInTicks = 200;
+int ViewPositionSmoothingDurationInTicks = 30;
 
 // DevilutionX extension.
 extern void DrawControllerModifierHints(const Surface &out);
@@ -1182,30 +1182,35 @@ void DrawGame(const Surface &fullOut, Point position, Displacement offset)
 	UpdateMissilesRendererData();
 
 	// Draw areas moving in and out of the screen
+	/*
 	if (MyPlayer->isWalking()) {
-		switch (MyPlayer->_pdir) {
-		case Direction::NoDirection:
-			break;
-		case Direction::North:
-		case Direction::South:
-			rows += 2;
-			break;
-		case Direction::NorthEast:
-			columns++;
-			rows += 2;
-			break;
-		case Direction::East:
-		case Direction::West:
-			columns++;
-			break;
-		case Direction::SouthEast:
-		case Direction::SouthWest:
-		case Direction::NorthWest:
-			columns++;
-			rows++;
-			break;
-		}
-	}
+	    switch (MyPlayer->_pdir) {
+	    case Direction::NoDirection:
+	        break;
+	    case Direction::North:
+	    case Direction::South:
+	        rows += 2;
+	        break;
+	    case Direction::NorthEast:
+	        columns++;
+	        rows += 2;
+	        break;
+	    case Direction::East:
+	    case Direction::West:
+	        columns++;
+	        break;
+	    case Direction::SouthEast:
+	    case Direction::SouthWest:
+	    case Direction::NorthWest:
+	        columns++;
+	        rows++;
+	        break;
+	    }
+	}*/
+	if (offset.deltaX != 0)
+		columns++;
+	if (offset.deltaY != 0)
+		rows += 2;
 
 #ifdef DUN_RENDER_STATS
 	DunRenderStats.clear();
@@ -1243,27 +1248,94 @@ void DrawGame(const Surface &fullOut, Point position, Displacement offset)
 }
 
 /**
- * @brief Apply camera smoothing by modifying `offset` in-place.
+ * @brief Given a base first-tile position and an extra screen-space offset,
+ *        re-anchor the camera so that `extraOffset` is as small as possible.
+ *
+ * We do this by absorbing whole-tile steps into `position` and compensating
+ * them in `extraOffset` using the tile->screen mapping. This keeps the
+ * effective camera transform the same, but ensures we never end up with a
+ * huge screen offset while the tile window stays centered on the new view.
+ *
+ * This is what lets the renderer always draw tiles around the *actual*
+ * camera center, avoiding holes when doing large pans (teleports, view jumps).
+ */
+void NormalizeCameraAnchor(Point &position, Displacement &extraOffset)
+{
+	// Try all 8 directions, greedily taking any move that reduces |extraOffset|.
+	constexpr Direction dirs[] = {
+		Direction::North,
+		Direction::South,
+		Direction::East,
+		Direction::West,
+		Direction::NorthEast,
+		Direction::NorthWest,
+		Direction::SouthEast,
+		Direction::SouthWest,
+	};
+
+	const auto lengthSq = [](const Displacement &d) {
+		return d.deltaX * d.deltaX + d.deltaY * d.deltaY;
+	};
+
+	// Safety cap to avoid any chance of infinite loops on weird data.
+	const int maxIterations = 256;
+	int iterations = 0;
+
+	while (iterations++ < maxIterations) {
+		bool improved = false;
+		const int currentDist2 = lengthSq(extraOffset);
+
+		for (Direction dir : dirs) {
+			// One tile in world space
+			const Displacement tileStep = Displacement(dir);
+			// Corresponding change in screen space for the first-tile anchor
+			const Displacement stepScreen = tileStep.worldToScreen();
+
+			// If we move the first tile by +tileStep, to keep the same visual
+			// camera we must compensate the offset by -stepScreen.
+			Displacement candidate = extraOffset - stepScreen;
+			const int candDist2 = lengthSq(candidate);
+
+			if (candDist2 < currentDist2) {
+				position += tileStep;
+				extraOffset = candidate;
+				improved = true;
+				break;
+			}
+		}
+
+		if (!improved)
+			break;
+	}
+}
+
+/**
+ * @brief Apply camera smoothing by modifying `position` and `offset` in-place.
  *
  * `position` and `offset` are the base camera state for this frame
  * as returned by CalcFirstTilePosition (no smoothing yet).
  *
  * We keep walking smoothing intact: when the player is walking, we disable
  * this extra layer so we don't fight GetOffsetForWalking().
+ *
+ * Large pans (teleports, ScrollView jumps, panel opens) are smoothed by
+ * tracking an extra screen-space offset and then *normalizing* it back into
+ * the tile anchor so that the renderer always draws around the actual camera.
  */
 void ApplyCameraSmoothing(Point &position, Displacement &offset)
 {
 	Player &myPlayer = *MyPlayer;
 
-	const bool allowSmoothing = !myPlayer.isWalking()
-	    && ViewPositionSmoothingDurationInTicks > 0;
+	const bool allowSmoothing = !myPlayer.isWalking() && ViewPositionSmoothingDurationInTicks > 0;
 
-	// Capture the base offset BEFORE any smoothing
+	// Base state from CalcFirstTilePosition BEFORE any extra smoothing.
+	// We keep this separate from the mutated `position` we return.
+	Point basePosition = position;
 	Displacement baseOffset = offset;
 
 	if (!gCameraSmoothing.initialized) {
 		gCameraSmoothing.initialized = true;
-		gCameraSmoothing.lastBasePosition = position;
+		gCameraSmoothing.lastBasePosition = basePosition;
 		gCameraSmoothing.lastBaseOffset = baseOffset;
 		gCameraSmoothing.extraOffset = {};
 		gCameraSmoothing.extraOffsetStart = {};
@@ -1278,39 +1350,37 @@ void ApplyCameraSmoothing(Point &position, Displacement &offset)
 		gCameraSmoothing.extraOffsetStart = {};
 		gCameraSmoothing.elapsedTicks = 0;
 
-		// Still track the base so that when we re-enable smoothing
-		// we have a good reference.
-		gCameraSmoothing.lastBasePosition = position;
+		// Track the base so the next time we re-enable smoothing we
+		// know where we came from.
+		gCameraSmoothing.lastBasePosition = basePosition;
 		gCameraSmoothing.lastBaseOffset = baseOffset;
 
+		// Output is just the base state.
+		position = basePosition;
+		offset = baseOffset;
 		return;
 	}
 
-	// Check if our "ideal" base camera target changed since last frame:
-	// this happens on teleports, panel open/close, ScrollView jumps, etc.
-	const bool targetChanged = (position != gCameraSmoothing.lastBasePosition)
+	// Detect when the "ideal" base camera target changes (teleport, ScrollView,
+	// panel open/close, etc.).
+	const bool targetChanged = (basePosition != gCameraSmoothing.lastBasePosition)
 	    || (baseOffset != gCameraSmoothing.lastBaseOffset);
 
 	if (targetChanged) {
-		// We want visual continuity: the first frame of the transition should
-		// show the same camera position we had last frame.
+		// We want visual continuity: the first frame of the new transition
+		// should show the same camera we had last frame.
 		//
-		// Last frame visual := lastBasePosition + lastBaseOffset + extraOffset
-		// This frame base   := position + baseOffset
+		// Last-frame visual:
+		//   lastVisual = lastBasePosition + lastBaseOffset + extraOffset
+		// This-frame base:
+		//   thisBase   = basePosition + baseOffset
 		//
-		// We need a new extraOffset such that:
-		//   position + baseOffset + newExtra ~= last visual
+		// We need newExtra such that:
+		//   basePosition + baseOffset + newExtra ~= lastVisual
 		//
-		// The exact tile→screen conversion depends on your helpers. If you have
-		// a function that converts a tile delta to a screen displacement, use it
-		// here. For example (adjust to your actual API):
-		//
-		//   Displacement deltaTile = (gCameraSmoothing.lastBasePosition - position).worldToScreen();
-		//
-		// If you don't have a direct helper, you can replace this with your own
-		// tile→screen mapping.
-		//
-		Displacement deltaTileScreen = (gCameraSmoothing.lastBasePosition - position).worldToScreen();
+		// The tile-space change between lastBasePosition and basePosition
+		// contributes via the tile->screen mapping.
+		const Displacement deltaTileScreen = (gCameraSmoothing.lastBasePosition - basePosition).worldToScreen();
 
 		Displacement newExtra = gCameraSmoothing.lastBaseOffset
 		    + gCameraSmoothing.extraOffset
@@ -1342,11 +1412,27 @@ void ApplyCameraSmoothing(Point &position, Displacement &offset)
 		}
 	}
 
-	// Apply smoothing on top of base offset
-	offset = baseOffset + gCameraSmoothing.extraOffset;
+	// At this point we have:
+	//   basePosition, baseOffset    = "ideal" camera from logic + panels
+	//   gCameraSmoothing.extraOffset = extra screen-space pan we want
+	//
+	// Now we normalize the anchor so that we never have a huge extraOffset
+	// while the tile window stays pinned to basePosition. Instead, we allow
+	// the first-tile anchor to walk across tiles, absorbing whole-tile
+	// screen shifts into `position` so that the renderer always draws the
+	// correct area for the current camera.
+	Point effectivePosition = basePosition;
+	Displacement effectiveExtra = gCameraSmoothing.extraOffset;
 
-	// Remember base state for next frame
-	gCameraSmoothing.lastBasePosition = position;
+	NormalizeCameraAnchor(effectivePosition, effectiveExtra);
+
+	// Use the normalized values for this frame.
+	gCameraSmoothing.extraOffset = effectiveExtra;
+	position = effectivePosition;
+	offset = baseOffset + effectiveExtra;
+
+	// Remember the *base* state for the next-frame transition detection.
+	gCameraSmoothing.lastBasePosition = basePosition;
 	gCameraSmoothing.lastBaseOffset = baseOffset;
 }
 
