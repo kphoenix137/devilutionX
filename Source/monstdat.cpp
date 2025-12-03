@@ -419,6 +419,7 @@ void LoadUniqueMonstDatFromFile(DataFile &dataFile, std::string_view filename)
 	dataFile.skipHeaderOrDie(filename);
 
 	UniqueMonstersData.reserve(UniqueMonstersData.size() + dataFile.numRecords());
+	bool isHellfire = false;
 
 	for (DataFileRecord record : dataFile) {
 		RecordReader reader { record, filename };
@@ -437,6 +438,10 @@ void LoadUniqueMonstDatFromFile(DataFile &dataFile, std::string_view filename)
 		reader.readInt("customToHit", monster.customToHit);
 		reader.readInt("customArmorClass", monster.customArmorClass);
 		reader.read("talkMessage", monster.mtalkmsg, ParseSpeechId);
+		reader.readBool("isHellfire", isHellfire);
+		if (!gbIsHellfire && isHellfire) {
+			UniqueMonstersData.pop_back();
+		}
 	}
 }
 
