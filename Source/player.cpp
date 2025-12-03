@@ -578,26 +578,23 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 		}
 	}
 
-	ItemType phanditype = ItemType::None;
-	if (player.InvBody[INVLOC_HAND_LEFT]._itype == ItemType::Sword || player.InvBody[INVLOC_HAND_RIGHT]._itype == ItemType::Sword) {
-		phanditype = ItemType::Sword;
-	}
-	if (player.InvBody[INVLOC_HAND_LEFT]._itype == ItemType::Mace || player.InvBody[INVLOC_HAND_RIGHT]._itype == ItemType::Mace) {
-		phanditype = ItemType::Mace;
-	}
+	const ItemType leftHandType = player.InvBody[INVLOC_HAND_LEFT]._itype;
+	const ItemType rightHandType = player.InvBody[INVLOC_HAND_RIGHT]._itype;
 
 	switch (monster.data().monsterClass) {
 	case MonsterClass::Undead:
-		if (phanditype == ItemType::Sword) {
+		if (IsAnyOf(ItemType::Sword, leftHandType, rightHandType)) {
 			dam -= dam / 2;
-		} else if (phanditype == ItemType::Mace) {
+		}
+		if (IsAnyOf(ItemType::Mace, leftHandType, rightHandType)) {
 			dam += dam / 2;
 		}
 		break;
 	case MonsterClass::Animal:
-		if (phanditype == ItemType::Mace) {
+		if (IsAnyOf(ItemType::Mace, leftHandType, rightHandType)) {
 			dam -= dam / 2;
-		} else if (phanditype == ItemType::Sword) {
+		}
+		if (IsAnyOf(ItemType::Sword, leftHandType, rightHandType)) {
 			dam += dam / 2;
 		}
 		break;
