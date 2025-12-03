@@ -4551,6 +4551,10 @@ void MissToMonst(Missile &missile, Point position)
 
 		if (player->_pmode != PM_GOTHIT && player->_pmode != PM_DEATH)
 			StartPlrHit(*player, 0, true);
+
+		if (player->hasNoLife())
+			return;
+
 		const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
 		if (PosOkPlayer(*player, newPosition)) {
 			player->position.tile = newPosition;
