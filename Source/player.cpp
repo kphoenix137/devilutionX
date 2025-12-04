@@ -2908,13 +2908,14 @@ void StartNewLvl(Player &player, interface_mode fom, int lvl)
 			setlvlnum = (_setlevels)lvl;
 		player.setLevel(setlvlnum);
 		break;
-	case WM_DIABTWARPUP:
+	case WM_DIABTWARPUP: {
 		assert(leveltype >= DTYPE_CATACOMBS && leveltype <= DTYPE_HELL);
 		const unsigned warpIndex = static_cast<unsigned>(leveltype - 2);
 		const uint8_t warpMask = static_cast<uint8_t>(1u << warpIndex);
 		MyPlayer->pTownWarps |= warpMask;
 		player.setLevel(lvl);
 		break;
+	}
 	case WM_DIABRETOWN:
 		break;
 	default:
