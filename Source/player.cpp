@@ -563,10 +563,9 @@ bool PlrHitMonst(Player &player, Monster &monster, bool adjacentDamage = false)
 		const int midam = RandomIntBetween(player._pIFMinDam, player._pIFMaxDam);
 		AddMissile(player.position.tile, player.position.temp, player._pdir, MissileID::SpectralArrow, TARGET_MONSTERS, player, midam, 0);
 	}
-	const int mind = player._pIMinDam;
-	const int maxd = player._pIMaxDam;
+	const int mind = player._pIMinDam + player._pIBonusMinDam;
+	const int maxd = player._pIMaxDam + player._pIBonusMaxDam;
 	int dam = RandomIntBetween(mind, maxd);
-	dam += dam * player._pIBonusDam / 100;
 	dam += player._pIBonusDamMod;
 	int dam2 = dam << 6;
 	dam += player._pDamageMod;
@@ -733,10 +732,9 @@ bool PlrHitPlr(Player &attacker, Player &target)
 		return true;
 	}
 
-	const int mind = attacker._pIMinDam;
-	const int maxd = attacker._pIMaxDam;
+	const int mind = attacker._pIMinDam + attacker._pIBonusMinDam;
+	const int maxd = attacker._pIMaxDam + attacker._pIBonusMaxDam;
 	int dam = RandomIntBetween(mind, maxd);
-	dam += (dam * attacker._pIBonusDam) / 100;
 	dam += attacker._pIBonusDamMod + attacker._pDamageMod;
 
 	const ClassAttributes &classAttributes = GetClassAttributes(attacker._pClass);
@@ -2680,8 +2678,7 @@ void StartPlrHit(Player &player, int dam, bool forcehit)
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void
-StartPlayerKill(Player &player, DeathReason deathReason)
+void StartPlayerKill(Player &player, DeathReason deathReason)
 {
 	if (player.hasNoLife() && player._pmode == PM_DEATH) {
 		return;
@@ -2896,8 +2893,7 @@ void RemovePlrMissiles(const Player &player)
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void
-StartNewLvl(Player &player, interface_mode fom, int lvl)
+void StartNewLvl(Player &player, interface_mode fom, int lvl)
 {
 	InitLevelChange(player);
 
