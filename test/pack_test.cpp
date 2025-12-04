@@ -1193,7 +1193,7 @@ TEST_F(NetPackTest, UnPackNetPlayer_invalid_iBonusMinDam)
 	CalcPlrItemVals(*MyPlayer, false);
 	ASSERT_TRUE(TestNetPackValidation());
 
-	MyPlayer->InvBody[INVLOC_HAND_LEFT]._iPLDam++;
+	MyPlayer->InvBody[INVLOC_HAND_LEFT]._iPLDam += 100;
 	CalcPlrItemVals(*MyPlayer, false);
 	ASSERT_FALSE(TestNetPackValidation());
 }
@@ -1206,7 +1206,7 @@ TEST_F(NetPackTest, UnPackNetPlayer_invalid_iBonusMaxDam)
 	CalcPlrItemVals(*MyPlayer, false);
 	ASSERT_TRUE(TestNetPackValidation());
 
-	MyPlayer->InvBody[INVLOC_HAND_LEFT]._iPLDam++;
+	MyPlayer->InvBody[INVLOC_HAND_LEFT]._iPLDam += 100;
 	CalcPlrItemVals(*MyPlayer, false);
 	ASSERT_FALSE(TestNetPackValidation());
 }
