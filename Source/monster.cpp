@@ -4549,6 +4549,7 @@ void MissToMonst(Missile &missile, Point position)
 		if (IsAnyOf(monster.type().type, MT_NSNAKE, MT_RSNAKE, MT_BSNAKE, MT_GSNAKE)) {
 			MonsterAttackPlayer(monster, *player, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
 		} else {
+			// Knockback
 			const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
 
 			if (PosOkPlayer(*player, newPosition)) {
@@ -4559,8 +4560,10 @@ void MissToMonst(Missile &missile, Point position)
 				SetPlayerOld(*player);
 			}
 
+			// Damage
 			MonsterAttackPlayer(monster, *player, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
 
+			// Hit Recovery
 			if (player->_pmode != PM_GOTHIT && player->_pmode != PM_DEATH)
 				StartPlrHit(*player, 0, true); // Guarantee player enters hit recovery if the attack itself already didn't inflict it
 		}
@@ -4573,6 +4576,7 @@ void MissToMonst(Missile &missile, Point position)
 		if (IsAnyOf(monster.type().type, MT_NSNAKE, MT_RSNAKE, MT_BSNAKE, MT_GSNAKE)) {
 			MonsterAttackMonster(monster, *target, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
 		} else {
+			// Knockback
 			const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
 
 			if (IsTileAvailable(*target, newPosition)) {
@@ -4582,6 +4586,7 @@ void MissToMonst(Missile &missile, Point position)
 				monster.position.future = newPosition;
 			}
 
+			// Damage
 			MonsterAttackMonster(monster, *target, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
 		}
 	}
