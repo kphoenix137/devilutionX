@@ -4528,6 +4528,7 @@ void MissToMonst(Missile &missile, Point position)
 {
 	assert(static_cast<size_t>(missile._misource) < MaxMonsters);
 	Monster &monster = Monsters[missile._misource];
+	int chanceToHit = 500;
 
 	const Point oldPosition = missile.position.tile;
 	monster.occupyTile(position, false);
@@ -4541,47 +4542,48 @@ void MissToMonst(Missile &missile, Point position)
 
 	if ((monster.flags & MFLAG_TARGETS_MONSTER) == 0) {
 		Player *player = PlayerAtPosition(oldPosition, true);
+
 		if (player == nullptr)
 			return;
 
-		MonsterAttackPlayer(monster, *player, 500, monster.minDamageSpecial, monster.maxDamageSpecial);
+		if (IsAnyOf(monster.type().type, MT_NSNAKE, MT_RSNAKE, MT_BSNAKE, MT_GSNAKE)) {
+			MonsterAttackPlayer(monster, *player, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
+		} else {
+			const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
 
-		if (IsAnyOf(monster.type().type, MT_NSNAKE, MT_RSNAKE, MT_BSNAKE, MT_GSNAKE))
-			return;
+			if (PosOkPlayer(*player, newPosition)) {
+				player->position.tile = newPosition;
+				FixPlayerLocation(*player, player->_pdir);
+				FixPlrWalkTags(*player);
+				player->occupyTile(newPosition, false);
+				SetPlayerOld(*player);
+			}
 
-		if (player->_pmode != PM_GOTHIT && player->_pmode != PM_DEATH)
-			StartPlrHit(*player, 0, true);
+			MonsterAttackPlayer(monster, *player, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
 
-		if (player->hasNoLife())
-			return;
-
-		const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
-		if (PosOkPlayer(*player, newPosition)) {
-			player->position.tile = newPosition;
-			FixPlayerLocation(*player, player->_pdir);
-			FixPlrWalkTags(*player);
-			player->occupyTile(newPosition, false);
-			SetPlayerOld(*player);
+			if (player->_pmode != PM_GOTHIT && player->_pmode != PM_DEATH)
+				StartPlrHit(*player, 0, true); // Guarantee player enters hit recovery if the attack itself already didn't inflict it
 		}
-		return;
-	}
+	} else {
+		Monster *target = FindMonsterAtPosition(oldPosition, true);
 
-	Monster *target = FindMonsterAtPosition(oldPosition, true);
+		if (target == nullptr)
+			return;
 
-	if (target == nullptr)
-		return;
+		if (IsAnyOf(monster.type().type, MT_NSNAKE, MT_RSNAKE, MT_BSNAKE, MT_GSNAKE)) {
+			MonsterAttackMonster(monster, *target, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
+		} else {
+			const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
 
-	MonsterAttackMonster(monster, *target, 500, monster.minDamageSpecial, monster.maxDamageSpecial);
+			if (IsTileAvailable(*target, newPosition)) {
+				monster.occupyTile(newPosition, false);
+				dMonster[oldPosition.x][oldPosition.y] = 0;
+				monster.position.tile = newPosition;
+				monster.position.future = newPosition;
+			}
 
-	if (IsAnyOf(monster.type().type, MT_NSNAKE, MT_RSNAKE, MT_BSNAKE, MT_GSNAKE))
-		return;
-
-	const Point newPosition = oldPosition + GetDirection(missile.position.start, oldPosition);
-	if (IsTileAvailable(*target, newPosition)) {
-		monster.occupyTile(newPosition, false);
-		dMonster[oldPosition.x][oldPosition.y] = 0;
-		monster.position.tile = newPosition;
-		monster.position.future = newPosition;
+			MonsterAttackMonster(monster, *target, chanceToHit, monster.minDamageSpecial, monster.maxDamageSpecial);
+		}
 	}
 }
 
