@@ -2904,7 +2904,8 @@ void RemovePlrMissiles(const Player &player)
 #if defined(__clang__) || defined(__GNUC__)
 __attribute__((no_sanitize("shift-base")))
 #endif
-void StartNewLvl(Player &player, interface_mode fom, int lvl)
+void
+StartNewLvl(Player &player, interface_mode fom, int lvl)
 {
 	InitLevelChange(player);
 
