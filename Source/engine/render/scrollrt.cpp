@@ -455,7 +455,6 @@ uint8_t GetPlayerOutlineColor(int id)
 	return PlayerOutlineColors[id];
 }
 
-
 /**
  * @brief Render a player sprite
  * @param out Output buffer
