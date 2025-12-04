@@ -3778,7 +3778,8 @@ void AddDoppelganger(Monster &monster)
 
 void ApplyMonsterDamage(DamageType damageType, Monster &monster, int damage)
 {
-	AddFloatingNumber(damageType, monster, damage);
+	if (damage > 0)
+		AddFloatingNumber(damageType, monster, damage);
 
 	monster.hitPoints -= damage;
 
