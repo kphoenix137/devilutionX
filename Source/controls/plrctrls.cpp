@@ -510,20 +510,23 @@ void Interact()
 	}
 
 	const Player &myPlayer = *MyPlayer;
+	Direction pdir = myPlayer._pdir;
+	const AxisDirection moveDir = GetMoveDirection();
+	const bool motion = moveDir.x != AxisDirectionX_NONE || moveDir.y != AxisDirectionY_NONE;
 
-	if (leveltype != DTYPE_TOWN && IsStandingGround()) {
-		Direction pdir = myPlayer._pdir;
-		const AxisDirection moveDir = GetMoveDirection();
-		const bool motion = moveDir.x != AxisDirectionX_NONE || moveDir.y != AxisDirectionY_NONE;
-		if (motion) {
-			pdir = FaceDir[static_cast<std::size_t>(moveDir.x)][static_cast<std::size_t>(moveDir.y)];
-		}
+	if (motion) {
+		pdir = FaceDir[static_cast<std::size_t>(moveDir.x)][static_cast<std::size_t>(moveDir.y)];
+	}
 
-		Point position = myPlayer.position.tile + pdir;
-		if (pcursmonst != -1 && !motion) {
-			position = Monsters[pcursmonst].position.tile;
-		}
+	Point position = myPlayer.position.tile + pdir;
 
+	if (pcursmonst != -1 && !motion) {
+		position = Monsters[pcursmonst].position.tile;
+	}
+
+	bool bNear = myPlayer.position.tile.WalkingDistance(position) < 2;
+
+	if (leveltype != DTYPE_TOWN && IsStandingGround() && !bNear) {
 		NetSendCmdLoc(MyPlayerId, true, myPlayer.UsesRangedWeapon() ? CMD_RATTACKXY : CMD_SATTACKXY, position);
 		LastPlayerAction = PlayerActionType::Attack;
 		return;
