@@ -269,10 +269,7 @@ void LeftMouseCmd(bool bShift)
 		LastPlayerAction = PlayerActionType::OperateObject;
 		NetSendCmdLoc(MyPlayerId, true, pcurs == CURSOR_DISARM ? CMD_DISARMXY : CMD_OPOBJXY, cursPosition);
 	} else if (myPlayer.UsesRangedWeapon()) {
-		if (bShift && !bNear) {
-			LastPlayerAction = PlayerActionType::Attack;
-			NetSendCmdLoc(MyPlayerId, true, CMD_RATTACKXY, cursPosition);
-		} else if (pcursmonst != -1) {
+		if (pcursmonst != -1) {
 			if (CanTalkToMonst(Monsters[pcursmonst])) {
 				NetSendCmdParam1(true, CMD_ATTACKID, pcursmonst);
 			} else {
@@ -282,20 +279,18 @@ void LeftMouseCmd(bool bShift)
 		} else if (PlayerUnderCursor != nullptr && !myPlayer.friendlyMode) {
 			LastPlayerAction = PlayerActionType::AttackPlayerTarget;
 			NetSendCmdParam1(true, CMD_RATTACKPID, PlayerUnderCursor->getId());
+		} else if (bShift) {
+			LastPlayerAction = PlayerActionType::Attack;
+			NetSendCmdLoc(MyPlayerId, true, CMD_RATTACKXY, cursPosition);
 		}
 	} else {
-		if (bShift && !bNear) {
-			if (pcursmonst != -1) {
-				if (CanTalkToMonst(Monsters[pcursmonst])) {
-					NetSendCmdParam1(true, CMD_ATTACKID, pcursmonst);
-				} else {
-					LastPlayerAction = PlayerActionType::Attack;
-					NetSendCmdLoc(MyPlayerId, true, CMD_SATTACKXY, cursPosition);
-				}
-			} else {
-				LastPlayerAction = PlayerActionType::Attack;
-				NetSendCmdLoc(MyPlayerId, true, CMD_SATTACKXY, cursPosition);
+		if (bShift && !(bNear && (pcursmonst != -1 || PlayerUnderCursor != nullptr))) {
+			if (pcursmonst != -1 && CanTalkToMonst(Monsters[pcursmonst])) {
+				NetSendCmdParam1(true, CMD_ATTACKID, pcursmonst);
+				return;
 			}
+			LastPlayerAction = PlayerActionType::Attack;
+			NetSendCmdLoc(MyPlayerId, true, CMD_SATTACKXY, cursPosition);
 		} else if (pcursmonst != -1) {
 			LastPlayerAction = PlayerActionType::AttackMonsterTarget;
 			NetSendCmdParam1(true, CMD_ATTACKID, pcursmonst);
@@ -2234,31 +2229,31 @@ void InitPadmapActions()
 	    N_("Move up"),
 	    N_("Moves the player character up."),
 	    ControllerButton_BUTTON_DPAD_UP,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MoveDown",
 	    N_("Move down"),
 	    N_("Moves the player character down."),
 	    ControllerButton_BUTTON_DPAD_DOWN,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MoveLeft",
 	    N_("Move left"),
 	    N_("Moves the player character left."),
 	    ControllerButton_BUTTON_DPAD_LEFT,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MoveRight",
 	    N_("Move right"),
 	    N_("Moves the player character right."),
 	    ControllerButton_BUTTON_DPAD_RIGHT,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "StandGround",
 	    N_("Stand ground"),
 	    N_("Hold to prevent the player from moving."),
 	    ControllerButton_NONE,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "ToggleStandGround",
 	    N_("Toggle stand ground"),
@@ -2344,49 +2339,49 @@ void InitPadmapActions()
 	    N_("Automap Move Up"),
 	    N_("Moves the automap up when active."),
 	    ControllerButton_NONE,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "AutomapMoveDown",
 	    N_("Automap Move Down"),
 	    N_("Moves the automap down when active."),
 	    ControllerButton_NONE,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "AutomapMoveLeft",
 	    N_("Automap Move Left"),
 	    N_("Moves the automap left when active."),
 	    ControllerButton_NONE,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "AutomapMoveRight",
 	    N_("Automap Move Right"),
 	    N_("Moves the automap right when active."),
 	    ControllerButton_NONE,
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MouseUp",
 	    N_("Move mouse up"),
 	    N_("Simulates upward mouse movement."),
 	    { ControllerButton_BUTTON_BACK, ControllerButton_BUTTON_DPAD_UP },
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MouseDown",
 	    N_("Move mouse down"),
 	    N_("Simulates downward mouse movement."),
 	    { ControllerButton_BUTTON_BACK, ControllerButton_BUTTON_DPAD_DOWN },
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MouseLeft",
 	    N_("Move mouse left"),
 	    N_("Simulates leftward mouse movement."),
 	    { ControllerButton_BUTTON_BACK, ControllerButton_BUTTON_DPAD_LEFT },
-	    [] {});
+	    [] { });
 	options.Padmapper.AddAction(
 	    "MouseRight",
 	    N_("Move mouse right"),
 	    N_("Simulates rightward mouse movement."),
 	    { ControllerButton_BUTTON_BACK, ControllerButton_BUTTON_DPAD_RIGHT },
-	    [] {});
+	    [] { });
 	auto leftMouseDown = [] {
 		const ControllerButtonCombo standGroundCombo = GetOptions().Padmapper.ButtonComboForAction("StandGround");
 		const bool standGround = StandToggle || IsControllerButtonComboPressed(standGroundCombo);
