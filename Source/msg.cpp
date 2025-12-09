@@ -233,8 +233,10 @@ struct DSpawnedMonster {
 	int16_t golemSpellLevel;
 };
 
+constexpr int MaxDeltaItems = MAXITEMS * 2;
+
 struct DLevel {
-	TCmdPItem item[MAXITEMS];
+	TCmdPItem item[MaxDeltaItems];
 	ankerl::unordered_dense::map<WorldTilePosition, DObjectStr> object;
 	ankerl::unordered_dense::map<size_t, DSpawnedMonster> spawnedMonsters;
 	DMonsterStr monster[MaxMonsters];
@@ -531,7 +533,7 @@ int WaitForTurns()
 
 std::byte *DeltaExportItem(std::byte *dst, const TCmdPItem *src)
 {
-	for (int i = 0; i < MAXITEMS; i++, src++) {
+	for (int i = 0; i < MaxDeltaItems; i++, src++) {
 		if (src->bCmd == CMD_INVALID) {
 			*dst++ = std::byte { 0xFF };
 		} else {
@@ -546,7 +548,7 @@ std::byte *DeltaExportItem(std::byte *dst, const TCmdPItem *src)
 const std::byte *DeltaImportItem(const std::byte *src, const std::byte *end, TCmdPItem *dst)
 {
 	size_t size = 0;
-	for (int i = 0; i < MAXITEMS; i++, dst++) {
+	for (int i = 0; i < MaxDeltaItems; i++, dst++) {
 		if (&src[size] >= end)
 			return nullptr;
 		if (src[size] == std::byte { 0xFF }) {
@@ -1252,7 +1254,7 @@ size_t OnGotoGetItem(const TCmdLocParam1 &message, Player &player)
 {
 	const Point position { message.x, message.y };
 
-	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && Swap16LE(message.wParam1) < MAXITEMS + 1) {
+	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && Swap16LE(message.wParam1) < MaxDeltaItems + 1) {
 		MakePlrPath(player, position, false);
 		player.destAction = ACTION_PICKUPITEM;
 		player.destParam1 = Swap16LE(message.wParam1);
@@ -1267,7 +1269,7 @@ bool IsGItemValid(const TCmdGItem &message)
 		return false;
 	if (message.bPnum >= Players.size())
 		return false;
-	if (message.bCursitem >= MAXITEMS + 1)
+	if (message.bCursitem >= MaxDeltaItems + 1)
 		return false;
 	if (!IsValidLevelForMultiplayer(message.bLevel))
 		return false;
@@ -1504,7 +1506,7 @@ size_t OnGotoAutoGetItem(const TCmdLocParam1 &message, Player &player)
 	const Point position { message.x, message.y };
 
 	const uint16_t itemIdx = Swap16LE(message.wParam1);
-	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && itemIdx < MAXITEMS + 1) {
+	if (gbBufferMsgs != 1 && player.isOnActiveLevel() && InDungeonBounds(position) && itemIdx < MaxDeltaItems + 1) {
 		MakePlrPath(player, position, false);
 		player.destAction = ACTION_PICKUPAITEM;
 		player.destParam1 = itemIdx;
