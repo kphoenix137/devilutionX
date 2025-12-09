@@ -393,7 +393,7 @@ void CheckPlayerNearby()
 			continue;
 		const int mx = player.position.future.x;
 		const int my = player.position.future.y;
-		if (dPlayer[mx][my] == 0
+		if ((dPlayer[mx][my] == 0 && spl != SpellID::Resurrect)
 		    || !IsTileLit(player.position.future)
 		    || (player.hasNoLife() && spl != SpellID::Resurrect))
 			continue;
