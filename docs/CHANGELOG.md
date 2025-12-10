@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Gameplay
 
-- Completion of Teleport or Phasing triggers Auto Pickup, if enabled
+- Auto Pickup occurs more frequently
 
 ## DevilutionX 1.5.2
 
