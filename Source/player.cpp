@@ -2404,7 +2404,7 @@ void NextPlrLevel(Player &player)
 
 	if (&player == MyPlayer) {
 		RedrawComponent(PanelDrawComponent::Health);
-	}dfshgadfh
+	}
 
 	const int mana = player.getClassAttributes().lvlMana;
 
