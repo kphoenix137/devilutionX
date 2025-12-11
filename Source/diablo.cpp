@@ -160,60 +160,6 @@ extern void plrctrls_after_check_curs_move();
 extern void plrctrls_every_frame();
 extern void plrctrls_after_game_logic();
 
-bool TryOpenDungeon(bool useCursorPosition)
-{
-	if (leveltype != DTYPE_TOWN)
-		return false;
-
-	Item &holdItem = MyPlayer->HoldItem;
-	WorldTilePosition &position = MyPlayer->position.tile;
-
-	// Common function to attempt opening based on input method.
-	auto attemptOpen = [&]() -> bool {
-		if ((useCursorPosition && holdItem.IDidx == IDI_RUNEBOMB && OpensHive(cursPosition)) || (!useCursorPosition && UseItemOpensHive(holdItem, position))) {
-			OpenHive();
-			NewCursor(CURSOR_HAND);
-			return true;
-		}
-		if ((useCursorPosition && holdItem.IDidx == IDI_MAPOFDOOM && OpensGrave(cursPosition)) || (!useCursorPosition && UseItemOpensGrave(holdItem, position))) {
-			OpenGrave();
-			NewCursor(CURSOR_HAND);
-			return true;
-		}
-		return false;
-	};
-
-	return attemptOpen();
-}
-
-/**
- * @brief Try dropping item in all 9 possible places
- */
-bool TryDropItem(bool useCursorPosition /*= false*/)
-{
-	Player &myPlayer = *MyPlayer;
-
-	if (myPlayer.HoldItem.isEmpty()) {
-		return false;
-	}
-
-	if (TryOpenDungeon(useCursorPosition))
-		return true;
-
-	Direction dir = useCursorPosition ? GetDirection(myPlayer.position.tile, cursPosition) : myPlayer._pdir;
-	std::optional<Point> itemTile = FindAdjacentPositionForItem(myPlayer.position.tile, dir);
-
-	if (!itemTile) {
-		myPlayer.Say(HeroSpeech::WhereWouldIPutThis);
-		return false;
-	}
-
-	NetSendCmdPItem(true, CMD_PUTITEM, *itemTile, myPlayer.HoldItem);
-	myPlayer.HoldItem.clear();
-	NewCursor(CURSOR_HAND);
-	return true;
-}
-
 namespace {
 
 char gszVersionNumber[64] = "internal version unknown";
@@ -456,6 +402,55 @@ void LeftMouseUp(uint16_t modState)
 		CheckLevelButtonUp();
 	if (IsPlayerInStore())
 		ReleaseStoreBtn();
+}
+
+bool TryOpenDungeon(bool useCursorPosition)
+{
+	if (leveltype != DTYPE_TOWN)
+		return false;
+
+	Item &holdItem = MyPlayer->HoldItem;
+	WorldTilePosition &position = MyPlayer->position.tile;
+
+	if ((useCursorPosition && holdItem.IDidx == IDI_RUNEBOMB && OpensHive(cursPosition)) || (!useCursorPosition && UseItemOpensHive(holdItem, position))) {
+		OpenHive();
+		NewCursor(CURSOR_HAND);
+		return true;
+	}
+	if ((useCursorPosition && holdItem.IDidx == IDI_MAPOFDOOM && OpensGrave(cursPosition)) || (!useCursorPosition && UseItemOpensGrave(holdItem, position))) {
+		OpenGrave();
+		NewCursor(CURSOR_HAND);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * @brief Try dropping item in all 9 possible places
+ */
+bool TryDropItem(bool useCursorPosition /*= false*/)
+{
+	Player &myPlayer = *MyPlayer;
+
+	if (myPlayer.HoldItem.isEmpty()) {
+		return false;
+	}
+
+	if (TryOpenDungeon(useCursorPosition))
+		return true;
+
+	Direction dir = useCursorPosition ? GetDirection(myPlayer.position.tile, cursPosition) : myPlayer._pdir;
+	std::optional<Point> availableTile = FindAdjacentPositionForItem(myPlayer.position.tile, dir);
+
+	if (!availableTile) {
+		myPlayer.Say(HeroSpeech::WhereWouldIPutThis);
+		return false;
+	}
+
+	NetSendCmdPItem(true, CMD_PUTITEM, *availableTile, myPlayer.HoldItem);
+	myPlayer.HoldItem.clear();
+	NewCursor(CURSOR_HAND);
+	return true;
 }
 
 void RightMouseDown(bool isShiftHeld)
