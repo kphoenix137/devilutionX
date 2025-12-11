@@ -1648,14 +1648,24 @@ size_t OnResurrect(const TCmd *pCmd, size_t pnum)
 
 	if (gbBufferMsgs == 1) {
 		SendPacket(pnum, &message, sizeof(message));
-	} else if (playerIdx < Players.size()) {
-		DoResurrect(pnum, Players[playerIdx]);
-		if (pnum == MyPlayerId)
-			pfile_update(true);
+		return sizeof(message);
+	}
+
+	if (playerIdx >= Players.size())
+		return sizeof(message);
+
+	Player &caster = Players[pnum];
+	Player &target = Players[playerIdx];
+
+	SpawnResurrectBeam(caster, target);
+
+	if (playerIdx == MyPlayerId && target._pHitPoints <= 0) {
+		NetSendCmdParam1(true, CMD_PLRALIVE, static_cast<uint16_t>(playerIdx));
 	}
 
 	return sizeof(message);
 }
+
 
 size_t OnHealOther(const TCmd *pCmd, const Player &caster)
 {
@@ -1830,6 +1840,30 @@ size_t OnPlayerDeath(const TCmd *pCmd, size_t pnum)
 			pfile_update(true);
 	} else {
 		SendPacket(pnum, &message, sizeof(message));
+	}
+
+	return sizeof(message);
+}
+
+size_t OnPlayerAlive(const TCmd *pCmd, size_t pnum)
+{
+	const auto &message = *reinterpret_cast<const TCmdParam1 *>(pCmd);
+	const uint16_t playerIdx = SDL_SwapLE16(message.wParam1);
+
+	if (gbBufferMsgs == 1) {
+		SendPacket(pnum, &message, sizeof(message));
+		return sizeof(message);
+	}
+
+	if (playerIdx >= Players.size())
+		return sizeof(message);
+
+	Player &target = Players[playerIdx];
+
+	ApplyResurrect(target);
+
+	if (playerIdx == MyPlayerId) {
+		pfile_update(true);
 	}
 
 	return sizeof(message);
@@ -3225,6 +3259,8 @@ size_t ParseCmd(size_t pnum, const TCmd *pCmd)
 		return OnMonstDamage(pCmd, pnum);
 	case CMD_PLRDEAD:
 		return OnPlayerDeath(pCmd, pnum);
+	case CMD_PLRALIVE:
+		return OnPlayerAlive(pCmd, pnum);
 	case CMD_PLRDAMAGE:
 		return OnPlayerDamage(pCmd, player);
 	case CMD_OPENDOOR:
