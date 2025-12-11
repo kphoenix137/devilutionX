@@ -822,7 +822,6 @@ bool CheckMouseHold(const Point currentTile)
 	return true;
 }
 
-
 void ResetCursorInfo()
 {
 	pcurstemp = pcursmonst;
