@@ -102,7 +102,6 @@ void DisableInputEventHandler(const SDL_Event &event, uint16_t modState);
 tl::expected<void, std::string> LoadGameLevel(bool firstflag, lvl_entry lvldir);
 bool IsDiabloAlive(bool playSFX);
 void PrintScreen(SDL_Keycode vkey);
-bool TryDropItem(bool useCursorPosition = false);
 
 /**
  * @param bStartup Process additional ticks before returning
@@ -124,5 +123,7 @@ extern GameLogicStep gGameLogicStep;
 #ifdef __UWP__
 void setOnInitialized(void (*)());
 #endif
+
+bool TryDropItem(bool useCursorPosition = false);
 
 } // namespace devilution
