@@ -1666,7 +1666,6 @@ size_t OnResurrect(const TCmd *pCmd, size_t pnum)
 	return sizeof(message);
 }
 
-
 size_t OnHealOther(const TCmd *pCmd, const Player &caster)
 {
 	const auto &message = *reinterpret_cast<const TCmdParam1 *>(pCmd);
