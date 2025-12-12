@@ -3226,7 +3226,7 @@ size_t ParseCmd(size_t pnum, const TCmd *pCmd)
 	case CMD_KNOCKBACK:
 		return OnKnockback(pCmd, pnum);
 	case CMD_RESURRECT:
-		return OnResurrect(pCmd, pnum);
+		return OnResurrect(pCmd, player);
 	case CMD_HEALOTHER:
 		return OnHealOther(pCmd, player);
 	case CMD_TALKXY:
