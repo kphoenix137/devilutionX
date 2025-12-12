@@ -1641,26 +1641,25 @@ size_t OnKnockback(const TCmd *pCmd, size_t pnum)
 	return sizeof(message);
 }
 
-size_t OnResurrect(const TCmd *pCmd, size_t pnum)
+size_t OnResurrect(const TCmd *pCmd, Player &caster)
 {
 	const auto &message = *reinterpret_cast<const TCmdParam1 *>(pCmd);
 	const uint16_t playerIdx = SDL_SwapLE16(message.wParam1);
 
 	if (gbBufferMsgs == 1) {
-		SendPacket(pnum, &message, sizeof(message));
+		SendPacket(caster.getId(), &message, sizeof(message));
 		return sizeof(message);
 	}
 
 	if (playerIdx >= Players.size())
 		return sizeof(message);
 
-	Player &caster = Players[pnum];
 	Player &target = Players[playerIdx];
 
 	SpawnResurrectBeam(caster, target);
 
-	if (playerIdx == MyPlayerId && target._pHitPoints <= 0) {
-		NetSendCmdParam1(true, CMD_PLRALIVE, static_cast<uint16_t>(playerIdx));
+	if (&target == MyPlayer && target._pHitPoints <= 0) {
+		NetSendCmd(true, CMD_PLRALIVE);
 	}
 
 	return sizeof(message);
@@ -1844,26 +1843,16 @@ size_t OnPlayerDeath(const TCmd *pCmd, size_t pnum)
 	return sizeof(message);
 }
 
-size_t OnPlayerAlive(const TCmd *pCmd, size_t pnum)
+size_t OnPlayerAlive(const TCmd *pCmd, Player &target)
 {
-	const auto &message = *reinterpret_cast<const TCmdParam1 *>(pCmd);
-	const uint16_t playerIdx = SDL_SwapLE16(message.wParam1);
+	const auto &message = *reinterpret_cast<const TCmd *>(pCmd);
 
 	if (gbBufferMsgs == 1) {
-		SendPacket(pnum, &message, sizeof(message));
+		SendPacket(target.getId(), pCmd, sizeof(*pCmd));
 		return sizeof(message);
 	}
-
-	if (playerIdx >= Players.size())
-		return sizeof(message);
-
-	Player &target = Players[playerIdx];
 
 	ApplyResurrect(target);
-
-	if (playerIdx == MyPlayerId) {
-		pfile_update(true);
-	}
 
 	return sizeof(message);
 }
@@ -3259,7 +3248,7 @@ size_t ParseCmd(size_t pnum, const TCmd *pCmd)
 	case CMD_PLRDEAD:
 		return OnPlayerDeath(pCmd, pnum);
 	case CMD_PLRALIVE:
-		return OnPlayerAlive(pCmd, pnum);
+		return OnPlayerAlive(pCmd, player);
 	case CMD_PLRDAMAGE:
 		return OnPlayerDamage(pCmd, player);
 	case CMD_OPENDOOR:
