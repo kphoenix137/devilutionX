@@ -260,6 +260,15 @@ inline void ClxDrawLightBlended(const Surface &out, Point position, ClxSprite cl
 	}
 }
 
+inline void ClxDrawLightBlackTransparent(const Surface &out, Point position, ClxSprite clx, int lightTableIndex)
+{
+	if (lightTableIndex != 0) {
+		ClxDrawBlackTransparentTRN(out, position, clx, LightTables[lightTableIndex].data());
+	} else {
+		ClxDrawBlackTransparent(out, position, clx);
+	}
+}
+
 /**
  * @brief Save the content behind the cursor to a temporary buffer, then draw the cursor.
  */
@@ -331,11 +340,11 @@ void DrawMissilePrivate(const Surface &out, const Missile &missile, Point target
 	const Point missileRenderPosition { targetBufferPosition + missile.position.offsetForRendering - Displacement { missile._miAnimWidth2, 0 } };
 	const ClxSprite sprite = (*missile._miAnimData)[missile._miAnimFrame - 1];
 	if (missile._miUniqTrans != 0) {
-		ClxDrawTRN(out, missileRenderPosition, sprite, Monsters[missile._misource].uniqueMonsterTRN.get());
+		ClxDrawBlackTransparentTRN(out, missileRenderPosition, sprite, Monsters[missile._misource].uniqueMonsterTRN.get());
 	} else if (missile._miLightFlag) {
-		ClxDrawLight(out, missileRenderPosition, sprite, lightTableIndex);
+		ClxDrawLightBlackTransparent(out, missileRenderPosition, sprite, lightTableIndex);
 	} else {
-		ClxDraw(out, missileRenderPosition, sprite);
+		ClxDrawBlackTransparent(out, missileRenderPosition, sprite);
 	}
 }
 
@@ -372,7 +381,7 @@ void DrawMonster(const Surface &out, Point tilePosition, Point targetBufferPosit
 	const ClxSprite sprite = monster.animInfo.currentSprite();
 
 	if (!IsTileLit(tilePosition)) {
-		ClxDrawTRN(out, targetBufferPosition, sprite, GetInfravisionTRN());
+		ClxDrawBlackTransparentTRN(out, targetBufferPosition, sprite, GetInfravisionTRN());
 		return;
 	}
 	uint8_t *trn = nullptr;
@@ -383,9 +392,9 @@ void DrawMonster(const Surface &out, Point tilePosition, Point targetBufferPosit
 	if (MyPlayer->_pInfraFlag && lightTableIndex > 8)
 		trn = GetInfravisionTRN();
 	if (trn != nullptr)
-		ClxDrawTRN(out, targetBufferPosition, sprite, trn);
+		ClxDrawBlackTransparentTRN(out, targetBufferPosition, sprite, trn);
 	else
-		ClxDrawLight(out, targetBufferPosition, sprite, lightTableIndex);
+		ClxDrawLightBlackTransparent(out, targetBufferPosition, sprite, lightTableIndex);
 }
 
 /**
@@ -450,19 +459,19 @@ void DrawPlayer(const Surface &out, const Player &player, Point tilePosition, Po
 		ClxDrawOutlineSkipColorZero(out, 165, spriteBufferPosition, sprite);
 
 	if (&player == MyPlayer && IsNoneOf(leveltype, DTYPE_NEST, DTYPE_CRYPT)) {
-		ClxDraw(out, spriteBufferPosition, sprite);
+		ClxDrawBlackTransparent(out, spriteBufferPosition, sprite);
 		DrawPlayerIcons(out, player, targetBufferPosition, /*infraVision=*/false, lightTableIndex);
 		return;
 	}
 
 	if (!IsTileLit(tilePosition) || ((MyPlayer->_pInfraFlag || MyPlayer->isOnArenaLevel()) && lightTableIndex > 8)) {
-		ClxDrawTRN(out, spriteBufferPosition, sprite, GetInfravisionTRN());
+		ClxDrawBlackTransparentTRN(out, spriteBufferPosition, sprite, GetInfravisionTRN());
 		DrawPlayerIcons(out, player, targetBufferPosition, /*infraVision=*/true, lightTableIndex);
 		return;
 	}
 
 	lightTableIndex = std::max(lightTableIndex - 5, 0);
-	ClxDrawLight(out, spriteBufferPosition, sprite, lightTableIndex);
+	ClxDrawLightBlackTransparent(out, spriteBufferPosition, sprite, lightTableIndex);
 	DrawPlayerIcons(out, player, targetBufferPosition, /*infraVision=*/false, lightTableIndex);
 }
 
@@ -503,9 +512,9 @@ void DrawObject(const Surface &out, const Object &objectToDraw, Point tilePositi
 		ClxDrawOutlineSkipColorZero(out, 194, screenPosition, sprite);
 	}
 	if (objectToDraw.applyLighting) {
-		ClxDrawLight(out, screenPosition, sprite, lightTableIndex);
+		ClxDrawLightBlackTransparent(out, screenPosition, sprite, lightTableIndex);
 	} else {
-		ClxDraw(out, screenPosition, sprite);
+		ClxDrawBlackTransparent(out, screenPosition, sprite);
 	}
 }
 
@@ -691,7 +700,7 @@ void DrawItem(const Surface &out, int8_t itemIndex, Point targetBufferPosition, 
 	if (!IsPlayerInStore() && (itemIndex == pcursitem || AutoMapShowItems)) {
 		ClxDrawOutlineSkipColorZero(out, GetOutlineColor(item, false), position, sprite);
 	}
-	ClxDrawLight(out, position, sprite, lightTableIndex);
+	ClxDrawLightBlackTransparent(out, position, sprite, lightTableIndex);
 	if (item.AnimInfo.isLastFrame() || item._iCurs == ICURS_MAGIC_ROCK)
 		AddItemToLabelQueue(itemIndex, position);
 }
@@ -715,7 +724,7 @@ void DrawMonsterHelper(const Surface &out, Point tilePosition, Point targetBuffe
 		if (mi == pcursmonst) {
 			ClxDrawOutlineSkipColorZero(out, 166, position, sprite);
 		}
-		ClxDraw(out, position, sprite);
+		ClxDrawBlackTransparent(out, position, sprite);
 		return;
 	}
 

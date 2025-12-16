@@ -192,4 +192,90 @@ struct BlitBlendedWithLightmap {
 	}
 };
 
+DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void BlitFillBlackTransparent(uint8_t *dst, unsigned length, uint8_t color)
+{
+	DVL_ASSUME(length != 0);
+	if (color == 0) {
+		const auto &tbl = paletteTransparencyLookup[0];
+		std::for_each(DEVILUTIONX_BLIT_EXECUTION_POLICY dst, dst + length, [&tbl](uint8_t &dstColor) {
+			dstColor = tbl[dstColor];
+		});
+		return;
+	}
+	std::memset(dst, color, length);
+}
+
+DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void BlitPixelsBlackTransparent(uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src, unsigned length)
+{
+	DVL_ASSUME(length != 0);
+	const auto &tbl = paletteTransparencyLookup[0];
+	for (unsigned i = 0; i < length; i++) {
+		const uint8_t srcColor = src[i];
+		if (srcColor == 0) {
+			dst[i] = tbl[dst[i]];
+		} else {
+			dst[i] = srcColor;
+		}
+	}
+}
+
+struct BlitBlackTransparent {
+	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src) const
+	{
+		BlitPixelsBlackTransparent(dst, src, length);
+	}
+	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t color, uint8_t *DVL_RESTRICT dst) const
+	{
+		BlitFillBlackTransparent(dst, length, color);
+	}
+};
+
+DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void BlitFillBlackTransparentWithMap(
+    uint8_t *dst, unsigned length, uint8_t color, const uint8_t *DVL_RESTRICT colorMap)
+{
+	DVL_ASSUME(length != 0);
+
+	if (color == 0) {
+		const auto &tbl = paletteTransparencyLookup[0];
+		std::for_each(DEVILUTIONX_BLIT_EXECUTION_POLICY dst, dst + length, [&tbl](uint8_t &dstColor) {
+			dstColor = tbl[dstColor];
+		});
+		return;
+	}
+
+	std::memset(dst, colorMap[color], length);
+}
+
+DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void BlitPixelsBlackTransparentWithMap(
+    uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src, unsigned length,
+    const uint8_t *DVL_RESTRICT colorMap)
+{
+	DVL_ASSUME(length != 0);
+
+	const auto &tbl = paletteTransparencyLookup[0];
+
+	for (unsigned i = 0; i < length; i++) {
+		const uint8_t srcColor = src[i];
+
+		if (srcColor == 0) {
+			dst[i] = tbl[dst[i]];
+		} else {
+			dst[i] = colorMap[srcColor];
+		}
+	}
+}
+
+struct BlitBlackTransparentWithMap {
+	const uint8_t *DVL_RESTRICT colorMap;
+
+	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src) const
+	{
+		BlitPixelsBlackTransparentWithMap(dst, src, length, colorMap);
+	}
+	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t color, uint8_t *DVL_RESTRICT dst) const
+	{
+		BlitFillBlackTransparentWithMap(dst, length, color, colorMap);
+	}
+};
+
 } // namespace devilution

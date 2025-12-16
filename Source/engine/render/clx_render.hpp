@@ -128,4 +128,21 @@ void ClearClxDrawCache();
 std::string ClxDescribe(ClxSprite clx);
 #endif
 
+/**
+ * @brief Blit CLX sprite with 50% transparency on black pixels to the given buffer at the given coordinates.
+ * @param out Output buffer
+ * @param position Target buffer coordinate
+ * @param clx CLX frame
+ */
+void ClxDrawBlackTransparent(const Surface &out, Point position, ClxSprite clx);
+
+/**
+ * @brief Blit CL2 sprite, and apply given TRN to the given buffer at the given coordinates, while rendering black as half transparent
+ * @param out Output buffer
+ * @param position Target buffer coordinate
+ * @param clx CLX frame
+ * @param trn TRN to use
+ */
+void ClxDrawBlackTransparentTRN(const Surface &out, Point position, ClxSprite clx, const uint8_t *trn);
+
 } // namespace devilution

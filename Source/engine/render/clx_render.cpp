@@ -623,4 +623,14 @@ void ClearClxDrawCache()
 	OutlinePixelsCache.spriteData = nullptr;
 }
 
+void ClxDrawBlackTransparent(const Surface &out, Point position, ClxSprite clx)
+{
+	DoRenderBackwards(out, position, clx.pixelData(), clx.pixelDataSize(), clx.width(), clx.height(), BlitBlackTransparent {});
+}
+
+void ClxDrawBlackTransparentTRN(const Surface &out, Point position, ClxSprite clx, const uint8_t *trn)
+{
+	DoRenderBackwards(out, position, clx.pixelData(), clx.pixelDataSize(), clx.width(), clx.height(), BlitBlackTransparentWithMap { trn });
+}
+
 } // namespace devilution
