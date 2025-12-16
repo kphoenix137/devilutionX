@@ -219,14 +219,59 @@ DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void BlitPixelsBlackTransparent(uint8_t *DVL
 	}
 }
 
+static DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT uint8_t DarkenDst75(uint8_t dst)
+{
+	// 75% black == apply 50% black twice: dst -> dst/2 -> dst/4
+	return paletteTransparencyLookup[0][paletteTransparencyLookup[0][dst]];
+}
+
 struct BlitBlackTransparent {
 	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src) const
 	{
-		BlitPixelsBlackTransparent(dst, src, length);
+		for (unsigned i = 0; i < length; ++i) {
+			const uint8_t s = src[i];
+			if (s == 0) {
+				dst[i] = DarkenDst75(dst[i]);
+			} else {
+				dst[i] = s;
+			}
+		}
 	}
+
 	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t color, uint8_t *DVL_RESTRICT dst) const
 	{
-		BlitFillBlackTransparent(dst, length, color);
+		if (color == 0) {
+			for (unsigned i = 0; i < length; ++i)
+				dst[i] = DarkenDst75(dst[i]);
+		} else {
+			std::memset(dst, color, length);
+		}
+	}
+};
+
+struct BlitBlackTransparentWithMap {
+	const uint8_t *DVL_RESTRICT colorMap;
+
+	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src) const
+	{
+		for (unsigned i = 0; i < length; ++i) {
+			const uint8_t s = src[i];
+			if (s == 0) {
+				dst[i] = DarkenDst75(dst[i]);
+			} else {
+				dst[i] = colorMap[s];
+			}
+		}
+	}
+
+	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t color, uint8_t *DVL_RESTRICT dst) const
+	{
+		if (color == 0) {
+			for (unsigned i = 0; i < length; ++i)
+				dst[i] = DarkenDst75(dst[i]);
+		} else {
+			std::memset(dst, colorMap[color], length);
+		}
 	}
 };
 
@@ -264,18 +309,5 @@ DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void BlitPixelsBlackTransparentWithMap(
 		}
 	}
 }
-
-struct BlitBlackTransparentWithMap {
-	const uint8_t *DVL_RESTRICT colorMap;
-
-	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t *DVL_RESTRICT dst, const uint8_t *DVL_RESTRICT src) const
-	{
-		BlitPixelsBlackTransparentWithMap(dst, src, length, colorMap);
-	}
-	DVL_ALWAYS_INLINE DVL_ATTRIBUTE_HOT void operator()(unsigned length, uint8_t color, uint8_t *DVL_RESTRICT dst) const
-	{
-		BlitFillBlackTransparentWithMap(dst, length, color, colorMap);
-	}
-};
 
 } // namespace devilution
