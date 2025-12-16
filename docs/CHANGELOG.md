@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Features
+
+#### Graphics / Audio
+
+- Entity shadows are rendered as half transparent instead of solid black
+
 ### Bug Fixes
 
 #### Graphics / Audio
