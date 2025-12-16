@@ -785,9 +785,9 @@ void DrawDungeon(const Surface &out, const Lightmap &lightmap, Point tilePositio
 		const ClxSprite sprite = corpse.spritesForDirection(static_cast<Direction>((bDead >> 5) & 7))[corpse.frame];
 		if (corpse.translationPaletteIndex != 0) {
 			const uint8_t *trn = Monsters[corpse.translationPaletteIndex - 1].uniqueMonsterTRN.get();
-			ClxDrawTRN(out, position, sprite, trn);
+			ClxDrawBlackTransparentTRN(out, position, sprite, trn);
 		} else {
-			ClxDrawLight(out, position, sprite, lightTableIndex);
+			ClxDrawLightBlackTransparent(out, position, sprite, lightTableIndex);
 		}
 	}
 
