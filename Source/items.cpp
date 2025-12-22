@@ -28,7 +28,7 @@
 #include <fmt/core.h>
 
 #include "DiabloUI/ui_flags.hpp"
-#include "control.h"
+#include "control/control.hpp"
 #include "controls/control_mode.hpp"
 #include "controls/controller_buttons.h"
 #include "cursor.h"
@@ -2909,6 +2909,8 @@ void CalcPlrInv(Player &player, bool loadgfx)
 			// If stash is open, ensure the items are displayed correctly
 			Stash.RefreshItemStatFlags();
 		}
+		if (!player.HoldItem.isEmpty())
+			player.HoldItem.updateRequiredStatsCacheForPlayer(player);
 	}
 }
 

@@ -16,7 +16,7 @@
 
 #include <fmt/core.h>
 
-#include "control.h"
+#include "control/control.hpp"
 #include "controls/control_mode.hpp"
 #include "controls/plrctrls.h"
 #include "cursor.h"
@@ -1117,7 +1117,7 @@ void CheckNewPath(Player &player, bool pmWillBeCalled)
 	case ACTION_RATTACKPLR:
 	case ACTION_SPELLPLR:
 		target = &Players[targetId];
-		if (!target->hasNoLife()) {
+		if (target->hasNoLife()) {
 			player.Stop();
 			return;
 		}
@@ -1906,11 +1906,6 @@ void Player::UpdatePreviewCelSprite(_cmd_id cmdId, Point point, uint16_t wParam1
 		graphic = player_graphic::Attack;
 		break;
 	}
-	case _cmd_id::CMD_ATTACKXY:
-		dir = GetDirection(position.tile, point);
-		graphic = player_graphic::Attack;
-		minimalWalkDistance = 2;
-		break;
 	case _cmd_id::CMD_RATTACKXY:
 	case _cmd_id::CMD_SATTACKXY:
 		dir = GetDirection(position.tile, point);
