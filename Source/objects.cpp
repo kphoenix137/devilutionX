@@ -2381,7 +2381,7 @@ void OperateShrineWeird(Player &player)
 		}
 	};
 
-	auto bumpMaxDam = [](Item &item) {
+	auto bumpMaxDam = [MinDam, MaxDam](Item &item) {
 		item._iMaxDam = std::clamp(item._iMaxDam + 1, MinDam, MaxDam);
 	};
 
