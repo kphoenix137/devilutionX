@@ -2247,6 +2247,11 @@ void OperatePedestal(Player &player, Object &pedestal, bool sendmsg)
 	}
 }
 
+int ClampU8(int v)
+{
+	return std::clamp(v, 0, 255);
+}
+
 void OperateShrineMysterious(DiabloGenerator &rng, Player &player)
 {
 	if (&player != MyPlayer)
@@ -2284,25 +2289,12 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 	if (&player != MyPlayer)
 		return;
 
-	constexpr int DurMin = 1;
-	constexpr int DurMax = 255;
-
-	auto isEligible = [DurMin, DurMax](const Item &it) {
-		return !it.isEmpty()
-		    && it._iMaxDur != DurMax
-		    && it._iMaxDur >= DurMin;
-	};
-
-	auto clampForSave = [DurMin, DurMax](Item &it) {
-		it._iMaxDur = std::clamp(it._iMaxDur, DurMin, DurMax);
-		it._iDurability = std::clamp(it._iDurability, DurMin, it._iMaxDur);
-	};
-
 	std::array<int, NUM_INVLOC> eligible {};
 	int eligibleCount = 0;
 
 	for (int i = 0; i < NUM_INVLOC; i++) {
-		if (isEligible(player.InvBody[i]))
+		const Item &it = player.InvBody[i];
+		if (!it.isEmpty() && it._iMaxDur > 0 && it._iMaxDur < 255)
 			eligible[eligibleCount++] = i;
 	}
 
@@ -2316,13 +2308,9 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 
 	for (int k = 0; k < eligibleCount; k++) {
 		Item &it = player.InvBody[eligible[k]];
-
 		const int delta = (eligible[k] == cursedSlot) ? -10 : 10;
-
-		it._iMaxDur += delta;
-		it._iDurability += delta;
-
-		clampForSave(it);
+		it._iMaxDur = ClampU8(it._iMaxDur + delta);
+		it._iDurability = ClampU8(it._iDurability + delta);
 	}
 
 	InitDiabloMsg(EMSG_SHRINE_HIDDEN);
