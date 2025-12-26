@@ -2294,7 +2294,7 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 
 	for (int i = 0; i < NUM_INVLOC; i++) {
 		const Item &it = player.InvBody[i];
-		if (!it.isEmpty() && it._iMaxDur > 0 && it._iMaxDur < 255)
+		if (!it.isEmpty() && it._iMaxDur != 0)
 			eligible[eligibleCount++] = i;
 	}
 
@@ -2310,7 +2310,11 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 		Item &it = player.InvBody[eligible[k]];
 		const int delta = (eligible[k] == cursedSlot) ? -10 : 10;
 		it._iMaxDur = ClampU8(it._iMaxDur + delta);
+		if (it._iMaxDur == 0)
+			it._iMaxDur = 1;
 		it._iDurability = ClampU8(it._iDurability + delta);
+		if (it._iDurability == 0)
+			it._iDurability = 1;
 	}
 
 	InitDiabloMsg(EMSG_SHRINE_HIDDEN);
