@@ -2247,6 +2247,11 @@ void OperatePedestal(Player &player, Object &pedestal, bool sendmsg)
 	}
 }
 
+int ClampU8(int v)
+{
+	return std::clamp(v, 0, 255);
+}
+
 void OperateShrineMysterious(DiabloGenerator &rng, Player &player)
 {
 	if (&player != MyPlayer)
@@ -2365,9 +2370,6 @@ void OperateShrineWeird(Player &player)
 	if (&player != MyPlayer)
 		return;
 
-	constexpr int MinDam = 0;
-	constexpr int MaxDam = 255;
-
 	auto isWeapon = [](const Item &item) {
 		switch (item._itype) {
 		case ItemType::Sword:
@@ -2381,8 +2383,8 @@ void OperateShrineWeird(Player &player)
 		}
 	};
 
-	auto bumpMaxDam = [MinDam, MaxDam](Item &item) {
-		item._iMaxDam = std::clamp(item._iMaxDam + 1, MinDam, MaxDam);
+	auto bumpMaxDam = [&](Item &item) {
+		item._iMaxDam = ClampU8(item._iMaxDam + 1);
 	};
 
 	Item &left = player.InvBody[INVLOC_HAND_LEFT];
