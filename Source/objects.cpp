@@ -2314,7 +2314,7 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 	for (int k = 0; k < eligibleCount; k++) {
 		Item &it = player.InvBody[eligible[k]];
 
-		const int delta = (eligible[k] == cursedSlot) ? -10 : +10;
+		const int delta = (eligible[k] == cursedSlot) ? -10 : 10;
 
 		it._iMaxDur += delta;
 		it._iDurability += delta;
