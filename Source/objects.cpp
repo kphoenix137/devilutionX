@@ -2287,13 +2287,13 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 	constexpr int DurMin = 1;
 	constexpr int DurMax = 255;
 
-	auto isEligible = [](const Item &it) {
+	auto isEligible = [DurMin, DurMax](const Item &it) {
 		return !it.isEmpty()
 		    && it._iMaxDur != DurMax
 		    && it._iMaxDur >= DurMin;
 	};
 
-	auto clampForSave = [](Item &it) {
+	auto clampForSave = [DurMin, DurMax](Item &it) {
 		it._iMaxDur = std::clamp(it._iMaxDur, DurMin, DurMax);
 		it._iDurability = std::clamp(it._iDurability, DurMin, it._iMaxDur);
 	};
