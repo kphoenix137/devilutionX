@@ -2247,6 +2247,11 @@ void OperatePedestal(Player &player, Object &pedestal, bool sendmsg)
 	}
 }
 
+int ClampU8(int v)
+{
+	return std::clamp(v, 0, 255);
+}
+
 void OperateShrineMysterious(DiabloGenerator &rng, Player &player)
 {
 	if (&player != MyPlayer)
@@ -2331,36 +2336,24 @@ void OperateShrineGloomy(Player &player)
 	if (&player != MyPlayer)
 		return;
 
-	auto clampU8 = [](int v) {
-		return std::clamp(v, 0, 255);
-	};
-
-	auto incAC = [&](Item &item, int delta) {
-		item._iAC = clampU8(item._iAC + delta);
-	};
-
-	auto decMaxDam = [&](Item &item) {
-		const int minDam = static_cast<int>(item._iMinDam);
-		const int maxDam = static_cast<int>(item._iMaxDam);
-		const int newMax = std::max(maxDam - 1, minDam);
-		item._iMaxDam = static_cast<uint8_t>(clampU8(newMax));
-	};
-
 	for (Item &item : PlayerItemsRange(player)) {
 		switch (item._itype) {
 		case ItemType::Sword:
 		case ItemType::Axe:
 		case ItemType::Bow:
 		case ItemType::Mace:
-		case ItemType::Staff:
-			decMaxDam(item);
-			break;
+		case ItemType::Staff: {
+			const int minDam = static_cast<int>(item._iMinDam);
+			const int maxDam = static_cast<int>(item._iMaxDam);
+			const int newMax = std::max(maxDam - 1, minDam);
+			item._iMaxDam = static_cast<uint8_t>(ClampU8(newMax));
+		} break;
 		case ItemType::Shield:
 		case ItemType::Helm:
 		case ItemType::LightArmor:
 		case ItemType::MediumArmor:
 		case ItemType::HeavyArmor:
-			incAC(item, 2);
+			item._iAC = ClampU8(item._iAC + 2);
 			break;
 		default:
 			break;
