@@ -2365,10 +2365,10 @@ void OperateShrineWeird(Player &player)
 	if (&player != MyPlayer)
 		return;
 
-	constexpr int MaxDamMin = 0;
-	constexpr int MaxDamMax = 255;
+	constexpr int MinDam = 0;
+	constexpr int MaxDam = 255;
 
-	auto isWeaponType = [](const Item &item) {
+	auto isWeapon = [](const Item &item) {
 		switch (item._itype) {
 		case ItemType::Sword:
 		case ItemType::Axe:
@@ -2381,19 +2381,21 @@ void OperateShrineWeird(Player &player)
 		}
 	};
 
-	auto bumpMaxDamClamped = [](Item &item) {
-		item._iMaxDam = std::clamp(item._iMaxDam + 1, MaxDamMin, MaxDamMax);
+	auto bumpMaxDam = [](Item &item) {
+		item._iMaxDam = std::clamp(item._iMaxDam + 1, MinDam, MaxDam);
 	};
 
-	if (!player.InvBody[INVLOC_HAND_LEFT].isEmpty() && player.InvBody[INVLOC_HAND_LEFT]._itype != ItemType::Shield)
-		bumpMaxDamClamped(player.InvBody[INVLOC_HAND_LEFT]);
+	Item &left = player.InvBody[INVLOC_HAND_LEFT];
+	if (!left.isEmpty() && left._itype != ItemType::Shield)
+		bumpMaxDam(left);
 
-	if (!player.InvBody[INVLOC_HAND_RIGHT].isEmpty() && player.InvBody[INVLOC_HAND_RIGHT]._itype != ItemType::Shield)
-		bumpMaxDamClamped(player.InvBody[INVLOC_HAND_RIGHT]);
+	Item &right = player.InvBody[INVLOC_HAND_RIGHT];
+	if (!right.isEmpty() && right._itype != ItemType::Shield)
+		bumpMaxDam(right);
 
 	for (Item &item : InventoryPlayerItemsRange { player }) {
-		if (isWeaponType(item))
-			bumpMaxDamClamped(item);
+		if (isWeapon(item))
+			bumpMaxDam(item);
 	}
 
 	CalcPlrInv(player, true);
