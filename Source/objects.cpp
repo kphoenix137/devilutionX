@@ -2294,7 +2294,7 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 
 	for (int i = 0; i < NUM_INVLOC; i++) {
 		const Item &it = player.InvBody[i];
-		if (!it.isEmpty() && it._iMaxDur != 0)
+		if (!it.isEmpty() && IsNoneOf(it._iMaxDur, 0, DUR_INDESTRUCTIBLE))
 			eligible[eligibleCount++] = i;
 	}
 
