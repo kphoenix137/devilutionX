@@ -2284,15 +2284,18 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 	if (&player != MyPlayer)
 		return;
 
+	constexpr int DurMin = 1;
+	constexpr int DurMax = 255;
+
 	auto isEligible = [](const Item &it) {
 		return !it.isEmpty()
-		    && it._iMaxDur != DUR_INDESTRUCTIBLE
-		    && it._iMaxDur > 0;
+		    && it._iMaxDur != DurMax
+		    && it._iMaxDur >= DurMin;
 	};
 
 	auto clampForSave = [](Item &it) {
-		it._iMaxDur = std::clamp(it._iMaxDur, 1, DUR_INDESTRUCTIBLE);
-		it._iDurability = std::clamp(it._iDurability, 1, it._iMaxDur);
+		it._iMaxDur = std::clamp(it._iMaxDur, DurMin, DurMax);
+		it._iDurability = std::clamp(it._iDurability, DurMin, it._iMaxDur);
 	};
 
 	std::array<int, NUM_INVLOC> eligible {};
