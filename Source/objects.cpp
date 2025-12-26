@@ -2284,43 +2284,42 @@ void OperateShrineHidden(DiabloGenerator &rng, Player &player)
 	if (&player != MyPlayer)
 		return;
 
-	int cnt = 0;
-	for (const auto &item : player.InvBody) {
-		if (!item.isEmpty())
-			cnt++;
-	}
-	if (cnt > 0) {
-		for (auto &item : player.InvBody) {
-			if (!item.isEmpty()
-			    && item._iMaxDur != DUR_INDESTRUCTIBLE
-			    && item._iMaxDur != 0) {
-				item._iDurability += 10;
-				item._iMaxDur += 10;
-				if (item._iDurability > item._iMaxDur)
-					item._iDurability = item._iMaxDur;
-			}
-		}
-		while (true) {
-			cnt = 0;
-			for (auto &item : player.InvBody) {
-				if (!item.isEmpty() && item._iMaxDur != DUR_INDESTRUCTIBLE && item._iMaxDur != 0) {
-					cnt++;
-				}
-			}
-			if (cnt == 0)
-				break;
-			const int r = rng.generateRnd(NUM_INVLOC);
-			if (player.InvBody[r].isEmpty() || player.InvBody[r]._iMaxDur == DUR_INDESTRUCTIBLE || player.InvBody[r]._iMaxDur == 0)
-				continue;
+	auto isEligible = [](const Item &it) {
+		return !it.isEmpty()
+		    && it._iMaxDur != DUR_INDESTRUCTIBLE
+		    && it._iMaxDur > 0;
+	};
 
-			player.InvBody[r]._iDurability -= 20;
-			player.InvBody[r]._iMaxDur -= 20;
-			if (player.InvBody[r]._iDurability <= 0)
-				player.InvBody[r]._iDurability = 1;
-			if (player.InvBody[r]._iMaxDur <= 0)
-				player.InvBody[r]._iMaxDur = 1;
-			break;
-		}
+	auto clampForSave = [](Item &it) {
+		it._iMaxDur = std::clamp(it._iMaxDur, 1, DUR_INDESTRUCTIBLE);
+		it._iDurability = std::clamp(it._iDurability, 1, it._iMaxDur);
+	};
+
+	std::array<int, NUM_INVLOC> eligible {};
+	int eligibleCount = 0;
+
+	for (int i = 0; i < NUM_INVLOC; i++) {
+		if (isEligible(player.InvBody[i]))
+			eligible[eligibleCount++] = i;
+	}
+
+	if (eligibleCount == 0) {
+		InitDiabloMsg(EMSG_SHRINE_HIDDEN);
+		return;
+	}
+
+	// Pick the one item that will receive the net -10 effect.
+	const int cursedSlot = eligible[rng.generateRnd(eligibleCount)];
+
+	for (int k = 0; k < eligibleCount; k++) {
+		Item &it = player.InvBody[eligible[k]];
+
+		const int delta = (eligible[k] == cursedSlot) ? -10 : +10;
+
+		it._iMaxDur += delta;
+		it._iDurability += delta;
+
+		clampForSave(it);
 	}
 
 	InitDiabloMsg(EMSG_SHRINE_HIDDEN);
