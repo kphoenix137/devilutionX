@@ -2365,27 +2365,38 @@ void OperateShrineWeird(Player &player)
 	if (&player != MyPlayer)
 		return;
 
-	if (!player.InvBody[INVLOC_HAND_LEFT].isEmpty() && player.InvBody[INVLOC_HAND_LEFT]._itype != ItemType::Shield)
-		player.InvBody[INVLOC_HAND_LEFT]._iMaxDam++;
-	if (!player.InvBody[INVLOC_HAND_RIGHT].isEmpty() && player.InvBody[INVLOC_HAND_RIGHT]._itype != ItemType::Shield)
-		player.InvBody[INVLOC_HAND_RIGHT]._iMaxDam++;
+	constexpr int MaxDamMin = 0;
+	constexpr int MaxDamMax = 255;
 
-	for (Item &item : InventoryPlayerItemsRange { player }) {
+	auto isWeaponType = [](const Item &item) {
 		switch (item._itype) {
 		case ItemType::Sword:
 		case ItemType::Axe:
 		case ItemType::Bow:
 		case ItemType::Mace:
 		case ItemType::Staff:
-			item._iMaxDam++;
-			break;
+			return true;
 		default:
-			break;
+			return false;
 		}
+	};
+
+	auto bumpMaxDamClamped = [](Item &item) {
+		item._iMaxDam = std::clamp(item._iMaxDam + 1, MaxDamMin, MaxDamMax);
+	};
+
+	if (!player.InvBody[INVLOC_HAND_LEFT].isEmpty() && player.InvBody[INVLOC_HAND_LEFT]._itype != ItemType::Shield)
+		bumpMaxDamClamped(player.InvBody[INVLOC_HAND_LEFT]);
+
+	if (!player.InvBody[INVLOC_HAND_RIGHT].isEmpty() && player.InvBody[INVLOC_HAND_RIGHT]._itype != ItemType::Shield)
+		bumpMaxDamClamped(player.InvBody[INVLOC_HAND_RIGHT]);
+
+	for (Item &item : InventoryPlayerItemsRange { player }) {
+		if (isWeaponType(item))
+			bumpMaxDamClamped(item);
 	}
 
 	CalcPlrInv(player, true);
-
 	InitDiabloMsg(EMSG_SHRINE_WEIRD);
 }
 
