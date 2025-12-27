@@ -972,10 +972,8 @@ void DamageArmor(Player &player, int numDurLost)
 	if (armor.isEmpty() && helmet.isEmpty())
 		return;
 
-	const bool targetHelmet =
-		armor.isEmpty() ? true :
-		helmet.isEmpty() ? false :
-		FlipCoin(3);
+	const bool targetHelmet = armor.isEmpty() ? true : helmet.isEmpty() ? false
+	                                                                    : FlipCoin(3);
 	int slot = targetHelmet ? INVLOC_HEAD : INVLOC_CHEST;
 	Item &item = player.InvBody[slot];
 
