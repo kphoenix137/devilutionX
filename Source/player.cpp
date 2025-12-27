@@ -462,6 +462,7 @@ bool DamageWeapon(Player &player, unsigned damageFrequency, int numDurLost)
 		const int otherSlot = (slot == minHandSlot) ? maxHandSlot : minHandSlot;
 		const Item &otherItem = player.InvBody[otherSlot];
 
+		// Do not damage shields when a weapon is equipped
 		if (item._itype == ItemType::Shield && !otherItem.isEmpty())
 			continue;
 
