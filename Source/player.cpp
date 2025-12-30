@@ -509,7 +509,7 @@ bool DamageWeapon(Player &player, unsigned damageFrequency)
 		if (player.InvBody[INVLOC_HAND_RIGHT]._iDurability == 0) {
 			RemoveEquipment(player, INVLOC_HAND_RIGHT, true);
 			CalcPlrInv(player, true);
-			PlaySfxLoc(SfxID::BrokeWeapon, player.position.tile);
+			PlaySfxLoc(SfxID::BrokeShield, player.position.tile);
 			return true;
 		}
 	}
@@ -523,7 +523,7 @@ bool DamageWeapon(Player &player, unsigned damageFrequency)
 		if (player.InvBody[INVLOC_HAND_LEFT]._iDurability == 0) {
 			RemoveEquipment(player, INVLOC_HAND_LEFT, true);
 			CalcPlrInv(player, true);
-			PlaySfxLoc(SfxID::BrokeWeapon, player.position.tile);
+			PlaySfxLoc(SfxID::BrokeShield, player.position.tile);
 			return true;
 		}
 	}
