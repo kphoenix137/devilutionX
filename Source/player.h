@@ -624,7 +624,6 @@ public:
 		return blkper;
 	}
 
-	// 
 	/**
 	 * @brief Applies fractional damage to Mana if Mana Shield is present
 	 * @param totalDamage - full fractional damage value from damage source before reductions
