@@ -124,6 +124,9 @@ constexpr int RightColumnLabelWidth = 68;
 constexpr unsigned AttributeHeaderEntryIndices[2] = { 5, 6 };
 constexpr unsigned GoldHeaderEntryIndex = 16;
 
+constexpr Point PageButtonPos { 57, 80 };
+constexpr int PageButtonLen = 71;
+
 PanelEntry panelEntries[] = {
 	{ "", { 9, 14 }, 150, 0,
 	    []() { return StyledText { UiFlags::ColorWhite, InspectPlayer->_pName }; } },
@@ -198,7 +201,72 @@ PanelEntry panelEntries[] = {
 	    []() { return GetResistInfo(InspectPlayer->_pLghtResist); } },
 };
 
-OptionalOwnedClxSpriteList Panel;
+PanelEntry panelEntries2[] = {
+	{ "", { 9, 14 }, 150, 0,
+	    []() { return StyledText { UiFlags::ColorWhite, InspectPlayer->_pName }; } },
+	{ "", { 161, 14 }, 149, 0,
+	    []() { return StyledText { UiFlags::ColorWhite, std::string(InspectPlayer->getClassName()) }; } },
+
+	{ N_("Level"), { 57, 52 }, 57, 45,
+	    []() { return StyledText { UiFlags::ColorWhite, StrCat(InspectPlayer->getCharacterLevel()) }; } },
+	{ N_("Experience"), { TopRightLabelX, 52 }, 99, 91,
+	    []() {
+	        return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pExperience) };
+	    } },
+	{ N_("Next level"), { TopRightLabelX, 80 }, 99, 198,
+	    []() {
+	        if (InspectPlayer->isMaxCharacterLevel()) {
+		        return StyledText { UiFlags::ColorWhitegold, std::string(_("None")) };
+	        }
+	        const uint32_t nextExperienceThreshold = InspectPlayer->getNextExperienceThreshold();
+	        return StyledText { UiFlags::ColorWhite, FormatInteger(nextExperienceThreshold) };
+	    } },
+
+	{ N_("Base"), { LeftColumnLabelX, /* set dynamically */ 0 }, 0, 44, {} },
+	{ N_("Now"), { 135, /* set dynamically */ 0 }, 0, 44, {} },
+	{ N_("Strength"), { LeftColumnLabelX, 135 }, 45, LeftColumnLabelWidth,
+	    []() { return StyledText { GetBaseStatColor(CharacterAttribute::Strength), StrCat(InspectPlayer->_pBaseStr) }; } },
+	{ "", { 135, 135 }, 45, 0,
+	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Strength), StrCat(InspectPlayer->_pStrength) }; } },
+	{ N_("Magic"), { LeftColumnLabelX, 163 }, 45, LeftColumnLabelWidth,
+	    []() { return StyledText { GetBaseStatColor(CharacterAttribute::Magic), StrCat(InspectPlayer->_pBaseMag) }; } },
+	{ "", { 135, 163 }, 45, 0,
+	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Magic), StrCat(InspectPlayer->_pMagic) }; } },
+	{ N_("Dexterity"), { LeftColumnLabelX, 191 }, 45, LeftColumnLabelWidth, []() { return StyledText { GetBaseStatColor(CharacterAttribute::Dexterity), StrCat(InspectPlayer->_pBaseDex) }; } },
+	{ "", { 135, 191 }, 45, 0,
+	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Dexterity), StrCat(InspectPlayer->_pDexterity) }; } },
+	{ N_("Vitality"), { LeftColumnLabelX, 219 }, 45, LeftColumnLabelWidth, []() { return StyledText { GetBaseStatColor(CharacterAttribute::Vitality), StrCat(InspectPlayer->_pBaseVit) }; } },
+	{ "", { 135, 219 }, 45, 0,
+	    []() { return StyledText { GetCurrentStatColor(CharacterAttribute::Vitality), StrCat(InspectPlayer->_pVitality) }; } },
+	{ N_("Points to distribute"), { LeftColumnLabelX, 248 }, 45, LeftColumnLabelWidth,
+	    []() {
+	        InspectPlayer->_pStatPts = std::min(CalcStatDiff(*InspectPlayer), InspectPlayer->_pStatPts);
+	        return StyledText { UiFlags::ColorRed, (InspectPlayer->_pStatPts > 0 ? StrCat(InspectPlayer->_pStatPts) : "") };
+	    } },
+
+	{ N_("Gold"), { TopRightLabelX, /* set dynamically */ 0 }, 0, 98, {} },
+	{ "", { TopRightLabelX, 127 }, 99, 0,
+	    []() { return StyledText { UiFlags::ColorWhite, FormatInteger(InspectPlayer->_pGold) }; } },
+
+	{ N_("Chance To Block"), { RightColumnLabelX, 163 }, 57, RightColumnLabelWidth,
+	    []() { return StyledText { GetValueColor(InspectPlayer->_pBlockFlag ? InspectPlayer->GetBlockChance() : -1), StrCat(InspectPlayer->_pBlockFlag ? InspectPlayer->GetBlockChance() : 0, "%") }; } },
+	{ N_("Magic To Hit"), { RightColumnLabelX, 191 }, 57, RightColumnLabelWidth,
+	    []() { return StyledText { GetValueColor(InspectPlayer->GetMagicToHit()), StrCat(InspectPlayer->GetMagicToHit(), "%") }; } },
+	{ N_("Critical Hit Chance"), { RightColumnLabelX, 219 }, 57, RightColumnLabelWidth,
+	    []() { return StyledText { GetValueColor(IsAnyOf(InspectPlayer->_pClass, HeroClass::Warrior, HeroClass::Barbarian) ? (InspectPlayer->getCharacterLevel()) : -1), StrCat(IsAnyOf(InspectPlayer->_pClass, HeroClass::Warrior, HeroClass::Barbarian) ? InspectPlayer->getCharacterLevel() : 0, "%") }; } },
+
+	{ N_("Life"), { LeftColumnLabelX, 284 }, 45, LeftColumnLabelWidth,
+	    []() { return StyledText { GetMaxHealthColor(), StrCat(InspectPlayer->_pMaxHP >> 6) }; } },
+	{ "", { 135, 284 }, 45, 0,
+	    []() { return StyledText { (InspectPlayer->_pHitPoints != InspectPlayer->_pMaxHP ? UiFlags::ColorRed : GetMaxHealthColor()), StrCat(InspectPlayer->_pHitPoints >> 6) }; } },
+	{ N_("Mana"), { LeftColumnLabelX, 312 }, 45, LeftColumnLabelWidth,
+	    []() { return StyledText { GetMaxManaColor(), StrCat(HasAnyOf(InspectPlayer->_pIFlags, ItemSpecialEffect::NoMana) ? 0 : InspectPlayer->_pMaxMana >> 6) }; } },
+	{ "", { 135, 312 }, 45, 0,
+	    []() { return StyledText { (InspectPlayer->_pMana != InspectPlayer->_pMaxMana ? UiFlags::ColorRed : GetMaxManaColor()), StrCat((HasAnyOf(InspectPlayer->_pIFlags, ItemSpecialEffect::NoMana) || InspectPlayer->hasNoMana()) ? 0 : InspectPlayer->_pMana >> 6) }; } },
+
+};
+
+OptionalOwnedClxSpriteList Panel[2];
 
 constexpr int PanelFieldHeight = 24;
 constexpr int PanelFieldPaddingTop = 3;
@@ -214,6 +282,18 @@ void DrawPanelField(const Surface &out, Point pos, int len, ClxSprite left, ClxS
 	RenderClxSprite(out.subregion(pos.x, pos.y, len, middle.height()), middle, Point { 0, 0 });
 	pos.x += len;
 	RenderClxSprite(out, right, pos);
+}
+
+void DrawPanelString(const Surface &out, const PanelEntry &entry, const Point pos)
+{
+	if (entry.statDisplayFunc) {
+		const StyledText tmp = (*entry.statDisplayFunc)();
+		DrawString(
+		    out,
+		    tmp.text,
+		    { entry.position + Displacement { pos.x + PanelFieldPaddingSide, pos.y + PanelFieldPaddingTop }, { entry.length - (PanelFieldPaddingSide * 2), PanelFieldInnerHeight } },
+		    { .flags = UiFlags::KerningFitSpacing | UiFlags::AlignCenter | UiFlags::VerticalCenter | tmp.style });
+	}
 }
 
 void DrawShadowString(const Surface &out, const PanelEntry &entry)
@@ -268,13 +348,31 @@ void DrawStatButtons(const Surface &out)
 	}
 }
 
+void DrawBakedMainPanelButton(const Surface &out, Point dstPos)
+{
+	if (!BottomBuffer)
+		return;
+
+	constexpr int BakedBtnSrcX = 6;
+	constexpr int BakedBtnSrcY = 32;
+	constexpr int BakedBtnW = 77;
+	constexpr int BakedBtnH = 25;
+
+	const int panel8Y = (GetMainPanel().size.height + PanelPaddingHeight) - 1;
+
+	const SDL_Rect src = MakeSdlRect(BakedBtnSrcX, panel8Y + BakedBtnSrcY, BakedBtnW, BakedBtnH);
+	out.BlitFrom(*BottomBuffer, src, dstPos);
+}
+
 } // namespace
 
 tl::expected<void, std::string> LoadCharPanel()
 {
 	ASSIGN_OR_RETURN(OptionalOwnedClxSpriteList background, LoadClxWithStatus("data\\charbg.clx"));
-	const OwnedSurface out((*background)[0].width(), (*background)[0].height());
-	RenderClxSprite(out, (*background)[0], { 0, 0 });
+	const OwnedSurface outPrimary((*background)[0].width(), (*background)[0].height());
+	RenderClxSprite(outPrimary, (*background)[0], { 0, 0 });
+	const OwnedSurface outSecondary((*background)[0].width(), (*background)[0].height());
+	RenderClxSprite(outSecondary, (*background)[0], { 0, 0 });
 	background = std::nullopt;
 
 	{
@@ -284,43 +382,102 @@ tl::expected<void, std::string> LoadCharPanel()
 
 		const bool isSmallFontTall = IsSmallFontTall();
 		const int attributeHeadersY = isSmallFontTall ? 112 : 114;
+
 		for (const unsigned i : AttributeHeaderEntryIndices) {
 			panelEntries[i].position.y = attributeHeadersY;
+			panelEntries2[i].position.y = attributeHeadersY;
 		}
+
 		panelEntries[GoldHeaderEntryIndex].position.y = isSmallFontTall ? 105 : 106;
 
 		for (auto &entry : panelEntries) {
 			if (entry.statDisplayFunc) {
-				DrawPanelField(out, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
+				DrawPanelField(outPrimary, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
 			}
-			DrawShadowString(out, entry);
+			DrawShadowString(outPrimary, entry);
 		}
-	}
+		Panel[0] = SurfaceToClx(outPrimary);
 
-	Panel = SurfaceToClx(out);
+		panelEntries2[GoldHeaderEntryIndex].position.y = isSmallFontTall ? 105 : 106;
+
+		for (auto &entry : panelEntries2) {
+			if (entry.statDisplayFunc) {
+				DrawPanelField(outSecondary, entry.position, entry.length, boxLeft[0], boxMiddle[0], boxRight[0]);
+			}
+			DrawShadowString(outSecondary, entry);
+		}
+		Panel[1] = SurfaceToClx(outSecondary);
+	}
 	return {};
 }
 
 void FreeCharPanel()
 {
-	Panel = std::nullopt;
+	Panel[0] = std::nullopt;
+	Panel[1] = std::nullopt;
 }
+
+namespace {
+
+void DrawMainPanelStyleButton(const Surface &out, Point pos, std::string_view text, bool pressed)
+{
+	// if (!PanelButton || !PanelButtonGrime || !PanelButtonDownGrime)
+	//	return;
+
+	const int frame = 0; // main panel uses frame indices for different buttons; 0 is fine for a generic one
+	RenderClxSprite(out, (*PanelButton)[frame], pos);
+
+	// Text spacing behavior similar to mainpanel.cpp (optional but closer to identical)
+	int spacing = 2;
+	int width = std::min<int>(GetLineWidth(text, GameFont12, spacing), (*PanelButton)[frame].width());
+	if (width > 38) {
+		spacing = 1;
+		width = std::min<int>(GetLineWidth(text, GameFont12, spacing), (*PanelButton)[frame].width());
+	}
+
+	const ClxSprite grime = pressed ? (*PanelButtonDownGrime)[frame] : (*PanelButtonGrime)[frame];
+
+	// Same grime placement style: center a subregion and draw grime into it
+	const int x = pos.x + ((*PanelButton)[frame].width() - width) / 2;
+	const int y = pos.y + 7;
+	RenderClxSprite(out.subregion(x, y, width, grime.height()), grime, { 0, 0 });
+
+	const Displacement pressOffset = pressed ? Displacement { 0, 2 } : Displacement { 0, 0 };
+	const UiFlags style = pressed ? UiFlags::ColorButtonpushed : UiFlags::ColorButtonface;
+
+	// Shadow + face, matching main panel behavior
+	DrawString(out, text,
+	    { pos + pressOffset + Displacement { 0, 1 }, { (*PanelButton)[frame].width(), 0 } },
+	    { .flags = UiFlags::AlignCenter | UiFlags::KerningFitSpacing | UiFlags::ColorBlack, .spacing = spacing });
+
+	DrawString(out, text,
+	    { pos + pressOffset, { (*PanelButton)[frame].width(), 0 } },
+	    { .flags = UiFlags::AlignCenter | UiFlags::KerningFitSpacing | style, .spacing = spacing });
+}
+
+} // namespace
 
 void DrawChr(const Surface &out)
 {
 	const Point pos = GetPanelPosition(UiPanels::Character, { 0, 0 });
-	RenderClxSprite(out, (*Panel)[0], pos);
-	for (auto &entry : panelEntries) {
-		if (entry.statDisplayFunc) {
-			const StyledText tmp = (*entry.statDisplayFunc)();
-			DrawString(
-			    out,
-			    tmp.text,
-			    { entry.position + Displacement { pos.x + PanelFieldPaddingSide, pos.y + PanelFieldPaddingTop }, { entry.length - (PanelFieldPaddingSide * 2), PanelFieldInnerHeight } },
-			    { .flags = UiFlags::KerningFitSpacing | UiFlags::AlignCenter | UiFlags::VerticalCenter | tmp.style });
-		}
+
+	if (CharPanelDetailsPage) {
+		RenderClxSprite(out, (*Panel[1])[0], pos);
+		for (auto &entry : panelEntries2)
+			DrawPanelString(out, entry, pos);
+	} else {
+		RenderClxSprite(out, (*Panel[0])[0], pos);
+		for (auto &entry : panelEntries)
+			DrawPanelString(out, entry, pos);
 	}
+
 	DrawStatButtons(out);
+
+	const Point btnPos = GetPanelPosition(UiPanels::Character, CharPanelPageButtonRect.position);
+	const std::string_view label = CharPanelDetailsPage ? _("Back") : _("Next");
+
+	DrawBakedMainPanelButton(out, btnPos);
+	DrawMainPanelStyleButton(out, btnPos, label, CharPanelPageButtonDown);
 }
 
 } // namespace devilution

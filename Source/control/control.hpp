@@ -36,6 +36,8 @@
 
 namespace devilution {
 
+extern int PanelPaddingHeight;
+
 constexpr Size SidePanelSize { 320, 352 };
 
 constexpr Rectangle InfoBoxRect = { { 177, 46 }, { 288, 64 } };
@@ -52,6 +54,11 @@ extern StringOrView FloatingInfoString;
 
 extern Rectangle MainPanelButtonRect[8];
 extern Rectangle CharPanelButtonRect[4];
+
+extern bool CharPanelDetailsPage;
+extern Rectangle CharPanelPageButtonRect;
+extern bool CharPanelPageButtonDown;
+
 
 extern bool MainPanelButtonDown;
 extern bool LevelButtonDown;

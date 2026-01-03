@@ -9,6 +9,7 @@
 #include "diablo_msg.hpp"
 #include "engine/backbuffer_state.hpp"
 #include "engine/load_cel.hpp"
+#include "engine/load_clx.hpp"
 #include "engine/render/clx_render.hpp"
 #include "engine/trn.hpp"
 #include "gamemenu.h"
@@ -44,6 +45,7 @@ Rectangle LeftPanel;
 Rectangle RightPanel;
 std::optional<OwnedSurface> BottomBuffer;
 OptionalOwnedClxSpriteList GoldBoxBuffer;
+bool CharPanelDetailsPage;
 
 const Rectangle &GetMainPanel()
 {
@@ -77,6 +79,10 @@ Rectangle CharPanelButtonRect[4] = {
 
 constexpr Size WidePanelButtonSize { 71, 20 };
 constexpr Size PanelButtonSize { 33, 32 };
+
+Rectangle CharPanelPageButtonRect = { { 57, 80 }, WidePanelButtonSize };
+bool CharPanelPageButtonDown;
+
 /** Positions of panel buttons. */
 Rectangle MainPanelButtonRect[8] = {
 	// clang-format off
@@ -301,11 +307,16 @@ void OpenCharPanel()
 	CloseGoldWithdraw();
 	CloseStash();
 	CharFlag = true;
+	CharPanelDetailsPage = false;
+	CharPanelPageButtonDown = false;
 }
 
 void CloseCharPanel()
 {
 	CharFlag = false;
+	CharPanelDetailsPage = false;
+	CharPanelPageButtonDown = false;
+
 	if (IsInspectingPlayer()) {
 		InspectPlayer = MyPlayer;
 		RedrawEverything();
@@ -355,6 +366,10 @@ tl::expected<void, std::string> InitMainPanel()
 		BottomBuffer.emplace(GetMainPanel().size.width, (GetMainPanel().size.height + PanelPaddingHeight) * (IsChatAvailable() ? 2 : 1));
 		pManaBuff.emplace(88, 88);
 		pLifeBuff.emplace(88, 88);
+
+		ASSIGN_OR_RETURN(PanelButton, LoadClxWithStatus("data\\panel8buc.clx"));
+		ASSIGN_OR_RETURN(PanelButtonGrime, LoadClxWithStatus("data\\dirtybuc.clx"));
+		ASSIGN_OR_RETURN(PanelButtonDownGrime, LoadClxWithStatus("data\\dirtybucp.clx"));
 
 		RETURN_IF_ERROR(LoadPartyPanel());
 		RETURN_IF_ERROR(LoadCharPanel());
@@ -678,12 +693,25 @@ void DrawLevelButton(const Surface &out)
 
 void CheckChrBtns()
 {
+	if (CharPanelButtonActive)
+		return;
+
+	// Details toggle behaves like a panel button: down on press
+	Rectangle pageBtn = CharPanelPageButtonRect;
+	SetPanelObjectPosition(UiPanels::Character, pageBtn);
+	if (pageBtn.contains(MousePosition)) {
+		CharPanelPageButtonDown = true;
+		CharPanelButtonActive = true;
+		RedrawEverything();
+		return;
+	}
+
 	const Player &myPlayer = *MyPlayer;
 
 	if (myPlayer._pmode == PM_DEATH)
 		return;
 
-	if (CharPanelButtonActive || myPlayer._pStatPts == 0)
+	if (myPlayer._pStatPts == 0)
 		return;
 
 	for (auto attribute : enum_values<CharacterAttribute>()) {
@@ -701,6 +729,20 @@ void CheckChrBtns()
 
 void ReleaseChrBtns(bool addAllStatPoints)
 {
+	if (CharPanelPageButtonDown) {
+		CharPanelPageButtonDown = false;
+		CharPanelButtonActive = false;
+
+		Rectangle pageBtn = CharPanelPageButtonRect;
+		SetPanelObjectPosition(UiPanels::Character, pageBtn);
+		if (pageBtn.contains(MousePosition)) {
+			CharPanelDetailsPage = !CharPanelDetailsPage;
+		}
+
+		RedrawEverything();
+		return;
+	}
+
 	const Player &myPlayer = *MyPlayer;
 
 	if (myPlayer._pmode == PM_DEATH)

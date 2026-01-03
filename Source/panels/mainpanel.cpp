@@ -11,6 +11,7 @@
 #include "engine/load_clx.hpp"
 #include "engine/render/clx_render.hpp"
 #include "engine/render/text_render.hpp"
+#include "panels/ui_panels.hpp"
 #include "utils/display.h"
 #include "utils/language.h"
 #include "utils/sdl_compat.h"
@@ -22,12 +23,11 @@ namespace devilution {
 
 OptionalOwnedClxSpriteList PanelButtonDown;
 OptionalOwnedClxSpriteList TalkButton;
-
-namespace {
-
 OptionalOwnedClxSpriteList PanelButton;
 OptionalOwnedClxSpriteList PanelButtonGrime;
 OptionalOwnedClxSpriteList PanelButtonDownGrime;
+
+namespace {
 
 void DrawButtonText(const Surface &out, std::string_view text, Rectangle placement, UiFlags style, int spacing = 1)
 {
@@ -84,10 +84,6 @@ tl::expected<void, std::string> LoadMainPanel()
 		}
 	}
 
-	PanelButton = LoadOptionalClx("data\\panel8buc.clx");
-	PanelButtonGrime = LoadOptionalClx("data\\dirtybuc.clx");
-	PanelButtonDownGrime = LoadOptionalClx("data\\dirtybucp.clx");
-
 	RenderMainButton(*out, 0, _("char"), 0);
 	RenderMainButton(*out, 1, _("quests"), 1);
 	RenderMainButton(*out, 2, _("map"), 1);
@@ -135,9 +131,6 @@ tl::expected<void, std::string> LoadMainPanel()
 		TalkButton = SurfaceToClx(talkSurface, NumTalkButtonSprites);
 	}
 
-	PanelButtonDownGrime = std::nullopt;
-	PanelButtonGrime = std::nullopt;
-	PanelButton = std::nullopt;
 	return {};
 }
 
