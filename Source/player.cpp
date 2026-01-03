@@ -3372,6 +3372,24 @@ void ModifyPlrVit(Player &player, int l)
 	}
 }
 
+void ModifyPlrManaCapacity(Player &player, int l)
+{
+	// Repair bugged base; do not propagate this "fix" to other fields.
+	if (player._pMaxManaBase < 0)
+		player._pMaxManaBase = 0;
+
+	// Clamp so base never goes below 0 after applying l.
+	const int newMaxBase = std::max(0, player._pMaxManaBase + l);
+	const int applied = newMaxBase - player._pMaxManaBase; // actual l after clamp
+
+	player._pMaxManaBase = newMaxBase;
+
+	// Apply the same actual l to the other mana fields (may go negative, allowed).
+	player._pManaBase += applied;
+	player._pMaxMana += applied;
+	player._pMana += applied;
+}
+
 void SetPlayerHitPoints(Player &player, int val)
 {
 	player._pHitPoints = val;
