@@ -3389,9 +3389,6 @@ void ModifyPlrManaCapacity(Player &player, int delta, bool shiftCurrent)
 		player._pManaBase = std::min(player._pManaBase, player._pMaxManaBase);
 		player._pMana = std::min(player._pMana, player._pMaxMana);
 	}
-
-	if (&player == MyPlayer)
-		RedrawComponent(PanelDrawComponent::Mana);
 }
 
 void SetPlayerHitPoints(Player &player, int val)

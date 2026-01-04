@@ -2524,10 +2524,12 @@ void OperateShrineCostOfWisdom(Player &player, SpellID spellId, diablo_message m
 		}
 	}
 
-	const int maxBase = std::max(0, player._pMaxManaBase);
-	const int penalty = maxBase / 10; // 10% of max base mana (>= 0)
+	if (player._pMaxManaBase < 0)
+		player._pMaxManaBase = 0;
 
-	ModifyPlrManaCapacity(player, -penalty);
+	const int penalty = player._pMaxManaBase / 10;
+
+	ModifyPlrManaCapacity(player, -penalty, true);
 	RedrawEverything();
 	InitDiabloMsg(message);
 }
