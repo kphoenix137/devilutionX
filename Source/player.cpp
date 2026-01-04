@@ -3372,32 +3372,27 @@ void ModifyPlrVit(Player &player, int l)
 	}
 }
 
-void ModifyPlrLifeCapacity(Player &player, int l, bool shiftCurrent)
+void ModifyPlrLifeCapacity(Player &player, int delta, bool shiftCurrent)
 {
 	constexpr int MinHPBase = 1 << 6;
 
-	// Clamp so base never goes below minimum after applying l.
-	const int newMaxBase = std::max(MinHPBase, player._pMaxHPBase + l);
-	const int applied = newMaxBase - player._pMaxHPBase; // actual l after clamp
+	const int newMaxBase = std::max(MinHPBase, player._pMaxHPBase + delta);
+	const int applied = newMaxBase - player._pMaxHPBase;
 
 	player._pMaxHPBase = newMaxBase;
 	player._pMaxHP += applied;
 
 	if (shiftCurrent) {
-		// Shift current values proportionally
 		player._pHPBase += applied;
 		player._pHitPoints += applied;
 	} else {
-		// Clamp current values
 		player._pHPBase = std::min(player._pHPBase, player._pMaxHPBase);
 		player._pHitPoints = std::min(player._pHitPoints, player._pMaxHP);
 	}
 
-	if (&player == MyPlayer) {
+	if (&player == MyPlayer)
 		RedrawComponent(PanelDrawComponent::Health);
-	}
 }
-
 
 void SetPlayerHitPoints(Player &player, int val)
 {
