@@ -3372,22 +3372,26 @@ void ModifyPlrVit(Player &player, int l)
 	}
 }
 
-void ModifyPlrManaCapacity(Player &player, int l)
+void ModifyPlrManaCapacity(Player &player, int delta, bool shiftCurrent)
 {
-	// Repair bugged base; do not propagate this "fix" to other fields.
-	if (player._pMaxManaBase < 0)
-		player._pMaxManaBase = 0;
+	constexpr int MinManaBase = 0;
 
-	// Clamp so base never goes below 0 after applying l.
-	const int newMaxBase = std::max(0, player._pMaxManaBase + l);
-	const int applied = newMaxBase - player._pMaxManaBase; // actual l after clamp
+	const int newMaxBase = std::max(MinManaBase, player._pMaxManaBase + delta);
+	const int applied = newMaxBase - player._pMaxManaBase;
 
 	player._pMaxManaBase = newMaxBase;
-
-	// Apply the same actual l to the other mana fields (may go negative, allowed).
-	player._pManaBase += applied;
 	player._pMaxMana += applied;
-	player._pMana += applied;
+
+	if (shiftCurrent) {
+		player._pManaBase += applied;
+		player._pMana += applied;
+	} else {
+		player._pManaBase = std::min(player._pManaBase, player._pMaxManaBase);
+		player._pMana = std::min(player._pMana, player._pMaxMana);
+	}
+
+	if (&player == MyPlayer)
+		RedrawComponent(PanelDrawComponent::Mana);
 }
 
 void SetPlayerHitPoints(Player &player, int val)
