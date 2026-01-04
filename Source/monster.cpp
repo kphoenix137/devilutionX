@@ -1205,7 +1205,7 @@ void MonsterAttackPlayer(Monster &monster, Player &player, int hit, int minDam, 
 		}
 		return;
 	}
-	if (monster.type().type == MT_YZOMBIE && &player == MyPlayer)
+	if (monster.type().type == MT_YZOMBIE && &player == MyPlayer && player._pMaxHP > (1 << 6))
 		ModifyPlrLifeCapacity(player, -(1 << 6), false);
 	// New method fixes a bug which caused the maximum possible damage value to be 63/64ths too low.
 	int dam = RandomIntBetween(minDam << 6, maxDam << 6);
