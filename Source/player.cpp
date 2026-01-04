@@ -3389,9 +3389,6 @@ void ModifyPlrLifeCapacity(Player &player, int delta, bool shiftCurrent)
 		player._pHPBase = std::min(player._pHPBase, player._pMaxHPBase);
 		player._pHitPoints = std::min(player._pHitPoints, player._pMaxHP);
 	}
-
-	if (&player == MyPlayer)
-		RedrawComponent(PanelDrawComponent::Health);
 }
 
 void SetPlayerHitPoints(Player &player, int val)
