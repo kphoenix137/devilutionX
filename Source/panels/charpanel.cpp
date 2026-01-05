@@ -348,22 +348,6 @@ void DrawStatButtons(const Surface &out)
 	}
 }
 
-void DrawBakedMainPanelButton(const Surface &out, Point dstPos)
-{
-	if (!BottomBuffer)
-		return;
-
-	constexpr int BakedBtnSrcX = 6;
-	constexpr int BakedBtnSrcY = 32;
-	constexpr int BakedBtnW = 77;
-	constexpr int BakedBtnH = 25;
-
-	const int panel8Y = (GetMainPanel().size.height + PanelPaddingHeight) - 1;
-
-	const SDL_Rect src = MakeSdlRect(BakedBtnSrcX, panel8Y + BakedBtnSrcY, BakedBtnW, BakedBtnH);
-	out.BlitFrom(*BottomBuffer, src, dstPos);
-}
-
 } // namespace
 
 tl::expected<void, std::string> LoadCharPanel()
@@ -476,7 +460,6 @@ void DrawChr(const Surface &out)
 	const Point btnPos = GetPanelPosition(UiPanels::Character, CharPanelPageButtonRect.position);
 	const std::string_view label = CharPanelDetailsPage ? _("Back") : _("Next");
 
-	DrawBakedMainPanelButton(out, btnPos);
 	DrawMainPanelStyleButton(out, btnPos, label, CharPanelPageButtonDown);
 }
 
