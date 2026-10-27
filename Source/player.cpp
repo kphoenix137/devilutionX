@@ -2763,16 +2763,16 @@ void StartPlayerKill(Player &player, DeathReason deathReason)
 					break;
 				}
 
-				auto to_u8 = [](char c) {
+				auto toUint8 = [](char c) {
 					return static_cast<uint8_t>(c);
 				};
 
-				const uint32_t b0 = to_u8(player._pName[0]);
-				const uint32_t b1 = to_u8(player._pName[1]);
-				const uint32_t b2 = to_u8(player._pName[2]);
-				const uint32_t b3 = to_u8(player._pName[3]);
-				const uint32_t b4 = to_u8(player._pName[4]);
-				const uint32_t b5 = to_u8(player._pName[5]);
+				const uint32_t b0 = toUint8(player._pName[0]);
+				const uint32_t b1 = toUint8(player._pName[1]);
+				const uint32_t b2 = toUint8(player._pName[2]);
+				const uint32_t b3 = toUint8(player._pName[3]);
+				const uint32_t b4 = toUint8(player._pName[4]);
+				const uint32_t b5 = toUint8(player._pName[5]);
 
 				ear._iCreateInfo = (b0 << 8) | b1;
 				ear._iSeed = (b2 << 24) | (b3 << 16) | (b4 << 8) | b5;
