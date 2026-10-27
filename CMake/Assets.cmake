@@ -5,7 +5,7 @@ if(NOT DEFINED DEVILUTIONX_ASSETS_OUTPUT_DIRECTORY)
   set(DEVILUTIONX_ASSETS_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/assets")
 endif()
 
-set(devilutionx_langs be bg cs da de el es et fi fr hr hu it ja ko pl pt_BR ro ru uk sv tr zh_CN zh_TW)
+set(devilutionx_langs be bg cs da de el es et fi fr he hr hu it ja ko pl pt_BR ro ru uk sv tr zh_CN zh_TW)
 if(USE_GETTEXT_FROM_VCPKG)
   # vcpkg doesn't add its own tools directory to the search path
   list(APPEND Gettext_ROOT ${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/tools/gettext/bin)
@@ -30,7 +30,7 @@ if (Gettext_FOUND)
 
     if(APPLE)
       set_source_files_properties("${_gmo_file}" PROPERTIES
-        MACOSX_PACKAGE_LOCATION Resources
+        MACOSX_PACKAGE_LOCATION "Resources/assets"
         XCODE_EXPLICIT_FILE_TYPE compiled)
       add_dependencies(libdevilutionx "${_lang_target}")
       add_dependencies(${BIN_TARGET} "${_lang_target}")
@@ -62,9 +62,13 @@ set(devilutionx_assets
   data/monstertags.clx
   data/panel8buc.clx
   data/panel8bucp.clx
+  data/repairAllBtn.clx
+  data/repairSingleBtn.clx
   data/resistance.clx
   data/stash.clx
   data/stashnavbtns.clx
+  data/store.clx
+  data/tabBtnUp.clx
   data/talkbutton.clx
   data/xpbar.clx
   fonts/12-00.clx
@@ -238,10 +242,19 @@ if(APPLE)
     set(src "${CMAKE_CURRENT_SOURCE_DIR}/assets/${asset_file}")
     get_filename_component(_asset_dir "${asset_file}" DIRECTORY)
     set_source_files_properties("${src}" PROPERTIES
-      MACOSX_PACKAGE_LOCATION "Resources/${_asset_dir}"
+      MACOSX_PACKAGE_LOCATION "Resources/assets/${_asset_dir}"
       XCODE_EXPLICIT_FILE_TYPE compiled)
     target_sources(${BIN_TARGET} PRIVATE "${src}")
   endforeach()
+
+  if(BUILD_TESTING)
+    # Tests aren't bundled, so they need the assets copied here too.
+    copy_files(
+      FILES ${devilutionx_assets}
+      SRC_PREFIX "assets/"
+      OUTPUT_DIR "${DEVILUTIONX_ASSETS_OUTPUT_DIRECTORY}"
+      OUTPUT_VARIABLE DEVILUTIONX_OUTPUT_ASSETS_FILES)
+  endif()
 else()
   # Copy assets to the build assets subdirectory. This serves two purposes:
   # - If smpq is installed, devilutionx.mpq is built from these files.

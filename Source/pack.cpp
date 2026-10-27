@@ -6,6 +6,7 @@
 #include "pack.h"
 
 #include <cstdint>
+#include <format>
 
 #include "engine/random.hpp"
 #include "game_mode.hpp"
@@ -44,7 +45,7 @@ namespace {
 
 void EventFailedJoinAttempt(const char *playerName)
 {
-	const std::string message = fmt::format("Player '{}' sent invalid player data during attempt to join the game.", playerName);
+	const std::string message = std::format("Player '{}' sent invalid player data during attempt to join the game.", playerName);
 	EventPlrMsg(message);
 }
 
@@ -171,10 +172,10 @@ void PackPlayer(PlayerPack &packed, const Player &player)
 	packed.pStatPts = player._pStatPts;
 	packed.pExperience = Swap32LE(player._pExperience);
 	packed.pGold = Swap32LE(player._pGold);
-	packed.pHPBase = Swap32LE(player._pHPBase);
-	packed.pMaxHPBase = Swap32LE(player._pMaxHPBase);
-	packed.pManaBase = Swap32LE(player._pManaBase);
-	packed.pMaxManaBase = Swap32LE(player._pMaxManaBase);
+	packed.pHPBase = Swap32LE(player._pHPBase.raw());
+	packed.pMaxHPBase = Swap32LE(player._pMaxHPBase.raw());
+	packed.pManaBase = Swap32LE(player._pManaBase.raw());
+	packed.pMaxManaBase = Swap32LE(player._pMaxManaBase.raw());
 	packed.pMemSpells = Swap64LE(player._pMemSpells);
 
 	for (int i = 0; i < 37; i++) // Should be MAX_SPELLS but set to 37 to make save games compatible
@@ -221,6 +222,7 @@ void PackNetPlayer(PlayerNetPack &packed, const Player &player)
 	packed.plrlevel = player.plrlevel;
 	packed.px = player.position.tile.x;
 	packed.py = player.position.tile.y;
+	packed.pdir = static_cast<uint8_t>(player._pdir);
 	CopyUtf8(packed.pName, player._pName, sizeof(packed.pName));
 	packed.pClass = static_cast<uint8_t>(player._pClass);
 	packed.pBaseStr = player._pBaseStr;
@@ -230,10 +232,10 @@ void PackNetPlayer(PlayerNetPack &packed, const Player &player)
 	packed.pLevel = player.getCharacterLevel();
 	packed.pStatPts = player._pStatPts;
 	packed.pExperience = Swap32LE(player._pExperience);
-	packed.pHPBase = Swap32LE(player._pHPBase);
-	packed.pMaxHPBase = Swap32LE(player._pMaxHPBase);
-	packed.pManaBase = Swap32LE(player._pManaBase);
-	packed.pMaxManaBase = Swap32LE(player._pMaxManaBase);
+	packed.pHPBase = Swap32LE(player._pHPBase.raw());
+	packed.pMaxHPBase = Swap32LE(player._pMaxHPBase.raw());
+	packed.pManaBase = Swap32LE(player._pManaBase.raw());
+	packed.pMaxManaBase = Swap32LE(player._pMaxManaBase.raw());
 	packed.pMemSpells = Swap64LE(player._pMemSpells);
 
 	for (int i = 0; i < MAX_SPELLS; i++)
@@ -262,10 +264,10 @@ void PackNetPlayer(PlayerNetPack &packed, const Player &player)
 	packed.pMagic = Swap32LE(player._pMagic);
 	packed.pDexterity = Swap32LE(player._pDexterity);
 	packed.pVitality = Swap32LE(player._pVitality);
-	packed.pHitPoints = Swap32LE(player._pHitPoints);
-	packed.pMaxHP = Swap32LE(player._pMaxHP);
-	packed.pMana = Swap32LE(player._pMana);
-	packed.pMaxMana = Swap32LE(player._pMaxMana);
+	packed.pHitPoints = Swap32LE(player._pHitPoints.raw());
+	packed.pMaxHP = Swap32LE(player._pMaxHP.raw());
+	packed.pMana = Swap32LE(player._pMana.raw());
+	packed.pMaxMana = Swap32LE(player._pMaxMana.raw());
 	packed.pDamageMod = Swap32LE(player._pDamageMod);
 	// we pack base to block as a basic check that remote players are using the same playerdat values as we are
 	packed.pBaseToBlk = Swap32LE(player.getBaseToBlock());
@@ -351,9 +353,9 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 
 	player = {};
 	player.setCharacterLevel(packed.pLevel);
-	player._pMaxHPBase = Swap32LE(packed.pMaxHPBase);
-	player._pHPBase = Swap32LE(packed.pHPBase);
-	player._pHPBase = std::clamp<int32_t>(player._pHPBase, 0, player._pMaxHPBase);
+	player._pMaxHPBase = Fixed26_6::fromRaw(Swap32LE(packed.pMaxHPBase));
+	player._pHPBase = Fixed26_6::fromRaw(Swap32LE(packed.pHPBase));
+	player._pHPBase = std::clamp(player._pHPBase, Fixed26_6::fromInt(0), player._pMaxHPBase);
 	player._pMaxHP = player._pMaxHPBase;
 	player._pHitPoints = player._pHPBase;
 	player.position.tile = position;
@@ -365,7 +367,7 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 	ClrPlrPath(player);
 	player.destAction = ACTION_NONE;
 
-	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
+	CopyUtf8(player._pName, std::string_view(packed.pName, PlayerNameLength), sizeof(player._pName));
 
 	InitPlayer(player, true);
 
@@ -381,12 +383,12 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 
 	player._pExperience = Swap32LE(packed.pExperience);
 	player._pGold = Swap32LE(packed.pGold);
-	if ((int)(player._pHPBase & 0xFFFFFFC0) < 64)
-		player._pHPBase = 64;
+	if (player._pHPBase.whole() < 1)
+		player._pHPBase = Fixed26_6::fromInt(1);
 
-	player._pMaxManaBase = Swap32LE(packed.pMaxManaBase);
-	player._pManaBase = Swap32LE(packed.pManaBase);
-	player._pManaBase = std::min<int32_t>(player._pManaBase, player._pMaxManaBase);
+	player._pMaxManaBase = Fixed26_6::fromRaw(Swap32LE(packed.pMaxManaBase));
+	player._pManaBase = Fixed26_6::fromRaw(Swap32LE(packed.pManaBase));
+	player._pManaBase = std::min(player._pManaBase, player._pMaxManaBase);
 	player._pMemSpells = Swap64LE(packed.pMemSpells);
 
 	// Only read spell levels for learnable spells (Diablo)
@@ -436,7 +438,7 @@ void UnPackPlayer(const PlayerPack &packed, Player &player)
 bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &item)
 {
 	item = {};
-	const _item_indexes idx = static_cast<_item_indexes>(Swap16LE(packedItem.def.wIndx));
+	const auto idx = static_cast<_item_indexes>(Swap16LE(packedItem.def.wIndx));
 	if (idx < 0 || idx >= static_cast<_item_indexes>(AllItemsList.size()))
 		return true;
 	if (idx == IDI_EAR) {
@@ -463,7 +465,7 @@ bool UnPackNetItem(const Player &player, const ItemNetPack &packedItem, Item &it
 
 bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 {
-	CopyUtf8(player._pName, packed.pName, sizeof(player._pName));
+	CopyUtf8(player._pName, std::string_view(packed.pName, PlayerNameLength), sizeof(player._pName));
 
 	ValidateField(packed.pClass, packed.pClass < GetNumPlayerClasses());
 	player._pClass = static_cast<HeroClass>(packed.pClass);
@@ -489,15 +491,17 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 
 	ValidateField(packed._pNumInv, packed._pNumInv <= InventoryGridCells);
 
+	ValidateField(packed.pdir, packed.pdir <= static_cast<uint8_t>(Direction::SouthEast));
 	player.setCharacterLevel(packed.pLevel);
 	player.position.tile = position;
 	player.position.future = position;
+	player._pdir = static_cast<Direction>(packed.pdir);
 	player.plrlevel = packed.plrlevel;
 	player.plrIsOnSetLevel = packed.isOnSetLevel != 0;
-	player._pMaxHPBase = baseHpMax;
-	player._pHPBase = baseHp;
-	player._pMaxHP = baseHpMax;
-	player._pHitPoints = baseHp;
+	player._pMaxHPBase = Fixed26_6::fromRaw(baseHpMax);
+	player._pHPBase = Fixed26_6::fromRaw(baseHp);
+	player._pMaxHP = Fixed26_6::fromRaw(baseHpMax);
+	player._pHitPoints = Fixed26_6::fromRaw(baseHp);
 
 	ClrPlrPath(player);
 	player.destAction = ACTION_NONE;
@@ -515,8 +519,8 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 	player._pStatPts = packed.pStatPts;
 
 	player._pExperience = Swap32LE(packed.pExperience);
-	player._pMaxManaBase = baseManaMax;
-	player._pManaBase = baseMana;
+	player._pMaxManaBase = Fixed26_6::fromRaw(baseManaMax);
+	player._pManaBase = Fixed26_6::fromRaw(baseMana);
 	player._pMemSpells = Swap64LE(packed.pMemSpells);
 	player.wReflections = Swap16LE(packed.wReflections);
 	player.pDiabloKillLevel = packed.pDiabloKillLevel;
@@ -569,7 +573,7 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 		if (item.isEmpty())
 			continue;
 		const Size beltItemSize = GetInventorySize(item);
-		const int8_t beltItemType = static_cast<int8_t>(item._itype);
+		const auto beltItemType = static_cast<int8_t>(item._itype);
 		const bool beltItemUsable = item.isUsable();
 		ValidateFields(beltItemSize.width, beltItemSize.height, (beltItemSize == Size { 1, 1 }));
 		ValidateField(beltItemType, item._itype != ItemType::Gold);
@@ -583,10 +587,10 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 	ValidateFields(player._pMagic, SwapSigned32LE(packed.pMagic), player._pMagic == SwapSigned32LE(packed.pMagic));
 	ValidateFields(player._pDexterity, SwapSigned32LE(packed.pDexterity), player._pDexterity == SwapSigned32LE(packed.pDexterity));
 	ValidateFields(player._pVitality, SwapSigned32LE(packed.pVitality), player._pVitality == SwapSigned32LE(packed.pVitality));
-	ValidateFields(player._pHitPoints, SwapSigned32LE(packed.pHitPoints), player._pHitPoints == SwapSigned32LE(packed.pHitPoints));
-	ValidateFields(player._pMaxHP, SwapSigned32LE(packed.pMaxHP), player._pMaxHP == SwapSigned32LE(packed.pMaxHP));
-	ValidateFields(player._pMana, SwapSigned32LE(packed.pMana), player._pMana == SwapSigned32LE(packed.pMana));
-	ValidateFields(player._pMaxMana, SwapSigned32LE(packed.pMaxMana), player._pMaxMana == SwapSigned32LE(packed.pMaxMana));
+	ValidateFields(player._pHitPoints.raw(), SwapSigned32LE(packed.pHitPoints), player._pHitPoints.raw() == SwapSigned32LE(packed.pHitPoints));
+	ValidateFields(player._pMaxHP.raw(), SwapSigned32LE(packed.pMaxHP), player._pMaxHP.raw() == SwapSigned32LE(packed.pMaxHP));
+	ValidateFields(player._pMana.raw(), SwapSigned32LE(packed.pMana), player._pMana.raw() == SwapSigned32LE(packed.pMana));
+	ValidateFields(player._pMaxMana.raw(), SwapSigned32LE(packed.pMaxMana), player._pMaxMana.raw() == SwapSigned32LE(packed.pMaxMana));
 	ValidateFields(player._pDamageMod, SwapSigned32LE(packed.pDamageMod), player._pDamageMod == SwapSigned32LE(packed.pDamageMod));
 	ValidateFields(player.getBaseToBlock(), SwapSigned32LE(packed.pBaseToBlk), player.getBaseToBlock() == SwapSigned32LE(packed.pBaseToBlk));
 	ValidateFields(player._pIMinDam, SwapSigned32LE(packed.pIMinDam), player._pIMinDam == SwapSigned32LE(packed.pIMinDam));
@@ -602,8 +606,8 @@ bool UnPackNetPlayer(const PlayerNetPack &packed, Player &player)
 	ValidateFields(player._pIFMaxDam, SwapSigned32LE(packed.pIFMaxDam), player._pIFMaxDam == SwapSigned32LE(packed.pIFMaxDam));
 	ValidateFields(player._pILMinDam, SwapSigned32LE(packed.pILMinDam), player._pILMinDam == SwapSigned32LE(packed.pILMinDam));
 	ValidateFields(player._pILMaxDam, SwapSigned32LE(packed.pILMaxDam), player._pILMaxDam == SwapSigned32LE(packed.pILMaxDam));
-	ValidateFields(player._pMaxHPBase, player.calculateBaseLife(), player._pMaxHPBase <= player.calculateBaseLife());
-	ValidateFields(player._pMaxManaBase, player.calculateBaseMana(), player._pMaxManaBase <= player.calculateBaseMana());
+	ValidateFields(player._pMaxHPBase.raw(), player.calculateBaseLife().raw(), player._pMaxHPBase <= player.calculateBaseLife());
+	ValidateFields(player._pMaxManaBase.raw(), player.calculateBaseMana().raw(), player._pMaxManaBase <= player.calculateBaseMana());
 
 	return true;
 }

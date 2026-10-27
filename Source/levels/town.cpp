@@ -38,7 +38,7 @@ void FillSector(const char *path, int xi, int yy)
 			int v3 = 218;
 			int v4 = 218;
 
-			const int tileId = Swap16LE(tileLayer[j * size.width + i]) - 1;
+			const int tileId = Swap16LE(tileLayer[(j * size.width) + i]) - 1;
 			if (tileId >= 0) {
 				const MegaTile mega = pMegaTiles[tileId];
 				v1 = Swap16LE(mega.micro1);
@@ -330,6 +330,7 @@ void TownOpenHive()
 	dPiece[85][64] = 15;
 	dPiece[86][60] = 16;
 	dPiece[86][61] = 17;
+	MarkWalkabilityChanged();
 }
 
 void TownOpenGrave()
@@ -347,6 +348,7 @@ void TownOpenGrave()
 	dPiece[37][24] = 0x539;
 	dPiece[35][21] = 0x53a;
 	dPiece[34][21] = 0x53b;
+	MarkWalkabilityChanged();
 }
 
 void CleanTownFountain()

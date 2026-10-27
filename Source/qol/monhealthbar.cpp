@@ -7,8 +7,6 @@
 
 #include <cstdint>
 
-#include <fmt/format.h>
-
 #include "control/control.hpp"
 #include "cursor.h"
 #include "engine/clx_sprite.hpp"
@@ -97,10 +95,10 @@ void DrawMonsterHealthBar(const Surface &out)
 	const int border = 3;
 
 	int multiplier = 0;
-	int currLife = monster.hitPoints;
+	Fixed26_6 currLife = monster.hitPoints;
 	// lifestealing monsters can reach HP exceeding their max
 	if (monster.hitPoints > monster.maxHitPoints) {
-		multiplier = monster.hitPoints / monster.maxHitPoints;
+		multiplier = monster.hitPoints.raw() / monster.maxHitPoints.raw();
 		currLife = monster.hitPoints - monster.maxHitPoints * multiplier;
 		if (currLife == 0 && multiplier > 0) {
 			multiplier--;
@@ -110,7 +108,7 @@ void DrawMonsterHealthBar(const Surface &out)
 
 	RenderClxSprite(out, (*healthBox)[0], position);
 	DrawHalfTransparentRectTo(out, position.x + border, position.y + border, width - (border * 2), height - (border * 2));
-	const int barProgress = (barWidth * currLife) / monster.maxHitPoints;
+	const int barProgress = (barWidth * currLife.raw()) / monster.maxHitPoints.raw();
 	if (barProgress != 0) {
 		RenderClxSprite(
 		    out.subregion(position.x + border + 1, position.y + border + 1, barProgress, height - (border * 2) - 2),
@@ -165,7 +163,7 @@ void DrawMonsterHealthBar(const Surface &out)
 		int resOffset = 5;
 		for (size_t i = 0; i < 3; i++) {
 			if ((monster.resistance & immunes[i]) != 0) {
-				RenderClxSprite(out, (*resistance)[i * 2 + 1], position + Displacement { resOffset, height - 6 });
+				RenderClxSprite(out, (*resistance)[(i * 2) + 1], position + Displacement { resOffset, height - 6 });
 				resOffset += (*resistance)[0].width() + 2;
 			} else if ((monster.resistance & resists[i]) != 0) {
 				RenderClxSprite(out, (*resistance)[i * 2], position + Displacement { resOffset, height - 6 });

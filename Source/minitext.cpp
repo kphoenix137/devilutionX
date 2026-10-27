@@ -17,6 +17,7 @@
 #include "engine/render/clx_render.hpp"
 #include "engine/render/primitive_render.hpp"
 #include "engine/render/text_render.hpp"
+#include "panels/quest_log.hpp"
 #include "tables/playerdat.hpp"
 #include "tables/textdat.h"
 #include "utils/language.h"
@@ -67,6 +68,8 @@ uint32_t CalculateTextSpeed(SfxID nSFX)
 
 #ifndef NOSOUND
 	uint32_t sfxFrames = GetSFXLength(nSFX);
+	if (sfxFrames == 0)
+		sfxFrames = numLines * 3000;
 #else
 	// Sound is disabled -- estimate length from the number of lines.
 	uint32_t sfxFrames = numLines * 3000;
@@ -84,7 +87,7 @@ int CalculateTextPosition()
 {
 	const uint32_t currTime = GetMillisecondsSinceStartup();
 
-	const int y = (currTime - ScrollStart) / qtextSpd - 260;
+	const int y = ((currTime - ScrollStart) / qtextSpd) - 260;
 
 	const auto textHeight = static_cast<int>(LineHeight * TextLines.size());
 	if (y >= textHeight)
@@ -116,7 +119,7 @@ void DrawQTextContent(const Surface &out)
 			continue;
 		}
 
-		DrawString(out, line, { { sx, sy + i * LineHeight }, { 543, LineHeight } },
+		DrawString(out, line, { { sx, sy + (i * LineHeight) }, { 543, LineHeight } },
 		    { .flags = UiFlags::FontSize30 | UiFlags::ColorGold });
 	}
 }

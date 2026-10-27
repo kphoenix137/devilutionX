@@ -48,7 +48,7 @@
 #include "levels/gendung.h"
 #include "levels/tile_properties.hpp"
 #include "lighting.h"
-#include "lua/lua_global.hpp"
+#include "lua/lua_event.hpp"
 #include "minitext.h"
 #include "missiles.h"
 #include "nthread.h"
@@ -56,6 +56,7 @@
 #include "panels/charpanel.hpp"
 #include "panels/console.hpp"
 #include "panels/partypanel.hpp"
+#include "panels/quest_log.hpp"
 #include "panels/spell_list.hpp"
 #include "plrmsg.h"
 #include "qol/chatlog.h"
@@ -63,6 +64,7 @@
 #include "qol/itemlabels.h"
 #include "qol/monhealthbar.h"
 #include "qol/stash.h"
+#include "qol/visual_store.h"
 #include "qol/xpbar.h"
 #include "stores.h"
 #include "towners.h"
@@ -71,6 +73,7 @@
 #include "utils/is_of.hpp"
 #include "utils/log.hpp"
 #include "utils/sdl_compat.h"
+#include "utils/sdl_thread.h"
 #include "utils/str_cat.hpp"
 
 #ifndef USE_SDL1
@@ -1001,7 +1004,7 @@ void DrawTileContent(const Surface &out, const Lightmap &lightmap, Point tilePos
 			if (InDungeonBounds(tilePosition)) {
 				bool skipNext = false;
 #ifdef _DEBUG
-				DebugCoordsMap[tilePosition.x + tilePosition.y * MAXDUNX] = targetBufferPosition;
+				DebugCoordsMap[tilePosition.x + (tilePosition.y * MAXDUNX)] = targetBufferPosition;
 #endif
 				if (tilePosition.x + 1 < MAXDUNX && tilePosition.y - 1 >= 0 && targetBufferPosition.x + TILE_WIDTH <= gnScreenWidth) {
 					// Render objects behind walls first to prevent sprites, that are moving
@@ -1400,14 +1403,18 @@ void DrawView(const Surface &out, Point startPosition)
 
 	DrawDurIcon(out);
 
+	DrawLevelButton(out);
+
 	if (CharFlag) {
 		DrawChr(out);
 	} else if (QuestLogIsOpen) {
 		DrawQuestLog(out);
 	} else if (IsStashOpen) {
 		DrawStash(out);
+	} else if (IsVisualStoreOpen) {
+		DrawVisualStore(out);
 	}
-	DrawLevelButton(out);
+
 	if (ShowUniqueItemInfoBox) {
 		DrawUniqueInfo(out);
 	}
@@ -1507,7 +1514,7 @@ void DoBlitScreen(Rectangle area)
  */
 void DrawMain(int dwHgt, bool drawDesc, bool drawHp, bool drawMana, bool drawSbar, bool drawBtn)
 {
-	if (!gbActive || RenderDirectlyToOutputSurface) {
+	if (!gbActive) {
 		return;
 	}
 
@@ -1702,7 +1709,7 @@ void CalcViewportGeometry()
 
 	// Location of the bottom-left corner of the bounding box around the
 	// tile from which to start rendering, relative to the viewport origin
-	tileOffset = { startPosition.x - TILE_WIDTH / 2, startPosition.y + TILE_HEIGHT / 2 - 1 };
+	tileOffset = { startPosition.x - (TILE_WIDTH / 2), startPosition.y + (TILE_HEIGHT / 2) - 1 };
 
 	// Compute the number of rows to be rendered as well as
 	// the number of columns to be rendered in the first row
@@ -1860,6 +1867,7 @@ void DrawAndBlit()
 
 	nthread_UpdateProgressToNextGameTick();
 
+	this_sdl_thread::yield();
 	DrawView(out, ViewPosition);
 	if (drawCtrlPan) {
 		DrawMainPanel(out);
@@ -1883,23 +1891,24 @@ void DrawAndBlit()
 	}
 	DrawXPBar(out);
 	if (*GetOptions().Gameplay.showHealthValues)
-		DrawFlaskValues(out, { mainPanel.position.x + 134, mainPanel.position.y + 28 }, MyPlayer->_pHitPoints >> 6, MyPlayer->_pMaxHP >> 6);
+		DrawFlaskValues(out, { mainPanel.position.x + 134, mainPanel.position.y + 28 }, MyPlayer->_pHitPoints.whole(), MyPlayer->_pMaxHP.whole());
 	if (*GetOptions().Gameplay.showManaValues)
 		DrawFlaskValues(out, { mainPanel.position.x + mainPanel.size.width - 138, mainPanel.position.y + 28 },
-		    (HasAnyOf(InspectPlayer->_pIFlags, ItemSpecialEffect::NoMana) || MyPlayer->hasNoMana()) ? 0 : MyPlayer->_pMana >> 6,
-		    HasAnyOf(InspectPlayer->_pIFlags, ItemSpecialEffect::NoMana) ? 0 : MyPlayer->_pMaxMana >> 6);
+		    (HasAnyOf(InspectPlayer->_pIFlags, ItemSpecialEffect::NoMana) || MyPlayer->hasNoMana()) ? 0 : MyPlayer->_pMana.whole(),
+		    HasAnyOf(InspectPlayer->_pIFlags, ItemSpecialEffect::NoMana) ? 0 : MyPlayer->_pMaxMana.whole());
 	if (*GetOptions().Gameplay.floatingInfoBox)
 		DrawFloatingInfoBox(out);
 
-	if (*GetOptions().Gameplay.showMultiplayerPartyInfo && PartySidePanelOpen)
+	if ((*GetOptions().Gameplay.showMultiplayerPartyInfo != PartyPortraits::Disabled) && PartySidePanelOpen)
 		DrawPartyMemberInfoPanel(out);
 
 	DrawCursor(out);
 
 	DrawFPS(out);
 
-	LuaEvent("GameDrawComplete");
+	lua::GameDrawComplete();
 
+	this_sdl_thread::yield();
 	DrawMain(hgt, drawInfoBox, drawHealth, drawMana, drawBelt, drawControlButtons);
 
 #ifdef _DEBUG
